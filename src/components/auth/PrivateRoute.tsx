@@ -7,7 +7,7 @@ type PrivateRouteProps = {
   element: React.ReactNode;
 };
 
-export function PrivateRoute({ element }: PrivateRoutePrivateRouteProps) {
+export function PrivateRoute({ element }: PrivateRouteProps) {
   const { user, loading } = useAuth();
   
   // If we're loading auth state, show loading spinner
