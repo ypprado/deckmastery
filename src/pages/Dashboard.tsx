@@ -1,16 +1,16 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PlusCircle, Search, Filter, Clock, FolderOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { useDecks } from '@/hooks/use-decks';
+import { useDecks, GameCategory } from '@/hooks/use-decks';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
+import GameCategorySelector from '@/components/shared/GameCategorySelector';
 
 const Dashboard = () => {
-  const { decks, loading } = useDecks();
+  const { decks, loading, activeGameCategory, changeGameCategory } = useDecks();
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
 
@@ -31,6 +31,8 @@ const Dashboard = () => {
     black: 'bg-gray-700 dark:bg-gray-900',
     red: 'bg-red-100 dark:bg-red-800',
     green: 'bg-green-100 dark:bg-green-800',
+    yellow: 'bg-yellow-100 dark:bg-yellow-800',
+    purple: 'bg-purple-100 dark:bg-purple-800',
   };
 
   return (
@@ -47,6 +49,12 @@ const Dashboard = () => {
           Create New Deck
         </Button>
       </div>
+
+      {/* Game Category Selector */}
+      <GameCategorySelector 
+        activeCategory={activeGameCategory}
+        onCategoryChange={changeGameCategory}
+      />
 
       {/* Search and filters */}
       <div className="flex flex-col gap-4 sm:flex-row">
@@ -79,7 +87,7 @@ const Dashboard = () => {
           <p className="mt-2 text-sm text-muted-foreground max-w-sm">
             {searchQuery 
               ? `No results matching "${searchQuery}". Try a different search term.` 
-              : "You haven't created any decks yet. Start building your first deck!"}
+              : `You haven't created any ${activeGameCategory.charAt(0).toUpperCase() + activeGameCategory.slice(1)} decks yet. Start building your first deck!`}
           </p>
           {!searchQuery && (
             <Button onClick={() => navigate('/deck/new')} className="mt-4">

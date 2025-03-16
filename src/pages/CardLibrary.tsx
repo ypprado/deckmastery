@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Search, Filter, Plus, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -6,19 +5,22 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { useCards } from '@/hooks/use-decks';
+import { useCards, GameCategory } from '@/hooks/use-decks';
 import { cn } from '@/lib/utils';
+import GameCategorySelector from '@/components/shared/GameCategorySelector';
 
 const colorNames: Record<string, string> = {
   white: 'White',
   blue: 'Blue',
   black: 'Black',
   red: 'Red',
-  green: 'Green'
+  green: 'Green',
+  yellow: 'Yellow',
+  purple: 'Purple'
 };
 
 const CardLibrary = () => {
-  const { cards, loading, searchCards, filterCards } = useCards();
+  const { cards, loading, searchCards, filterCards, activeGameCategory, changeGameCategory } = useCards();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilters, setActiveFilters] = useState<{
     colors: string[];
@@ -33,7 +35,7 @@ const CardLibrary = () => {
 
   const uniqueTypes = Array.from(new Set(cards.map(card => card.type)));
   const uniqueRarities = Array.from(new Set(cards.map(card => card.rarity)));
-  const uniqueColors = ['white', 'blue', 'black', 'red', 'green'];
+  const uniqueColors = Array.from(new Set(cards.flatMap(card => card.colors)));
 
   const toggleFilter = (type: 'colors' | 'types' | 'rarities', value: string) => {
     setActiveFilters(prev => {
@@ -73,6 +75,8 @@ const CardLibrary = () => {
     black: 'bg-gray-700 text-white dark:bg-gray-900 dark:text-gray-100',
     red: 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100',
     green: 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100',
+    yellow: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100',
+    purple: 'bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-100',
   };
 
   const isAnyFilterActive = 
@@ -89,6 +93,12 @@ const CardLibrary = () => {
           Browse and search for cards to add to your decks
         </p>
       </div>
+
+      {/* Game Category Selector */}
+      <GameCategorySelector 
+        activeCategory={activeGameCategory}
+        onCategoryChange={changeGameCategory}
+      />
 
       {/* Search and view toggles */}
       <div className="flex flex-col gap-4 sm:flex-row">
@@ -135,7 +145,7 @@ const CardLibrary = () => {
                   )}
                   onClick={() => toggleFilter('colors', color)}
                 >
-                  {colorNames[color]}
+                  {colorNames[color] || color.charAt(0).toUpperCase() + color.slice(1)}
                 </Badge>
               ))}
             </div>

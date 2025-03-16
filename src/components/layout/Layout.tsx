@@ -19,6 +19,8 @@ import { useToast } from "@/components/ui/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { UserProfile } from "@/components/user/UserProfile";
 import { useAuth } from "@/contexts/AuthContext";
+import { useDecks, GameCategory, gameCategories } from "@/hooks/use-decks";
+import GameCategorySelector from "@/components/shared/GameCategorySelector";
 
 const Layout = () => {
   const location = useLocation();
@@ -26,6 +28,7 @@ const Layout = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { user, loading } = useAuth();
+  const { activeGameCategory, changeGameCategory } = useDecks();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -72,6 +75,11 @@ const Layout = () => {
     { path: "/cards", icon: <Book className="h-5 w-5" />, label: "Card Library" },
   ];
 
+  // Get the current game category's name
+  const currentGameName = gameCategories.find(
+    cat => cat.id === activeGameCategory
+  )?.name || 'Magic: The Gathering';
+
   return (
     <div className="min-h-screen flex flex-col">
       {/* Top navigation bar */}
@@ -97,7 +105,10 @@ const Layout = () => {
                   <path d="M8 17H16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
-              <span className="font-display font-semibold text-lg tracking-tight">DeckMastery</span>
+              <div>
+                <span className="font-display font-semibold text-lg tracking-tight">DeckMastery</span>
+                <span className="text-xs text-muted-foreground ml-1">{currentGameName}</span>
+              </div>
             </Link>
           </div>
 
@@ -156,22 +167,35 @@ const Layout = () => {
           )}
         >
           <div className="flex flex-col h-full pt-6 pb-4">
-            <div className="flex-1 px-3 space-y-1">
-              {navItems.map((item) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={cn(
-                    "flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors",
-                    location.pathname === item.path
-                      ? "bg-primary/10 text-primary"
-                      : "text-foreground/70 hover:text-foreground hover:bg-accent"
-                  )}
-                >
-                  {item.icon}
-                  <span className="ml-3">{item.label}</span>
-                </Link>
-              ))}
+            <div className="flex-1 px-3 space-y-6">
+              {/* Game Category Selector */}
+              <div className="px-3 mb-4">
+                <h3 className="text-sm font-medium mb-2">Game</h3>
+                <GameCategorySelector 
+                  activeCategory={activeGameCategory}
+                  onCategoryChange={changeGameCategory}
+                  className="mb-4"
+                />
+              </div>
+
+              {/* Main Nav Items */}
+              <div className="space-y-1">
+                {navItems.map((item) => (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={cn(
+                      "flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                      location.pathname === item.path
+                        ? "bg-primary/10 text-primary"
+                        : "text-foreground/70 hover:text-foreground hover:bg-accent"
+                    )}
+                  >
+                    {item.icon}
+                    <span className="ml-3">{item.label}</span>
+                  </Link>
+                ))}
+              </div>
             </div>
             
             <div className="mt-auto px-3">

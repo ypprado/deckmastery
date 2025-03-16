@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { PrivateRoute } from "@/components/auth/PrivateRoute";
 
 // Pages
 import Layout from "./components/layout/Layout";
@@ -35,7 +36,7 @@ const App = () => (
               } />
               <Route path="deck/new" element={
                 <Suspense fallback={<LoadingFallback />}>
-                  <DeckBuilder />
+                  <PrivateRoute element={<DeckBuilder />} />
                 </Suspense>
               } />
               <Route path="deck/:id" element={

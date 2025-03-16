@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
@@ -25,13 +24,14 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { useDecks, useCards, Card as CardType } from "@/hooks/use-decks";
+import { useDecks, useCards, Card as CardType, GameCategory, gameCategories } from "@/hooks/use-decks";
 import { cn } from "@/lib/utils";
+import GameCategorySelector from "@/components/shared/GameCategorySelector";
 
 const DeckBuilder = () => {
   const navigate = useNavigate();
-  const { saveDeck } = useDecks();
-  const { cards: allCards, searchCards } = useCards();
+  const { saveDeck, activeGameCategory, changeGameCategory } = useDecks();
+  const { cards: allCards, searchCards, activeGameCategory: cardGameCategory, changeGameCategory: changeCardCategory } = useCards();
   
   const [deckName, setDeckName] = useState("");
   const [deckFormat, setDeckFormat] = useState("Standard");
@@ -41,16 +41,20 @@ const DeckBuilder = () => {
   const [activeColor, setActiveColor] = useState<string | null>(null);
   const [activeType, setActiveType] = useState<string | null>(null);
 
+  if (activeGameCategory !== cardGameCategory) {
+    changeCardCategory(activeGameCategory);
+  }
+
   const filteredCards = searchQuery
     ? searchCards(searchQuery)
     : allCards.filter(card => {
         if (activeColor && !card.colors.includes(activeColor)) return false;
         if (activeType && card.type !== activeType) return false;
-        return true;
+        return card.gameCategory === activeGameCategory;
       });
 
-  const cardTypes = Array.from(new Set(allCards.map(card => card.type)));
-  const availableColors = ["white", "blue", "black", "red", "green"];
+  const cardTypes = Array.from(new Set(allCards.filter(card => card.gameCategory === activeGameCategory).map(card => card.type)));
+  const availableColors = Array.from(new Set(allCards.filter(card => card.gameCategory === activeGameCategory).flatMap(card => card.colors)));
 
   const colorMap: Record<string, string> = {
     white: 'bg-amber-100 text-amber-800 dark:bg-amber-800 dark:text-amber-100',
@@ -58,6 +62,8 @@ const DeckBuilder = () => {
     black: 'bg-gray-700 text-white dark:bg-gray-900 dark:text-gray-100',
     red: 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100',
     green: 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100',
+    yellow: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100',
+    purple: 'bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-100',
   };
 
   const toggleColor = (color: string) => {
@@ -121,7 +127,8 @@ const DeckBuilder = () => {
       description: deckDescription,
       colors: calculateDeckColors(),
       cards: selectedCards,
-      coverCard: selectedCards[0]?.card
+      coverCard: selectedCards[0]?.card,
+      gameCategory: activeGameCategory
     });
 
     navigate(`/deck/${newDeck.id}`);
@@ -135,7 +142,6 @@ const DeckBuilder = () => {
 
   const isAnyFilterActive = activeColor !== null || activeType !== null || searchQuery.length > 0;
 
-  // Calculate total cards
   const totalCards = selectedCards.reduce((acc, { quantity }) => acc + quantity, 0);
 
   return (
@@ -152,8 +158,12 @@ const DeckBuilder = () => {
         <h1 className="text-3xl font-bold tracking-tight">Create New Deck</h1>
       </div>
 
+      <GameCategorySelector 
+        activeCategory={activeGameCategory}
+        onCategoryChange={changeGameCategory}
+      />
+
       <div className="grid gap-6 md:grid-cols-3">
-        {/* Deck Details Form */}
         <div className="md:col-span-1 space-y-6">
           <Card className="animate-scale-up">
             <CardContent className="p-4 space-y-4">
@@ -208,7 +218,6 @@ const DeckBuilder = () => {
             </CardContent>
           </Card>
 
-          {/* Selected Cards */}
           <Card className="animate-scale-up">
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-2">
@@ -249,6 +258,8 @@ const DeckBuilder = () => {
                                   color === 'black' ? 'bg-gray-700 dark:bg-gray-900' :
                                   color === 'red' ? 'bg-red-100 dark:bg-red-800' :
                                   color === 'green' ? 'bg-green-100 dark:bg-green-800' :
+                                  color === 'yellow' ? 'bg-yellow-100 dark:bg-yellow-800' :
+                                  color === 'purple' ? 'bg-purple-100 dark:bg-purple-800' :
                                   'bg-gray-200'
                                 )}
                               />
@@ -282,9 +293,7 @@ const DeckBuilder = () => {
           </Card>
         </div>
 
-        {/* Card Browser */}
         <div className="md:col-span-2 space-y-4">
-          {/* Search and Filters */}
           <Card className="animate-scale-up">
             <CardContent className="p-4 space-y-4">
               <div className="flex flex-col gap-4 sm:flex-row">
@@ -346,7 +355,6 @@ const DeckBuilder = () => {
             </CardContent>
           </Card>
 
-          {/* Card Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredCards.length === 0 ? (
               <div className="col-span-full py-12 text-center">
@@ -402,6 +410,8 @@ const DeckBuilder = () => {
                                 color === 'black' ? 'bg-gray-700 dark:bg-gray-900' :
                                 color === 'red' ? 'bg-red-100 dark:bg-red-800' :
                                 color === 'green' ? 'bg-green-100 dark:bg-green-800' :
+                                color === 'yellow' ? 'bg-yellow-100 dark:bg-yellow-800' :
+                                color === 'purple' ? 'bg-purple-100 dark:bg-purple-800' :
                                 'bg-gray-200'
                               )}
                             />
