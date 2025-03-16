@@ -43,7 +43,7 @@ export function UserProfile() {
 
   // Get user's initials for avatar fallback
   const getUserInitials = () => {
-    const name = user.user_metadata?.full_name || user.user_metadata?.name || user.email || '';
+    const name = user.name || user.email || '';
     if (!name) return 'U';
     
     // For email addresses, use the first letter
@@ -63,8 +63,8 @@ export function UserProfile() {
         <Button variant="ghost" className="relative h-10 w-10 rounded-full">
           <Avatar className="h-10 w-10">
             <AvatarImage 
-              src={user.user_metadata?.avatar_url} 
-              alt={user.user_metadata?.full_name || user.email || "User"} 
+              src={user.avatarUrl} 
+              alt={user.name || user.email || "User"} 
             />
             <AvatarFallback className="bg-primary/10 text-primary">
               {getUserInitials()}
@@ -76,7 +76,7 @@ export function UserProfile() {
         <DropdownMenuLabel>
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">
-              {user.user_metadata?.full_name || user.user_metadata?.name || "User"}
+              {user.name || "User"}
             </p>
             <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
           </div>

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -168,7 +167,12 @@ const AdminCardForm: React.FC<AdminCardFormProps> = ({ gameCategory }) => {
           <Button 
             variant="outline" 
             className="mt-2"
-            onClick={() => document.querySelector('[data-value="card-sets"]')?.click()}
+            onClick={() => {
+              const element = document.querySelector('[data-value="card-sets"]');
+              if (element instanceof HTMLElement) {
+                element.click();
+              }
+            }}
           >
             Go to Card Sets
           </Button>

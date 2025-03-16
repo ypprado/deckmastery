@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { GameCategorySelector } from '@/components/shared/GameCategorySelector';
+import GameCategorySelector from '@/components/shared/GameCategorySelector';
 import { GameCategory, gameCategories, useCards } from '@/hooks/use-decks';
 import { CardDatabaseFormValues, CardSet } from '@/types/cardDatabase';
 import AdminCardSetSelector from '@/components/admin/AdminCardSetSelector';
@@ -34,8 +34,9 @@ const Admin = () => {
       
       <div className="mb-6">
         <GameCategorySelector 
-          value={activeGameCategory}
-          onChange={changeGameCategory}
+          activeCategory={activeGameCategory}
+          onCategoryChange={changeGameCategory}
+          className=""
         />
       </div>
       

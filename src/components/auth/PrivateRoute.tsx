@@ -4,10 +4,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import LoadingFallback from "@/components/shared/LoadingFallback";
 
 type PrivateRouteProps = {
-  element: React.ReactNode;
+  children: React.ReactNode;
 };
 
-export function PrivateRoute({ element }: PrivateRouteProps) {
+export function PrivateRoute({ children }: PrivateRouteProps) {
   const { user, loading } = useAuth();
   
   // If we're loading auth state, show loading spinner
@@ -21,7 +21,7 @@ export function PrivateRoute({ element }: PrivateRouteProps) {
    }
   
   // If logged in, render the component
-  return <>{element}</>;
+  return <>{children}</>;
 }
 
 export default PrivateRoute;
