@@ -1,0 +1,443 @@
+
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { 
+  Save, 
+  Search, 
+  Plus, 
+  Minus, 
+  X, 
+  ArrowLeft,
+  Filter,
+  Check
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import { useDecks, useCards, Card as CardType } from "@/hooks/use-decks";
+import { cn } from "@/lib/utils";
+
+const DeckBuilder = () => {
+  const navigate = useNavigate();
+  const { saveDeck } = useDecks();
+  const { cards: allCards, searchCards } = useCards();
+  
+  const [deckName, setDeckName] = useState("");
+  const [deckFormat, setDeckFormat] = useState("Standard");
+  const [deckDescription, setDeckDescription] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCards, setSelectedCards] = useState<{ card: CardType; quantity: number }[]>([]);
+  const [activeColor, setActiveColor] = useState<string | null>(null);
+  const [activeType, setActiveType] = useState<string | null>(null);
+
+  const filteredCards = searchQuery
+    ? searchCards(searchQuery)
+    : allCards.filter(card => {
+        if (activeColor && !card.colors.includes(activeColor)) return false;
+        if (activeType && card.type !== activeType) return false;
+        return true;
+      });
+
+  const cardTypes = Array.from(new Set(allCards.map(card => card.type)));
+  const availableColors = ["white", "blue", "black", "red", "green"];
+
+  const colorMap: Record<string, string> = {
+    white: 'bg-amber-100 text-amber-800 dark:bg-amber-800 dark:text-amber-100',
+    blue: 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100',
+    black: 'bg-gray-700 text-white dark:bg-gray-900 dark:text-gray-100',
+    red: 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100',
+    green: 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100',
+  };
+
+  const toggleColor = (color: string) => {
+    setActiveColor(activeColor === color ? null : color);
+  };
+
+  const toggleType = (type: string) => {
+    setActiveType(activeType === type ? null : type);
+  };
+
+  const addCard = (card: CardType) => {
+    setSelectedCards(prev => {
+      const existingCard = prev.find(item => item.card.id === card.id);
+      if (existingCard) {
+        return prev.map(item => 
+          item.card.id === card.id 
+            ? { ...item, quantity: item.quantity + 1 } 
+            : item
+        );
+      }
+      return [...prev, { card, quantity: 1 }];
+    });
+  };
+
+  const removeCard = (cardId: string) => {
+    setSelectedCards(prev => {
+      const existingCard = prev.find(item => item.card.id === cardId);
+      if (existingCard && existingCard.quantity > 1) {
+        return prev.map(item => 
+          item.card.id === cardId 
+            ? { ...item, quantity: item.quantity - 1 } 
+            : item
+        );
+      }
+      return prev.filter(item => item.card.id !== cardId);
+    });
+  };
+
+  const calculateDeckColors = () => {
+    const colors = new Set<string>();
+    selectedCards.forEach(({ card }) => {
+      card.colors.forEach(color => colors.add(color));
+    });
+    return Array.from(colors);
+  };
+
+  const handleSaveDeck = () => {
+    if (!deckName) {
+      alert("Please enter a deck name");
+      return;
+    }
+    
+    if (selectedCards.length === 0) {
+      alert("Please add at least one card to your deck");
+      return;
+    }
+
+    const newDeck = saveDeck({
+      name: deckName,
+      format: deckFormat,
+      description: deckDescription,
+      colors: calculateDeckColors(),
+      cards: selectedCards,
+      coverCard: selectedCards[0]?.card
+    });
+
+    navigate(`/deck/${newDeck.id}`);
+  };
+
+  const clearFilters = () => {
+    setActiveColor(null);
+    setActiveType(null);
+    setSearchQuery("");
+  };
+
+  const isAnyFilterActive = activeColor !== null || activeType !== null || searchQuery.length > 0;
+
+  // Calculate total cards
+  const totalCards = selectedCards.reduce((acc, { quantity }) => acc + quantity, 0);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate("/")}
+          className="shrink-0"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <h1 className="text-3xl font-bold tracking-tight">Create New Deck</h1>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-3">
+        {/* Deck Details Form */}
+        <div className="md:col-span-1 space-y-6">
+          <Card className="animate-scale-up">
+            <CardContent className="p-4 space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="deck-name">Deck Name</Label>
+                <Input
+                  id="deck-name"
+                  placeholder="Enter deck name"
+                  value={deckName}
+                  onChange={(e) => setDeckName(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="deck-format">Format</Label>
+                <Select value={deckFormat} onValueChange={setDeckFormat}>
+                  <SelectTrigger id="deck-format">
+                    <SelectValue placeholder="Select format" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Standard">Standard</SelectItem>
+                    <SelectItem value="Modern">Modern</SelectItem>
+                    <SelectItem value="Commander">Commander</SelectItem>
+                    <SelectItem value="Legacy">Legacy</SelectItem>
+                    <SelectItem value="Vintage">Vintage</SelectItem>
+                    <SelectItem value="Casual">Casual</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="deck-description">Description (Optional)</Label>
+                <Textarea
+                  id="deck-description"
+                  placeholder="Describe your deck strategy..."
+                  rows={4}
+                  value={deckDescription}
+                  onChange={(e) => setDeckDescription(e.target.value)}
+                />
+              </div>
+
+              <div className="pt-2">
+                <Button 
+                  className="w-full"
+                  onClick={handleSaveDeck}
+                  disabled={deckName === "" || selectedCards.length === 0}
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  Save Deck
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Selected Cards */}
+          <Card className="animate-scale-up">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="font-medium">Your Deck</h3>
+                <Badge variant="outline">{totalCards} cards</Badge>
+              </div>
+              
+              <Separator className="my-2" />
+              
+              {selectedCards.length === 0 ? (
+                <div className="py-8 text-center text-muted-foreground">
+                  <p>No cards added yet</p>
+                  <p className="text-sm mt-1">Browse and add cards from the right panel</p>
+                </div>
+              ) : (
+                <div className="max-h-[400px] overflow-y-auto pr-2">
+                  {selectedCards.sort((a, b) => a.card.name.localeCompare(b.card.name))
+                    .map(({ card, quantity }) => (
+                    <div
+                      key={card.id}
+                      className="flex items-center py-2 border-b last:border-0"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center">
+                          <span className="font-medium mr-2 text-sm">{quantity}x</span>
+                          <span className="truncate text-sm">{card.name}</span>
+                        </div>
+                        <div className="flex items-center mt-1">
+                          <span className="text-xs text-muted-foreground mr-2">{card.type}</span>
+                          <div className="flex items-center gap-1">
+                            {card.colors.map(color => (
+                              <div
+                                key={`${card.id}-${color}`}
+                                className={cn(
+                                  "w-2 h-2 rounded-full",
+                                  color === 'white' ? 'bg-amber-100 dark:bg-amber-800' :
+                                  color === 'blue' ? 'bg-blue-100 dark:bg-blue-800' :
+                                  color === 'black' ? 'bg-gray-700 dark:bg-gray-900' :
+                                  color === 'red' ? 'bg-red-100 dark:bg-red-800' :
+                                  color === 'green' ? 'bg-green-100 dark:bg-green-800' :
+                                  'bg-gray-200'
+                                )}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7"
+                          onClick={() => addCard(card)}
+                        >
+                          <Plus className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7"
+                          onClick={() => removeCard(card.id)}
+                        >
+                          <Minus className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Card Browser */}
+        <div className="md:col-span-2 space-y-4">
+          {/* Search and Filters */}
+          <Card className="animate-scale-up">
+            <CardContent className="p-4 space-y-4">
+              <div className="flex flex-col gap-4 sm:flex-row">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    placeholder="Search cards..."
+                    className="pl-9"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+                {isAnyFilterActive && (
+                  <Button variant="ghost" onClick={clearFilters} className="shrink-0">
+                    <X className="h-4 w-4 mr-2" />
+                    Clear
+                  </Button>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm">Colors</Label>
+                </div>
+                <div className="flex flex-wrap gap-1">
+                  {availableColors.map(color => (
+                    <Badge
+                      key={color}
+                      variant={activeColor === color ? "default" : "outline"}
+                      className={cn(
+                        "cursor-pointer hover:bg-muted transition-colors",
+                        activeColor === color && colorMap[color]
+                      )}
+                      onClick={() => toggleColor(color)}
+                    >
+                      {color.charAt(0).toUpperCase() + color.slice(1)}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm">Types</Label>
+                </div>
+                <div className="flex flex-wrap gap-1">
+                  {cardTypes.map(type => (
+                    <Badge
+                      key={type}
+                      variant={activeType === type ? "default" : "outline"}
+                      className="cursor-pointer hover:bg-muted transition-colors"
+                      onClick={() => toggleType(type)}
+                    >
+                      {type}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Card Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredCards.length === 0 ? (
+              <div className="col-span-full py-12 text-center">
+                <Filter className="h-12 w-12 mx-auto text-muted-foreground" />
+                <h3 className="mt-4 text-lg font-medium">No cards found</h3>
+                <p className="mt-2 text-sm text-muted-foreground max-w-sm mx-auto">
+                  Try adjusting your filters or search term to find cards.
+                </p>
+                <Button onClick={clearFilters} variant="outline" className="mt-4">
+                  Clear Filters
+                </Button>
+              </div>
+            ) : (
+              filteredCards.map(card => {
+                const isSelected = selectedCards.some(item => item.card.id === card.id);
+                const quantity = selectedCards.find(item => item.card.id === card.id)?.quantity || 0;
+                
+                return (
+                  <Card 
+                    key={card.id} 
+                    className={cn(
+                      "overflow-hidden card-hover transition-all duration-300 animate-scale-up",
+                      isSelected && "ring-2 ring-primary"
+                    )}
+                  >
+                    <div className="aspect-[3/4] overflow-hidden relative">
+                      <img
+                        src={card.imageUrl}
+                        alt={card.name}
+                        className="object-cover w-full h-full card-tilt"
+                      />
+                      {isSelected && (
+                        <div className="absolute top-2 right-2 w-6 h-6 bg-primary rounded-full flex items-center justify-center text-xs text-white font-medium">
+                          {quantity}
+                        </div>
+                      )}
+                    </div>
+                    <CardContent className="p-3">
+                      <div className="flex justify-between items-center">
+                        <h3 className="font-medium text-sm leading-tight truncate">{card.name}</h3>
+                        <span className="text-xs">{card.cost}</span>
+                      </div>
+                      <div className="flex justify-between items-center mt-1">
+                        <p className="text-xs text-muted-foreground">{card.type}</p>
+                        <div className="flex items-center gap-1">
+                          {card.colors.map(color => (
+                            <div
+                              key={`${card.id}-${color}`}
+                              className={cn(
+                                "w-3 h-3 rounded-full",
+                                color === 'white' ? 'bg-amber-100 dark:bg-amber-800' :
+                                color === 'blue' ? 'bg-blue-100 dark:bg-blue-800' :
+                                color === 'black' ? 'bg-gray-700 dark:bg-gray-900' :
+                                color === 'red' ? 'bg-red-100 dark:bg-red-800' :
+                                color === 'green' ? 'bg-green-100 dark:bg-green-800' :
+                                'bg-gray-200'
+                              )}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      <div className="mt-3 flex items-center justify-center gap-2">
+                        <Button
+                          variant={isSelected ? "default" : "outline"}
+                          size="sm"
+                          className="h-8 w-full"
+                          onClick={() => addCard(card)}
+                        >
+                          {isSelected ? (
+                            <>
+                              <Check className="h-3 w-3 mr-1" />
+                              Added
+                            </>
+                          ) : (
+                            <>
+                              <Plus className="h-3 w-3 mr-1" />
+                              Add
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default DeckBuilder;
