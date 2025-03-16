@@ -10,18 +10,22 @@ import {
   X,
   Github,
   Moon,
-  Sun
+  Sun,
+  LogIn
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { UserProfile } from "@/components/user/UserProfile";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Layout = () => {
   const location = useLocation();
   const { toast } = useToast();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { user, loading } = useAuth();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -47,6 +51,15 @@ const Layout = () => {
   };
   
   const handleCreateDeck = () => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to create a deck",
+      });
+      navigate('/auth');
+      return;
+    }
+    
     navigate('/deck/new');
     toast({
       title: "Create a new deck",
@@ -114,6 +127,21 @@ const Layout = () => {
                 <Github className="h-[1.2rem] w-[1.2rem]" />
               </Button>
             </a>
+            
+            {!loading && (
+              user ? (
+                <UserProfile />
+              ) : (
+                <Button 
+                  size="sm" 
+                  onClick={() => navigate('/auth')}
+                  className="ml-2"
+                >
+                  <LogIn className="h-4 w-4 mr-2" />
+                  Sign In
+                </Button>
+              )
+            )}
           </div>
         </div>
       </header>
