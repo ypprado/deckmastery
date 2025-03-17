@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { Search, Filter, Plus, X } from 'lucide-react';
+
+import { useState, useEffect } from 'react';
+import { Search, Filter, Plus, X, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -8,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { useCards, GameCategory } from '@/hooks/use-decks';
 import { cn } from '@/lib/utils';
 import GameCategorySelector from '@/components/shared/GameCategorySelector';
+import { staticCardDatabase } from '@/utils/sampleJsonStructure';
 
 const colorNames: Record<string, string> = {
   white: 'White',
@@ -32,10 +34,24 @@ const CardLibrary = () => {
     rarities: []
   });
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [selectedSet, setSelectedSet] = useState<string | null>(null);
 
-  const uniqueTypes = Array.from(new Set(cards.map(card => card.type)));
-  const uniqueRarities = Array.from(new Set(cards.map(card => card.rarity)));
-  const uniqueColors = Array.from(new Set(cards.flatMap(card => card.colors)));
+  // Get unique sets from the current game category
+  const availableSets = Array.from(new Set(cards.map(card => card.set)));
+
+  // Reset selected set when game category changes
+  useEffect(() => {
+    setSelectedSet(null);
+  }, [activeGameCategory]);
+  
+  // Filter cards by selected set
+  const cardsInSelectedSet = selectedSet 
+    ? cards.filter(card => card.set === selectedSet)
+    : [];
+
+  const uniqueTypes = Array.from(new Set(cardsInSelectedSet.map(card => card.type)));
+  const uniqueRarities = Array.from(new Set(cardsInSelectedSet.map(card => card.rarity)));
+  const uniqueColors = Array.from(new Set(cardsInSelectedSet.flatMap(card => card.colors)));
 
   const toggleFilter = (type: 'colors' | 'types' | 'rarities', value: string) => {
     setActiveFilters(prev => {
@@ -58,16 +74,18 @@ const CardLibrary = () => {
     setSearchQuery('');
   };
 
-  // Apply filters
-  const filteredCards = searchQuery 
-    ? searchCards(searchQuery)
-    : activeFilters.colors.length || activeFilters.types.length || activeFilters.rarities.length
-      ? filterCards({
-          colors: activeFilters.colors.length ? activeFilters.colors : undefined,
-          type: activeFilters.types.length ? activeFilters.types[0] : undefined, // Simplified for demo
-          rarity: activeFilters.rarities.length ? activeFilters.rarities[0] : undefined, // Simplified for demo
-        })
-      : cards;
+  // Apply filters to cards in selected set
+  const filteredCards = selectedSet
+    ? (searchQuery 
+        ? searchCards(searchQuery).filter(card => card.set === selectedSet)
+        : activeFilters.colors.length || activeFilters.types.length || activeFilters.rarities.length
+          ? filterCards({
+              colors: activeFilters.colors.length ? activeFilters.colors : undefined,
+              type: activeFilters.types.length ? activeFilters.types[0] : undefined,
+              rarity: activeFilters.rarities.length ? activeFilters.rarities[0] : undefined,
+            }).filter(card => card.set === selectedSet)
+          : cardsInSelectedSet)
+    : [];
 
   const colorMap: Record<string, string> = {
     white: 'bg-amber-100 text-amber-800 dark:bg-amber-800 dark:text-amber-100',
@@ -100,177 +118,259 @@ const CardLibrary = () => {
         onCategoryChange={changeGameCategory}
       />
 
-      {/* Search and view toggles */}
-      <div className="flex flex-col gap-4 sm:flex-row">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Search cards..."
-            className="pl-9"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-        <Tabs defaultValue="grid" className="w-fit">
-          <TabsList>
-            <TabsTrigger value="grid" onClick={() => setViewMode('grid')}>Grid</TabsTrigger>
-            <TabsTrigger value="list" onClick={() => setViewMode('list')}>List</TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </div>
-
-      {/* Filters */}
-      <div className="rounded-md border bg-card p-4">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-medium">Filters</h3>
-          {isAnyFilterActive && (
-            <Button variant="ghost" size="sm" onClick={clearFilters} className="h-8 text-xs">
-              <X className="h-3 w-3 mr-1" /> Clear All
-            </Button>
-          )}
-        </div>
-        
-        <div className="grid gap-4 md:grid-cols-3">
-          {/* Colors */}
-          <div>
-            <h4 className="text-xs font-medium mb-2">Colors</h4>
-            <div className="flex flex-wrap gap-1">
-              {uniqueColors.map(color => (
-                <Badge 
-                  key={color}
-                  variant={activeFilters.colors.includes(color) ? "default" : "outline"}
-                  className={cn(
-                    "cursor-pointer hover:bg-muted transition-colors",
-                    activeFilters.colors.includes(color) && colorMap[color]
-                  )}
-                  onClick={() => toggleFilter('colors', color)}
-                >
-                  {colorNames[color] || color.charAt(0).toUpperCase() + color.slice(1)}
-                </Badge>
-              ))}
-            </div>
-          </div>
-          
-          {/* Types */}
-          <div>
-            <h4 className="text-xs font-medium mb-2">Types</h4>
-            <div className="flex flex-wrap gap-1">
-              {uniqueTypes.map(type => (
-                <Badge 
-                  key={type}
-                  variant={activeFilters.types.includes(type) ? "default" : "outline"}
-                  className="cursor-pointer hover:bg-muted transition-colors"
-                  onClick={() => toggleFilter('types', type)}
-                >
-                  {type}
-                </Badge>
-              ))}
-            </div>
-          </div>
-          
-          {/* Rarities */}
-          <div>
-            <h4 className="text-xs font-medium mb-2">Rarities</h4>
-            <div className="flex flex-wrap gap-1">
-              {uniqueRarities.map(rarity => (
-                <Badge 
-                  key={rarity}
-                  variant={activeFilters.rarities.includes(rarity) ? "default" : "outline"}
-                  className="cursor-pointer hover:bg-muted transition-colors"
-                  onClick={() => toggleFilter('rarities', rarity)}
-                >
-                  {rarity}
-                </Badge>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Card display */}
-      {loading ? (
-        <div className="mt-8 flex justify-center">
-          <div className="flex flex-col items-center">
-            <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-            <p className="mt-4 text-sm text-muted-foreground">Loading cards...</p>
-          </div>
-        </div>
-      ) : filteredCards.length === 0 ? (
-        <div className="mt-8 flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center animate-fade-in">
-          <Search className="h-12 w-12 text-muted-foreground opacity-50" />
-          <h3 className="mt-4 text-lg font-medium">No cards found</h3>
-          <p className="mt-2 text-sm text-muted-foreground max-w-sm">
-            Try adjusting your filters or search term to find what you're looking for.
-          </p>
-          <Button onClick={clearFilters} variant="outline" className="mt-4">
-            Clear Filters
+      {selectedSet ? (
+        <>
+          {/* Back button to return to sets view */}
+          <Button 
+            variant="outline" 
+            className="mb-4"
+            onClick={() => setSelectedSet(null)}
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Sets
           </Button>
-        </div>
-      ) : viewMode === 'grid' ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-          {filteredCards.map((card) => (
-            <Card key={card.id} className="overflow-hidden card-hover relative group transition-all duration-300">
-              <div className="aspect-[3/4] overflow-hidden card-tilt">
-                <img
-                  src={card.imageUrl}
-                  alt={card.name}
-                  className="object-cover w-full h-full"
-                />
-              </div>
-              <CardContent className="p-3">
-                <h3 className="font-medium text-sm leading-tight truncate">{card.name}</h3>
-                <div className="flex justify-between items-center mt-1">
-                  <p className="text-xs text-muted-foreground">{card.type}</p>
-                  <p className="text-xs text-muted-foreground">Cost: {card.cost}</p>
+
+          <div className="flex items-center gap-2 mb-4">
+            <h2 className="text-xl font-semibold">{selectedSet}</h2>
+          </div>
+
+          {/* Search and view toggles */}
+          <div className="flex flex-col gap-4 sm:flex-row">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Search cards..."
+                className="pl-9"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <Tabs defaultValue="grid" className="w-fit">
+              <TabsList>
+                <TabsTrigger value="grid" onClick={() => setViewMode('grid')}>Grid</TabsTrigger>
+                <TabsTrigger value="list" onClick={() => setViewMode('list')}>List</TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
+
+          {/* Filters */}
+          <div className="rounded-md border bg-card p-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-medium">Filters</h3>
+              {isAnyFilterActive && (
+                <Button variant="ghost" size="sm" onClick={clearFilters} className="h-8 text-xs">
+                  <X className="h-3 w-3 mr-1" /> Clear All
+                </Button>
+              )}
+            </div>
+            
+            <div className="grid gap-4 md:grid-cols-3">
+              {/* Colors */}
+              <div>
+                <h4 className="text-xs font-medium mb-2">Colors</h4>
+                <div className="flex flex-wrap gap-1">
+                  {uniqueColors.map(color => (
+                    <Badge 
+                      key={color}
+                      variant={activeFilters.colors.includes(color) ? "default" : "outline"}
+                      className={cn(
+                        "cursor-pointer hover:bg-muted transition-colors",
+                        activeFilters.colors.includes(color) && colorMap[color]
+                      )}
+                      onClick={() => toggleFilter('colors', color)}
+                    >
+                      {colorNames[color] || color.charAt(0).toUpperCase() + color.slice(1)}
+                    </Badge>
+                  ))}
                 </div>
-              </CardContent>
-              <Button
-                size="icon"
-                className="absolute top-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 backdrop-blur-sm"
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        <div className="border rounded-md divide-y">
-          {filteredCards.map((card) => (
-            <div key={card.id} className="p-4 flex items-center gap-4 hover:bg-muted/40 transition-colors">
-              <div className="h-16 w-12 shrink-0 overflow-hidden rounded-sm">
-                <img
-                  src={card.imageUrl}
-                  alt={card.name}
-                  className="object-cover w-full h-full"
-                />
               </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-medium text-sm">{card.name}</h3>
-                <div className="flex flex-wrap gap-1 mt-1">
-                  <span className="text-xs text-muted-foreground">{card.type}</span>
-                  <span className="text-xs text-muted-foreground">•</span>
-                  <span className="text-xs text-muted-foreground">{card.rarity}</span>
-                  <span className="text-xs text-muted-foreground">•</span>
-                  <span className="text-xs text-muted-foreground">Cost: {card.cost}</span>
+              
+              {/* Types */}
+              <div>
+                <h4 className="text-xs font-medium mb-2">Types</h4>
+                <div className="flex flex-wrap gap-1">
+                  {uniqueTypes.map(type => (
+                    <Badge 
+                      key={type}
+                      variant={activeFilters.types.includes(type) ? "default" : "outline"}
+                      className="cursor-pointer hover:bg-muted transition-colors"
+                      onClick={() => toggleFilter('types', type)}
+                    >
+                      {type}
+                    </Badge>
+                  ))}
                 </div>
               </div>
-              <div className="flex gap-1">
-                {card.colors.map(color => (
-                  <div
-                    key={color}
-                    className={cn(
-                      "w-4 h-4 rounded-full",
-                      colorMap[color].split(" ")[0] || "bg-gray-200"
-                    )}
-                  />
-                ))}
+              
+              {/* Rarities */}
+              <div>
+                <h4 className="text-xs font-medium mb-2">Rarities</h4>
+                <div className="flex flex-wrap gap-1">
+                  {uniqueRarities.map(rarity => (
+                    <Badge 
+                      key={rarity}
+                      variant={activeFilters.rarities.includes(rarity) ? "default" : "outline"}
+                      className="cursor-pointer hover:bg-muted transition-colors"
+                      onClick={() => toggleFilter('rarities', rarity)}
+                    >
+                      {rarity}
+                    </Badge>
+                  ))}
+                </div>
               </div>
-              <Button size="icon" className="h-8 w-8 shrink-0">
-                <Plus className="h-4 w-4" />
+            </div>
+          </div>
+
+          {/* Card display */}
+          {loading ? (
+            <div className="mt-8 flex justify-center">
+              <div className="flex flex-col items-center">
+                <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+                <p className="mt-4 text-sm text-muted-foreground">Loading cards...</p>
+              </div>
+            </div>
+          ) : filteredCards.length === 0 ? (
+            <div className="mt-8 flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center animate-fade-in">
+              <Search className="h-12 w-12 text-muted-foreground opacity-50" />
+              <h3 className="mt-4 text-lg font-medium">No cards found</h3>
+              <p className="mt-2 text-sm text-muted-foreground max-w-sm">
+                Try adjusting your filters or search term to find what you're looking for.
+              </p>
+              <Button onClick={clearFilters} variant="outline" className="mt-4">
+                Clear Filters
               </Button>
             </div>
-          ))}
-        </div>
+          ) : viewMode === 'grid' ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+              {filteredCards.map((card) => (
+                <Card key={card.id} className="overflow-hidden card-hover relative group transition-all duration-300">
+                  <div className="aspect-[3/4] overflow-hidden card-tilt">
+                    <img
+                      src={card.imageUrl}
+                      alt={card.name}
+                      className="object-cover w-full h-full"
+                    />
+                  </div>
+                  <CardContent className="p-3">
+                    <h3 className="font-medium text-sm leading-tight truncate">{card.name}</h3>
+                    <div className="flex justify-between items-center mt-1">
+                      <p className="text-xs text-muted-foreground">{card.type}</p>
+                      <p className="text-xs text-muted-foreground">Cost: {card.cost}</p>
+                    </div>
+                  </CardContent>
+                  <Button
+                    size="icon"
+                    className="absolute top-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 backdrop-blur-sm"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="border rounded-md divide-y">
+              {filteredCards.map((card) => (
+                <div key={card.id} className="p-4 flex items-center gap-4 hover:bg-muted/40 transition-colors">
+                  <div className="h-16 w-12 shrink-0 overflow-hidden rounded-sm">
+                    <img
+                      src={card.imageUrl}
+                      alt={card.name}
+                      className="object-cover w-full h-full"
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium text-sm">{card.name}</h3>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      <span className="text-xs text-muted-foreground">{card.type}</span>
+                      <span className="text-xs text-muted-foreground">•</span>
+                      <span className="text-xs text-muted-foreground">{card.rarity}</span>
+                      <span className="text-xs text-muted-foreground">•</span>
+                      <span className="text-xs text-muted-foreground">Cost: {card.cost}</span>
+                    </div>
+                  </div>
+                  <div className="flex gap-1">
+                    {card.colors.map(color => (
+                      <div
+                        key={color}
+                        className={cn(
+                          "w-4 h-4 rounded-full",
+                          colorMap[color].split(" ")[0] || "bg-gray-200"
+                        )}
+                      />
+                    ))}
+                  </div>
+                  <Button size="icon" className="h-8 w-8 shrink-0">
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      ) : (
+        // Sets View
+        <>
+          <h2 className="text-xl font-semibold mb-4">Card Sets</h2>
+          
+          {loading ? (
+            <div className="mt-8 flex justify-center">
+              <div className="flex flex-col items-center">
+                <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+                <p className="mt-4 text-sm text-muted-foreground">Loading sets...</p>
+              </div>
+            </div>
+          ) : availableSets.length === 0 ? (
+            <div className="mt-8 flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center animate-fade-in">
+              <h3 className="mt-4 text-lg font-medium">No sets found</h3>
+              <p className="mt-2 text-sm text-muted-foreground max-w-sm">
+                There are no card sets available for this game category.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {availableSets.map((set) => {
+                // Find the first card of the set to use as cover
+                const setCoverCard = cards.find(card => card.set === set);
+                // Count cards in this set
+                const cardCount = cards.filter(card => card.set === set).length;
+                
+                return (
+                  <Card 
+                    key={set} 
+                    className="cursor-pointer hover:shadow-md transition-shadow" 
+                    onClick={() => setSelectedSet(set)}
+                  >
+                    <div className="flex p-4 gap-4">
+                      {setCoverCard && (
+                        <div className="h-20 w-16 shrink-0 overflow-hidden rounded-sm">
+                          <img
+                            src={setCoverCard.imageUrl}
+                            alt={set}
+                            className="object-cover w-full h-full"
+                          />
+                        </div>
+                      )}
+                      <div className="flex-1">
+                        <h3 className="font-medium">{set}</h3>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {cardCount} card{cardCount !== 1 ? 's' : ''}
+                        </p>
+                        <Button 
+                          variant="secondary" 
+                          size="sm" 
+                          className="mt-2"
+                          onClick={() => setSelectedSet(set)}
+                        >
+                          View Cards
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
+        </>
       )}
     </div>
   );
