@@ -21,11 +21,11 @@ const StaticDataManager = () => {
     decks, 
     loading, 
     error, 
-    fetchStaticData
+    loadStaticData
   } = useStaticData();
 
   const handleLoadData = () => {
-    fetchStaticData(activeGameCategory);
+    loadStaticData(activeGameCategory);
   };
 
   return (
