@@ -35,7 +35,7 @@ const Index = () => {
         </Link>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl w-full">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl w-full mb-8">
         <div className="bg-card p-6 rounded-lg border subtle-border">
           <h3 className="text-lg font-semibold mb-2">Multiple Game Support</h3>
           <p className="text-muted-foreground">
@@ -56,6 +56,14 @@ const Index = () => {
             Create, save, and share your winning deck strategies with the community.
           </p>
         </div>
+      </div>
+      
+      <div className="mt-4">
+        <Link to="/static-data">
+          <Button variant="link" size="sm">
+            Static JSON Data Manager
+          </Button>
+        </Link>
       </div>
     </div>
   );
