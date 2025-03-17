@@ -44,28 +44,61 @@ export interface DeckData {
 // Magic: The Gathering
 export const magicCards: CardData[] = [
   {
-    id: "card123",
-    name: "Dragon Guardian",
+    id: "Aetherdrift#1",
+    name: "Air Response Unit",
     imageUrl: "https://images.unsplash.com/photo-1601445638532-3c6f6c3aa1d6?q=80&w=250",
-    type: "Creature",
-    cost: 4,
-    rarity: "Rare",
-    set: "Core Set",
+    type: "Vehicle",
+    cost: 2,
+    rarity: "Normal",
+    set: "Aetherdrift",
     colors: ["red"],
     gameCategory: "magic",
-    flavorText: "The dragon's scales shimmer in the moonlight as it guards the ancient treasure.",
-    artist: "Jane Doe",
+    flavorText: "Flying, vigilance",
+    artist: "Brock Grossman",
     legality: ["Standard", "Modern"],
     price: 5.99
   },
   {
-    id: "card124",
-    name: "Mystic Sorcerer",
+    id: "Aetherdrift#151",
+    name: "Agonasaur Rex",
     imageUrl: "https://images.unsplash.com/photo-1635805737707-575885ab0820?q=80&w=250",
     type: "Creature",
     cost: 3,
-    rarity: "Uncommon",
-    set: "Core Set",
+    rarity: "Normal",
+    set: "Aetherdrift",
+    colors: ["blue"],
+    gameCategory: "magic"
+  },
+  {
+    id: "Foundations#188",
+    name: "Abrade",
+    imageUrl: "https://images.unsplash.com/photo-1635805737707-575885ab0820?q=80&w=250",
+    type: "Instant",
+    cost: 1,
+    rarity: "Normal",
+    set: "Foundations",
+    colors: ["blue"],
+    gameCategory: "magic"
+  },
+  {
+    id: "Foundations#150",
+    name: "Aegis Turtle",
+    imageUrl: "https://images.unsplash.com/photo-1635805737707-575885ab0820?q=80&w=250",
+    type: "Creature",
+    cost: 0,
+    rarity: "Normal",
+    set: "Foundations",
+    colors: ["blue"],
+    gameCategory: "magic"
+  },
+  {
+    id: "Bloomburrow#302",
+    name: "Azure Beastbinder",
+    imageUrl: "https://images.unsplash.com/photo-1635805737707-575885ab0820?q=80&w=250",
+    type: "Creature",
+    cost: 0,
+    rarity: "Rare",
+    set: "Bloomburrow",
     colors: ["blue"],
     gameCategory: "magic"
   }
