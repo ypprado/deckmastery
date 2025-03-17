@@ -1,3 +1,4 @@
+import { GameCategory } from '@/hooks/use-decks';
 
 export interface CardData {
   id: string;
@@ -8,7 +9,7 @@ export interface CardData {
   rarity: string;
   set: string;
   colors: string[];
-  gameCategory: string;
+  gameCategory: GameCategory;
   flavorText?: string;
   artist?: string;
   legality?: string[];
@@ -30,14 +31,14 @@ export interface DeckData {
       rarity: string;
       set: string;
       colors: string[];
-      gameCategory: string;
+      gameCategory: GameCategory;
     }; 
     quantity: number;
   }[];
   createdAt: string;
   updatedAt: string;
   description?: string;
-  gameCategory: string;
+  gameCategory: GameCategory;
 }
 
 // Magic: The Gathering

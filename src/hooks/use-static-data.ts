@@ -1,7 +1,8 @@
+
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Card, GameCategory, Deck } from '@/hooks/use-decks';
-import { staticCardDatabase } from '@/utils/sampleJsonStructure';
+import { staticCardDatabase, CardData, DeckData } from '@/utils/sampleJsonStructure';
 
 interface StaticDataOptions {
   fallbackToLocal?: boolean;
@@ -29,8 +30,10 @@ export const useStaticData = (options: StaticDataOptions = {}) => {
         throw new Error(`No data available for ${gameCategory}`);
       }
       
-      setCards(categoryData.cards);
-      setDecks(categoryData.decks);
+      // The following type assertions are safe because we've updated the CardData and DeckData types
+      // to use GameCategory instead of string
+      setCards(categoryData.cards as Card[]);
+      setDecks(categoryData.decks as Deck[]);
       
       toast.success(`Loaded ${gameCategory} data successfully`);
     } catch (err) {
