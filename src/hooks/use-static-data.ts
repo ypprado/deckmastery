@@ -1,29 +1,35 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { Card, GameCategory, Deck } from '@/hooks/use-decks';
 import { staticCardDatabase, CardData, DeckData } from '@/utils/sampleJsonStructure';
 
 interface StaticDataOptions {
-  fallbackToLocal?: boolean;
+  initialGameCategory?: GameCategory;
 }
 
 export const useStaticData = (options: StaticDataOptions = {}) => {
   const { 
-    fallbackToLocal = true
+    initialGameCategory = 'magic'
   } = options;
   
   const [cards, setCards] = useState<Card[]>([]);
   const [decks, setDecks] = useState<Deck[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+  const [activeGameCategory, setActiveGameCategory] = useState<GameCategory>(initialGameCategory);
+
+  // Load data whenever the active game category changes
+  useEffect(() => {
+    loadStaticData(activeGameCategory);
+  }, [activeGameCategory]);
 
   const loadStaticData = (gameCategory: GameCategory) => {
     setLoading(true);
     setError(null);
     
     try {
-      // Get data from the static database
+      // Get data from the static database for the specific game category
       const categoryData = staticCardDatabase[gameCategory];
       
       if (!categoryData) {
@@ -44,15 +50,18 @@ export const useStaticData = (options: StaticDataOptions = {}) => {
     }
   };
 
+  const changeGameCategory = (gameCategory: GameCategory) => {
+    setActiveGameCategory(gameCategory);
+    // Data will be loaded by the useEffect that watches activeGameCategory
+  };
+
   return {
     cards,
     decks,
     loading,
     error,
-    fetchStaticData: loadStaticData,
-    // Keeping the export function for backward compatibility, but it will be a no-op
-    exportToJson: () => {
-      toast.info('Data is already stored as static files in the project');
-    }
+    activeGameCategory,
+    changeGameCategory,
+    loadStaticData
   };
 };
