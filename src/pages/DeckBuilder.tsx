@@ -131,7 +131,7 @@ const DeckBuilder = () => {
       gameCategory: activeGameCategory
     });
 
-    navigate(`/deck/${newDeck.id}`);
+    navigate("/dashboard");
   };
 
   const clearFilters = () => {

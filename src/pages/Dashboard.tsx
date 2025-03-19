@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PlusCircle, Search, Filter, Clock, FolderOpen } from 'lucide-react';
@@ -22,6 +23,7 @@ const Dashboard = () => {
     : decks;
 
   const goToDeck = (id: string) => {
+    // Ensure we navigate to the correct path
     navigate(`/deck/${id}`);
   };
 
