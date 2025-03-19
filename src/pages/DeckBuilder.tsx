@@ -27,7 +27,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useDecks, useCards, Card as CardType, GameCategory, gameCategories } from "@/hooks/use-decks";
 import { cn } from "@/lib/utils";
 import GameCategorySelector from "@/components/shared/GameCategorySelector";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/hooks/use-toast";
 
 const DeckBuilder = () => {
   const navigate = useNavigate();
