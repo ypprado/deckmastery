@@ -125,6 +125,8 @@ export const useDecks = () => {
   };
 
   const getDeck = (id: string) => {
+    console.log("Looking for deck with id:", id); // Debug log
+    console.log("Available decks:", decks); // Debug log
     return decks.find(deck => deck.id === id);
   };
 

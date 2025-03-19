@@ -39,6 +39,12 @@ function App() {
             </PrivateRoute>
           } />
           
+          <Route path="deck/:id/edit" element={
+            <PrivateRoute>
+              <DeckBuilder />
+            </PrivateRoute>
+          } />
+          
           <Route path="admin" element={
             <AdminRoute>
               <Admin />

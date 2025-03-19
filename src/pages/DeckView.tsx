@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { PieChart, Pie, ResponsiveContainer, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from "recharts";
@@ -22,8 +21,8 @@ import { Separator } from "@/components/ui/separator";
 import { useDecks, type Card as CardType } from "@/hooks/use-decks";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
-// Custom components for the deck view
 const CardList = ({ 
   cards, 
   groupBy = "type" 
@@ -31,7 +30,6 @@ const CardList = ({
   cards: { card: CardType; quantity: number }[]; 
   groupBy?: "type" | "cost" | "rarity";
 }) => {
-  // Group cards based on the specified property
   const groupedCards = cards.reduce((acc, { card, quantity }) => {
     const key = card[groupBy];
     if (!acc[key]) {
@@ -41,7 +39,6 @@ const CardList = ({
     return acc;
   }, {} as Record<string, { card: CardType; quantity: number }[]>);
 
-  // Sort groups by name or by mana cost if grouping by cost
   const sortedGroups = Object.keys(groupedCards).sort((a, b) => {
     if (groupBy === "cost") {
       return Number(a) - Number(b);
@@ -114,13 +111,14 @@ const DeckView = () => {
       const deckData = getDeck(id);
       if (deckData) {
         setDeck(deckData);
+        console.log("Loaded deck:", deckData); // Debug log
       } else {
         toast({
           title: "Deck not found",
           description: "The deck you're looking for doesn't exist.",
           variant: "destructive"
         });
-        navigate("/");
+        navigate("/dashboard");
       }
     }
   }, [id, getDeck, navigate, toast]);
@@ -133,10 +131,8 @@ const DeckView = () => {
     );
   }
 
-  // Calculate statistics for the deck
   const totalCards = deck.cards.reduce((acc, { quantity }) => acc + quantity, 0);
   
-  // Color distribution data for pie chart
   const colorCounts = deck.cards.reduce((acc, { card, quantity }) => {
     card.colors.forEach(color => {
       acc[color] = (acc[color] || 0) + quantity;
@@ -149,7 +145,6 @@ const DeckView = () => {
     value: Math.round((count / totalCards) * 100)
   }));
 
-  // Type distribution data for bar chart
   const typeData = deck.cards.reduce((acc, { card, quantity }) => {
     acc[card.type] = (acc[card.type] || 0) + quantity;
     return acc;
@@ -160,7 +155,6 @@ const DeckView = () => {
     count
   }));
 
-  // Mana curve data
   const manaCurve = deck.cards.reduce((acc, { card, quantity }) => {
     acc[card.cost] = (acc[card.cost] || 0) + quantity;
     return acc;
@@ -173,7 +167,6 @@ const DeckView = () => {
     }))
     .sort((a, b) => a.cost - b.cost);
 
-  // Color mapping for charts
   const COLORS = ['#16a34a', '#2563eb', '#000000', '#dc2626', '#f59e0b'];
   const colorMap: Record<string, string> = {
     green: COLORS[0],
@@ -192,15 +185,9 @@ const DeckView = () => {
 
   const handleEditDeck = () => {
     navigate(`/deck/${deck.id}/edit`);
-    // This is a placeholder, ideally it would navigate to an edit page
-    toast({
-      title: "Edit functionality",
-      description: "Edit feature is coming soon!"
-    });
   };
 
   const handleCopyDeck = () => {
-    // This is a placeholder, ideally it would copy the deck
     toast({
       title: "Deck copied",
       description: "A copy of this deck has been created."

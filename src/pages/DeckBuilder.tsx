@@ -27,6 +27,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useDecks, useCards, Card as CardType, GameCategory, gameCategories } from "@/hooks/use-decks";
 import { cn } from "@/lib/utils";
 import GameCategorySelector from "@/components/shared/GameCategorySelector";
+import { toast } from "@/components/ui/toast";
 
 const DeckBuilder = () => {
   const navigate = useNavigate();
@@ -112,26 +113,50 @@ const DeckBuilder = () => {
 
   const handleSaveDeck = () => {
     if (!deckName) {
-      alert("Please enter a deck name");
+      toast({
+        title: "Deck name required",
+        description: "Please give your deck a name.",
+        variant: "destructive"
+      });
       return;
     }
-    
+
     if (selectedCards.length === 0) {
-      alert("Please add at least one card to your deck");
+      toast({
+        title: "No cards selected",
+        description: "Your deck needs at least one card.",
+        variant: "destructive"
+      });
       return;
     }
+
+    const deckCards = selectedCards.map(item => ({
+      card: item.card,
+      quantity: item.quantity
+    }));
+
+    const colors: string[] = [];
+    selectedCards.forEach(item => {
+      item.card.colors.forEach(color => {
+        if (!colors.includes(color)) {
+          colors.push(color);
+        }
+      });
+    });
+
+    const coverCard = selectedCards.length > 0 ? selectedCards[0].card : undefined;
 
     const newDeck = saveDeck({
       name: deckName,
-      format: deckFormat,
+      format: deckFormat || "Standard",
       description: deckDescription,
-      colors: calculateDeckColors(),
-      cards: selectedCards,
-      coverCard: selectedCards[0]?.card,
+      cards: deckCards,
+      colors,
+      coverCard,
       gameCategory: activeGameCategory
     });
 
-    navigate("/dashboard");
+    navigate(`/deck/${newDeck.id}`);
   };
 
   const clearFilters = () => {

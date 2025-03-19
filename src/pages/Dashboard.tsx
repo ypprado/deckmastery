@@ -23,7 +23,8 @@ const Dashboard = () => {
     : decks;
 
   const goToDeck = (id: string) => {
-    // Ensure we navigate to the correct path
+    // Navigation to deck view
+    console.log(`Navigating to deck with id: ${id}`); // Debug log
     navigate(`/deck/${id}`);
   };
 
