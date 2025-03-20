@@ -101,6 +101,8 @@ export const useDecks = () => {
   };
 
   const updateDeck = (id: string, deckData: Partial<Deck>) => {
+    let updatedDeck: Deck | undefined;
+    
     setDecks(prevDecks => {
       const deckIndex = prevDecks.findIndex(d => d.id === id);
       if (deckIndex === -1) {
@@ -114,18 +116,19 @@ export const useDecks = () => {
         ...deckData,
         updatedAt: new Date().toISOString()
       };
-
+      
+      updatedDeck = updatedDecks[deckIndex];
       localStorage.setItem('decks', JSON.stringify(updatedDecks));
-      toast.success("Deck updated successfully");
       return updatedDecks;
     });
+    
+    return updatedDeck;
   };
 
   const deleteDeck = (id: string) => {
     setDecks(prevDecks => {
       const updatedDecks = prevDecks.filter(deck => deck.id !== id);
       localStorage.setItem('decks', JSON.stringify(updatedDecks));
-      toast.success("Deck deleted successfully");
       return updatedDecks;
     });
   };
