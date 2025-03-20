@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { 
   Save, 
   Search, 
@@ -27,11 +28,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { useDecks, useCards, Card as CardType, GameCategory, gameCategories } from "@/hooks/use-decks";
 import { cn } from "@/lib/utils";
 import GameCategorySelector from "@/components/shared/GameCategorySelector";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 const DeckBuilder = () => {
   const navigate = useNavigate();
-  const { saveDeck, activeGameCategory, changeGameCategory } = useDecks();
+  const { id } = useParams<{ id: string }>();
+  const { saveDeck, updateDeck, getDeck, activeGameCategory, changeGameCategory } = useDecks();
   const { cards: allCards, searchCards, activeGameCategory: cardGameCategory, changeGameCategory: changeCardCategory } = useCards();
   
   const [deckName, setDeckName] = useState("");
@@ -41,6 +43,43 @@ const DeckBuilder = () => {
   const [selectedCards, setSelectedCards] = useState<{ card: CardType; quantity: number }[]>([]);
   const [activeColor, setActiveColor] = useState<string | null>(null);
   const [activeType, setActiveType] = useState<string | null>(null);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load deck data if in edit mode (id is present)
+  useEffect(() => {
+    if (id) {
+      console.log("Edit mode detected. Loading deck with ID:", id);
+      setIsEditMode(true);
+      setIsLoading(true);
+      
+      // Small delay to ensure decks are loaded
+      setTimeout(() => {
+        const deckData = getDeck(id);
+        console.log("Retrieved deck data for editing:", deckData);
+        
+        if (deckData) {
+          setDeckName(deckData.name);
+          setDeckFormat(deckData.format);
+          setDeckDescription(deckData.description || "");
+          setSelectedCards(deckData.cards);
+          
+          // If the deck has a different game category, change it
+          if (deckData.gameCategory !== activeGameCategory) {
+            changeGameCategory(deckData.gameCategory);
+          }
+        } else {
+          console.error(`Deck with ID ${id} not found for editing`);
+          toast.error("Could not load deck for editing");
+          navigate("/dashboard");
+        }
+        setIsLoading(false);
+      }, 500);
+    } else {
+      setIsEditMode(false);
+      setIsLoading(false);
+    }
+  }, [id, getDeck, navigate, activeGameCategory, changeGameCategory]);
 
   if (activeGameCategory !== cardGameCategory) {
     changeCardCategory(activeGameCategory);
@@ -113,20 +152,12 @@ const DeckBuilder = () => {
 
   const handleSaveDeck = () => {
     if (!deckName) {
-      toast({
-        title: "Deck name required",
-        description: "Please give your deck a name.",
-        variant: "destructive"
-      });
+      toast.error("Deck name required");
       return;
     }
 
     if (selectedCards.length === 0) {
-      toast({
-        title: "No cards selected",
-        description: "Your deck needs at least one card.",
-        variant: "destructive"
-      });
+      toast.error("Your deck needs at least one card");
       return;
     }
 
@@ -135,28 +166,38 @@ const DeckBuilder = () => {
       quantity: item.quantity
     }));
 
-    const colors: string[] = [];
-    selectedCards.forEach(item => {
-      item.card.colors.forEach(color => {
-        if (!colors.includes(color)) {
-          colors.push(color);
-        }
-      });
-    });
-
+    const colors = calculateDeckColors();
     const coverCard = selectedCards.length > 0 ? selectedCards[0].card : undefined;
 
-    const newDeck = saveDeck({
-      name: deckName,
-      format: deckFormat || "Standard",
-      description: deckDescription,
-      cards: deckCards,
-      colors,
-      coverCard,
-      gameCategory: activeGameCategory
-    });
+    if (isEditMode && id) {
+      // Update existing deck
+      updateDeck(id, {
+        name: deckName,
+        format: deckFormat || "Standard",
+        description: deckDescription,
+        cards: deckCards,
+        colors,
+        coverCard,
+        gameCategory: activeGameCategory
+      });
+      
+      toast.success("Deck updated successfully");
+      navigate(`/deck/${id}`);
+    } else {
+      // Create new deck
+      const newDeck = saveDeck({
+        name: deckName,
+        format: deckFormat || "Standard",
+        description: deckDescription,
+        cards: deckCards,
+        colors,
+        coverCard,
+        gameCategory: activeGameCategory
+      });
 
-    navigate(`/deck/${newDeck.id}`);
+      toast.success("Deck created successfully");
+      navigate(`/deck/${newDeck.id}`);
+    }
   };
 
   const clearFilters = () => {
@@ -169,6 +210,14 @@ const DeckBuilder = () => {
 
   const totalCards = selectedCards.reduce((acc, { quantity }) => acc + quantity, 0);
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-[50vh]">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2">
@@ -180,7 +229,9 @@ const DeckBuilder = () => {
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <h1 className="text-3xl font-bold tracking-tight">Create New Deck</h1>
+        <h1 className="text-3xl font-bold tracking-tight">
+          {isEditMode ? "Edit Deck" : "Create New Deck"}
+        </h1>
       </div>
 
       <GameCategorySelector 
@@ -237,7 +288,7 @@ const DeckBuilder = () => {
                   disabled={deckName === "" || selectedCards.length === 0}
                 >
                   <Save className="h-4 w-4 mr-2" />
-                  Save Deck
+                  {isEditMode ? "Update Deck" : "Save Deck"}
                 </Button>
               </div>
             </CardContent>
