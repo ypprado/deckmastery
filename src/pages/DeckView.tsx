@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { PieChart, Pie, ResponsiveContainer, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from "recharts";
 import { 
@@ -17,9 +17,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/components/ui/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { useDecks, type Card as CardType, Deck } from "@/hooks/use-decks";
+import { useDecks, type Card as CardType } from "@/hooks/use-decks";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -103,66 +104,40 @@ const CardList = ({
 const DeckView = () => {
   const { id } = useParams<{ id: string }>();
   const { getDeck, deleteDeck, allDecks } = useDecks();
+  const { toast } = useToast();
   const navigate = useNavigate();
-  const [deck, setDeck] = useState<Deck | undefined>(undefined);
+  const [deck, setDeck] = useState<ReturnType<typeof getDeck>>(undefined);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [cardGrouping, setCardGrouping] = useState<"type" | "cost" | "rarity">("type");
   
-  // Use useCallback to create a stable function that won't trigger unnecessary re-renders
-  const loadDeckData = useCallback(() => {
-    if (!id) return;
-    
-    console.log(`Attempting to load deck with ID: ${id}`);
-    console.log("All available decks:", allDecks);
-    
-    const deckData = getDeck(id);
-    console.log("Retrieved deck data:", deckData);
-    
-    if (deckData) {
-      setDeck(deckData);
-      setError(null);
-    } else {
-      console.error(`Deck with ID ${id} not found`);
-      setError("The deck you're looking for doesn't exist or couldn't be loaded.");
-    }
-    
-    setLoading(false);
-  }, [id, getDeck, allDecks]);
-  
   useEffect(() => {
-    setLoading(true);
-    setError(null);
-    
-    // Small delay to ensure decks are loaded from localStorage
-    const timer = setTimeout(() => {
-      loadDeckData();
-    }, 500);
-    
-    return () => clearTimeout(timer);
-  }, [loadDeckData]);
+    if (id) {
+      setLoading(true);
+      setError(null);
+      
+      console.log(`Attempting to load deck with ID: ${id}`);
+      console.log("All available decks:", allDecks);
+      
+      // Small delay to ensure decks are loaded
+      setTimeout(() => {
+        const deckData = getDeck(id);
+        console.log("Retrieved deck data:", deckData);
+        
+        if (deckData) {
+          setDeck(deckData);
+          setLoading(false);
+        } else {
+          console.error(`Deck with ID ${id} not found`);
+          setError("The deck you're looking for doesn't exist or couldn't be loaded.");
+          setLoading(false);
+        }
+      }, 500);
+    }
+  }, [id, getDeck, allDecks]);
 
   const handleReturnToDashboard = () => {
     navigate("/dashboard");
-  };
-
-  const handleDeleteDeck = () => {
-    if (!deck) return;
-    
-    if (window.confirm("Are you sure you want to delete this deck? This action cannot be undone.")) {
-      deleteDeck(deck.id);
-      toast.success("Deck deleted successfully");
-      navigate("/dashboard");
-    }
-  };
-
-  const handleEditDeck = () => {
-    if (!deck) return;
-    navigate(`/deck/${deck.id}/edit`);
-  };
-
-  const handleCopyDeck = () => {
-    toast.success("Deck copied successfully");
   };
 
   if (loading) {
@@ -233,6 +208,24 @@ const DeckView = () => {
     black: COLORS[2],
     red: COLORS[3],
     white: COLORS[4]
+  };
+
+  const handleDeleteDeck = () => {
+    if (window.confirm("Are you sure you want to delete this deck? This action cannot be undone.")) {
+      deleteDeck(deck.id);
+      navigate("/dashboard");
+    }
+  };
+
+  const handleEditDeck = () => {
+    navigate(`/deck/${deck.id}/edit`);
+  };
+
+  const handleCopyDeck = () => {
+    toast({
+      title: "Deck copied",
+      description: "A copy of this deck has been created."
+    });
   };
 
   return (
