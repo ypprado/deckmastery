@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { PieChart, Pie, ResponsiveContainer, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from "recharts";
@@ -10,7 +11,8 @@ import {
   ArrowLeft, 
   BarChart4,
   ListFilter,
-  Clock
+  Clock,
+  AlertCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,6 +24,7 @@ import { useDecks, type Card as CardType } from "@/hooks/use-decks";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const CardList = ({ 
   cards, 
@@ -100,33 +103,64 @@ const CardList = ({
 
 const DeckView = () => {
   const { id } = useParams<{ id: string }>();
-  const { getDeck, deleteDeck } = useDecks();
+  const { getDeck, deleteDeck, allDecks } = useDecks();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [deck, setDeck] = useState<ReturnType<typeof getDeck>>(undefined);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [cardGrouping, setCardGrouping] = useState<"type" | "cost" | "rarity">("type");
   
   useEffect(() => {
     if (id) {
-      const deckData = getDeck(id);
-      if (deckData) {
-        setDeck(deckData);
-        console.log("Loaded deck:", deckData); // Debug log
-      } else {
-        toast({
-          title: "Deck not found",
-          description: "The deck you're looking for doesn't exist.",
-          variant: "destructive"
-        });
-        navigate("/dashboard");
-      }
+      setLoading(true);
+      setError(null);
+      
+      console.log(`Attempting to load deck with ID: ${id}`);
+      console.log("All available decks:", allDecks);
+      
+      // Small delay to ensure decks are loaded
+      setTimeout(() => {
+        const deckData = getDeck(id);
+        console.log("Retrieved deck data:", deckData);
+        
+        if (deckData) {
+          setDeck(deckData);
+          setLoading(false);
+        } else {
+          console.error(`Deck with ID ${id} not found`);
+          setError("The deck you're looking for doesn't exist or couldn't be loaded.");
+          setLoading(false);
+        }
+      }, 500);
     }
-  }, [id, getDeck, navigate, toast]);
+  }, [id, getDeck, allDecks]);
 
-  if (!deck) {
+  const handleReturnToDashboard = () => {
+    navigate("/dashboard");
+  };
+
+  if (loading) {
     return (
       <div className="flex items-center justify-center h-[50vh]">
         <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  if (error || !deck) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[50vh] space-y-4">
+        <Alert variant="destructive" className="max-w-md">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>
+            {error || "The deck you're looking for doesn't exist."}
+          </AlertDescription>
+        </Alert>
+        <Button onClick={handleReturnToDashboard}>
+          Return to Dashboard
+        </Button>
       </div>
     );
   }
@@ -179,7 +213,7 @@ const DeckView = () => {
   const handleDeleteDeck = () => {
     if (window.confirm("Are you sure you want to delete this deck? This action cannot be undone.")) {
       deleteDeck(deck.id);
-      navigate("/");
+      navigate("/dashboard");
     }
   };
 

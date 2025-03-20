@@ -22,9 +22,9 @@ const Dashboard = () => {
       )
     : decks;
 
+  // Updated function with additional logging
   const goToDeck = (id: string) => {
-    // Navigation to deck view
-    console.log(`Navigating to deck with id: ${id}`); // Debug log
+    console.log(`Navigating to deck with id: ${id}`);
     navigate(`/deck/${id}`);
   };
 

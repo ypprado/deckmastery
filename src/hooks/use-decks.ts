@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { toast } from "sonner";
 import { useStaticData } from './use-static-data';
@@ -48,9 +49,12 @@ export const useDecks = () => {
     // Load decks from localStorage or use static data if none exist
     const loadDecks = () => {
       const storedDecks = localStorage.getItem('decks');
+      console.log("Loading decks from localStorage:", storedDecks ? JSON.parse(storedDecks) : null);
+      
       if (storedDecks) {
         setDecks(JSON.parse(storedDecks));
       } else {
+        console.log("Using static decks:", staticDecks);
         setDecks(staticDecks);
         localStorage.setItem('decks', JSON.stringify(staticDecks));
       }
@@ -83,6 +87,8 @@ export const useDecks = () => {
       updatedAt: new Date().toISOString(),
       gameCategory: deck.gameCategory || activeGameCategory
     };
+
+    console.log("Saving new deck:", newDeck);
 
     setDecks(prevDecks => {
       const updatedDecks = [...prevDecks, newDeck];
@@ -125,8 +131,8 @@ export const useDecks = () => {
   };
 
   const getDeck = (id: string) => {
-    console.log("Looking for deck with id:", id); // Debug log
-    console.log("Available decks:", decks); // Debug log
+    console.log("Looking for deck with id:", id);
+    console.log("Available decks:", decks);
     return decks.find(deck => deck.id === id);
   };
 
