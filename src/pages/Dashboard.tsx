@@ -5,13 +5,12 @@ import { PlusCircle, Search, Filter, Clock, FolderOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { useDecks, GameCategory } from '@/hooks/use-decks';
+import { useDecks } from '@/hooks/use-decks';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
-import GameCategorySelector from '@/components/shared/GameCategorySelector';
 
 const Dashboard = () => {
-  const { decks, loading, activeGameCategory, changeGameCategory } = useDecks();
+  const { decks, loading, activeGameCategory } = useDecks();
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
 
@@ -52,12 +51,6 @@ const Dashboard = () => {
           Create New Deck
         </Button>
       </div>
-
-      {/* Game Category Selector */}
-      <GameCategorySelector 
-        activeCategory={activeGameCategory}
-        onCategoryChange={changeGameCategory}
-      />
 
       {/* Search and filters */}
       <div className="flex flex-col gap-4 sm:flex-row">

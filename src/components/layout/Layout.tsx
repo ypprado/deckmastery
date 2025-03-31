@@ -1,6 +1,7 @@
+
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, Book, Settings, PlusCircle, Menu, X, Github, Moon, Sun, LogIn } from "lucide-react";
+import { LayoutDashboard, Book, Settings, PlusCircle, Menu, X, Github, Moon, Sun, LogIn, ChevronDown } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
@@ -8,7 +9,13 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { UserProfile } from "@/components/user/UserProfile";
 import { useAuth } from "@/contexts/AuthContext";
 import { useDecks, GameCategory, gameCategories } from "@/hooks/use-decks";
-import GameCategorySelector from "@/components/shared/GameCategorySelector";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
+
 const Layout = () => {
   const location = useLocation();
   const {
@@ -26,22 +33,26 @@ const Layout = () => {
   } = useDecks();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  
   useEffect(() => {
     // Check for user preference
     const isDark = localStorage.getItem('theme') === 'dark' || !localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches;
     setIsDarkMode(isDark);
     document.documentElement.classList.toggle('dark', isDark);
   }, []);
+  
   useEffect(() => {
     // Close mobile sidebar when route changes
     setIsSidebarOpen(false);
   }, [location.pathname]);
+  
   const toggleTheme = () => {
     const newTheme = !isDarkMode;
     setIsDarkMode(newTheme);
     document.documentElement.classList.toggle('dark', newTheme);
     localStorage.setItem('theme', newTheme ? 'dark' : 'light');
   };
+  
   const handleCreateDeck = () => {
     if (!user) {
       toast({
@@ -57,6 +68,7 @@ const Layout = () => {
       description: "Start building your perfect deck strategy!"
     });
   };
+  
   const navItems = [{
     path: "/",
     icon: <LayoutDashboard className="h-5 w-5" />,
@@ -69,6 +81,7 @@ const Layout = () => {
 
   // Get the current game category's name
   const currentGameName = gameCategories.find(cat => cat.id === activeGameCategory)?.name || 'Magic: The Gathering';
+  
   return <div className="min-h-screen flex flex-col">
       {/* Top navigation bar */}
       <header className="sticky top-0 z-30 w-full backdrop-blur-md bg-background/80 border-b subtle-border animate-slide-down">
@@ -86,9 +99,30 @@ const Layout = () => {
                   <path d="M8 17H16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </div>
-              <div>
+              <div className="flex items-center">
                 <span className="font-display font-semibold text-lg tracking-tight">DeckMastery</span>
-                <span className="text-muted-foreground ml-1 text-xs">{currentGameName}</span>
+                
+                {/* Game Category Dropdown */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="flex items-center ml-1 outline-none">
+                    <span className="text-xs text-muted-foreground">{currentGameName}</span>
+                    <ChevronDown className="h-3 w-3 ml-0.5 text-muted-foreground" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-48">
+                    {gameCategories.map((category) => (
+                      <DropdownMenuItem 
+                        key={category.id}
+                        onClick={() => changeGameCategory(category.id as GameCategory)}
+                        className={cn(
+                          "cursor-pointer",
+                          category.id === activeGameCategory && "font-medium bg-accent text-accent-foreground"
+                        )}
+                      >
+                        {category.name}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </Link>
           </div>
@@ -122,12 +156,6 @@ const Layout = () => {
         <aside className={cn("z-20 shrink-0 border-r subtle-border bg-card/80 backdrop-blur-md w-64 md:relative md:block", isMobile && "fixed inset-y-0 left-0 transform transition-transform duration-300 ease-in-out", isMobile && !isSidebarOpen && "-translate-x-full")}>
           <div className="flex flex-col h-full pt-6 pb-4">
             <div className="flex-1 px-3 space-y-6">
-              {/* Game Category Selector */}
-              <div className="px-3 mb-4">
-                <h3 className="text-sm font-medium mb-2">Game</h3>
-                <GameCategorySelector activeCategory={activeGameCategory} onCategoryChange={changeGameCategory} className="mb-4" />
-              </div>
-
               {/* Main Nav Items */}
               <div className="space-y-1">
                 {navItems.map(item => <Link key={item.path} to={item.path} className={cn("flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors", location.pathname === item.path ? "bg-primary/10 text-primary" : "text-foreground/70 hover:text-foreground hover:bg-accent")}>
