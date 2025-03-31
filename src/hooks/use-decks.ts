@@ -153,6 +153,20 @@ export const useCards = () => {
   const [loading, setLoading] = useState(true);
   const [activeGameCategory, setActiveGameCategory] = useState<GameCategory>('magic');
   const { cards: staticCards, activeGameCategory: staticGameCategory, changeGameCategory: staticChangeGameCategory } = useStaticData({ initialGameCategory: activeGameCategory });
+  
+  // Store filter state independently for each game category
+  const [filterStates, setFilterStates] = useState<Record<GameCategory, {
+    searchQuery: string;
+    colorFilters: string[];
+    typeFilters: string[];
+    rarityFilters: string[];
+    selectedSet: string | null;
+  }>>({
+    magic: { searchQuery: '', colorFilters: [], typeFilters: [], rarityFilters: [], selectedSet: null },
+    pokemon: { searchQuery: '', colorFilters: [], typeFilters: [], rarityFilters: [], selectedSet: null },
+    yugioh: { searchQuery: '', colorFilters: [], typeFilters: [], rarityFilters: [], selectedSet: null },
+    onepiece: { searchQuery: '', colorFilters: [], typeFilters: [], rarityFilters: [], selectedSet: null },
+  });
 
   useEffect(() => {
     // Load active game category from localStorage or use default
@@ -203,6 +217,28 @@ export const useCards = () => {
     });
   };
 
+  // Save filter state for current game category
+  const saveFilterState = (state: Partial<{
+    searchQuery: string;
+    colorFilters: string[];
+    typeFilters: string[];
+    rarityFilters: string[];
+    selectedSet: string | null;
+  }>) => {
+    setFilterStates(prev => ({
+      ...prev,
+      [activeGameCategory]: {
+        ...prev[activeGameCategory],
+        ...state
+      }
+    }));
+  };
+
+  // Get current filter state for active game category
+  const getCurrentFilterState = () => {
+    return filterStates[activeGameCategory];
+  };
+
   return {
     cards: staticCards,
     allCards: staticCards,
@@ -210,6 +246,8 @@ export const useCards = () => {
     searchCards,
     filterCards,
     activeGameCategory,
-    changeGameCategory
+    changeGameCategory,
+    saveFilterState,
+    getCurrentFilterState
   };
 };

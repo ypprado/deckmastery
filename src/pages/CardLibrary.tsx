@@ -6,10 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { useCards, GameCategory } from '@/hooks/use-decks';
+import { useCards } from '@/hooks/use-decks';
 import { cn } from '@/lib/utils';
-import GameCategorySelector from '@/components/shared/GameCategorySelector';
-import { staticCardDatabase } from '@/utils/sampleJsonStructure';
 
 const colorNames: Record<string, string> = {
   white: 'White',
@@ -22,7 +20,7 @@ const colorNames: Record<string, string> = {
 };
 
 const CardLibrary = () => {
-  const { cards, loading, searchCards, filterCards, activeGameCategory, changeGameCategory } = useCards();
+  const { cards, loading, searchCards, filterCards, activeGameCategory } = useCards();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilters, setActiveFilters] = useState<{
     colors: string[];
@@ -42,6 +40,13 @@ const CardLibrary = () => {
   // Reset selected set when game category changes
   useEffect(() => {
     setSelectedSet(null);
+    // Reset filters when game category changes
+    setActiveFilters({
+      colors: [],
+      types: [],
+      rarities: []
+    });
+    setSearchQuery('');
   }, [activeGameCategory]);
   
   // Filter cards by selected set
@@ -111,12 +116,6 @@ const CardLibrary = () => {
           Browse and search for cards to add to your decks
         </p>
       </div>
-
-      {/* Game Category Selector */}
-      <GameCategorySelector 
-        activeCategory={activeGameCategory}
-        onCategoryChange={changeGameCategory}
-      />
 
       {selectedSet ? (
         <>
