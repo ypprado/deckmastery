@@ -29,12 +29,14 @@ import { useDecks, useCards, Card as CardType, GameCategory, gameCategories } fr
 import { cn } from "@/lib/utils";
 import GameCategorySelector from "@/components/shared/GameCategorySelector";
 import { toast } from "sonner";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const DeckBuilder = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { saveDeck, updateDeck, getDeck, activeGameCategory, changeGameCategory } = useDecks();
   const { cards: allCards, searchCards, activeGameCategory: cardGameCategory, changeGameCategory: changeCardCategory } = useCards();
+  const { t } = useLanguage();
   
   const [deckName, setDeckName] = useState("");
   const [deckFormat, setDeckFormat] = useState("Standard");
@@ -70,7 +72,7 @@ const DeckBuilder = () => {
           }
         } else {
           console.error(`Deck with ID ${id} not found for editing`);
-          toast.error("Could not load deck for editing");
+          toast.error(t('deckNameRequired'));
           navigate("/dashboard");
         }
         setIsLoading(false);
@@ -79,7 +81,7 @@ const DeckBuilder = () => {
       setIsEditMode(false);
       setIsLoading(false);
     }
-  }, [id, getDeck, navigate, activeGameCategory, changeGameCategory]);
+  }, [id, getDeck, navigate, activeGameCategory, changeGameCategory, t]);
 
   if (activeGameCategory !== cardGameCategory) {
     changeCardCategory(activeGameCategory);
@@ -152,12 +154,12 @@ const DeckBuilder = () => {
 
   const handleSaveDeck = () => {
     if (!deckName) {
-      toast.error("Deck name required");
+      toast.error(t('deckNameRequired'));
       return;
     }
 
     if (selectedCards.length === 0) {
-      toast.error("Your deck needs at least one card");
+      toast.error(t('deckNeedsCards'));
       return;
     }
 
@@ -181,7 +183,7 @@ const DeckBuilder = () => {
         gameCategory: activeGameCategory
       });
       
-      toast.success("Deck updated successfully");
+      toast.success(t('deckUpdated'));
       navigate(`/deck/${id}`);
     } else {
       // Create new deck
@@ -195,7 +197,7 @@ const DeckBuilder = () => {
         gameCategory: activeGameCategory
       });
 
-      toast.success("Deck created successfully");
+      toast.success(t('deckCreated'));
       navigate(`/deck/${newDeck.id}`);
     }
   };
@@ -218,6 +220,19 @@ const DeckBuilder = () => {
     );
   }
 
+  // Function to get translated format names
+  const getFormatLabel = (format: string) => {
+    switch (format) {
+      case 'Standard': return t('standard');
+      case 'Modern': return t('modern');
+      case 'Commander': return t('commander');
+      case 'Legacy': return t('legacy');
+      case 'Vintage': return t('vintage');
+      case 'Casual': return t('casual');
+      default: return format;
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2">
@@ -230,7 +245,7 @@ const DeckBuilder = () => {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <h1 className="text-3xl font-bold tracking-tight">
-          {isEditMode ? "Edit Deck" : "Create New Deck"}
+          {isEditMode ? t('editDeck') : t('createNewDeck')}
         </h1>
       </div>
 
@@ -244,37 +259,37 @@ const DeckBuilder = () => {
           <Card className="animate-scale-up">
             <CardContent className="p-4 space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="deck-name">Deck Name</Label>
+                <Label htmlFor="deck-name">{t('deckName')}</Label>
                 <Input
                   id="deck-name"
-                  placeholder="Enter deck name"
+                  placeholder={t('enterDeckName')}
                   value={deckName}
                   onChange={(e) => setDeckName(e.target.value)}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="deck-format">Format</Label>
+                <Label htmlFor="deck-format">{t('format')}</Label>
                 <Select value={deckFormat} onValueChange={setDeckFormat}>
                   <SelectTrigger id="deck-format">
-                    <SelectValue placeholder="Select format" />
+                    <SelectValue placeholder={t('selectFormat')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Standard">Standard</SelectItem>
-                    <SelectItem value="Modern">Modern</SelectItem>
-                    <SelectItem value="Commander">Commander</SelectItem>
-                    <SelectItem value="Legacy">Legacy</SelectItem>
-                    <SelectItem value="Vintage">Vintage</SelectItem>
-                    <SelectItem value="Casual">Casual</SelectItem>
+                    <SelectItem value="Standard">{t('standard')}</SelectItem>
+                    <SelectItem value="Modern">{t('modern')}</SelectItem>
+                    <SelectItem value="Commander">{t('commander')}</SelectItem>
+                    <SelectItem value="Legacy">{t('legacy')}</SelectItem>
+                    <SelectItem value="Vintage">{t('vintage')}</SelectItem>
+                    <SelectItem value="Casual">{t('casual')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="deck-description">Description (Optional)</Label>
+                <Label htmlFor="deck-description">{t('description')}</Label>
                 <Textarea
                   id="deck-description"
-                  placeholder="Describe your deck strategy..."
+                  placeholder={t('describeStrategy')}
                   rows={4}
                   value={deckDescription}
                   onChange={(e) => setDeckDescription(e.target.value)}
@@ -288,7 +303,7 @@ const DeckBuilder = () => {
                   disabled={deckName === "" || selectedCards.length === 0}
                 >
                   <Save className="h-4 w-4 mr-2" />
-                  {isEditMode ? "Update Deck" : "Save Deck"}
+                  {isEditMode ? t('updateDeck') : t('saveDeck')}
                 </Button>
               </div>
             </CardContent>
@@ -297,16 +312,16 @@ const DeckBuilder = () => {
           <Card className="animate-scale-up">
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-2">
-                <h3 className="font-medium">Your Deck</h3>
-                <Badge variant="outline">{totalCards} cards</Badge>
+                <h3 className="font-medium">{t('yourDeck')}</h3>
+                <Badge variant="outline">{totalCards} {totalCards === 1 ? t('card') : t('cards')}</Badge>
               </div>
               
               <Separator className="my-2" />
               
               {selectedCards.length === 0 ? (
                 <div className="py-8 text-center text-muted-foreground">
-                  <p>No cards added yet</p>
-                  <p className="text-sm mt-1">Browse and add cards from the right panel</p>
+                  <p>{t('noCardsAddedYet')}</p>
+                  <p className="text-sm mt-1">{t('browseAddCards')}</p>
                 </div>
               ) : (
                 <div className="max-h-[400px] overflow-y-auto pr-2">
@@ -376,7 +391,7 @@ const DeckBuilder = () => {
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
-                    placeholder="Search cards..."
+                    placeholder={t('searchCards')}
                     className="pl-9"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -385,14 +400,14 @@ const DeckBuilder = () => {
                 {isAnyFilterActive && (
                   <Button variant="ghost" onClick={clearFilters} className="shrink-0">
                     <X className="h-4 w-4 mr-2" />
-                    Clear
+                    {t('clearAll')}
                   </Button>
                 )}
               </div>
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label className="text-sm">Colors</Label>
+                  <Label className="text-sm">{t('colors')}</Label>
                 </div>
                 <div className="flex flex-wrap gap-1">
                   {availableColors.map(color => (
@@ -413,7 +428,7 @@ const DeckBuilder = () => {
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label className="text-sm">Types</Label>
+                  <Label className="text-sm">{t('types')}</Label>
                 </div>
                 <div className="flex flex-wrap gap-1">
                   {cardTypes.map(type => (
@@ -435,12 +450,12 @@ const DeckBuilder = () => {
             {filteredCards.length === 0 ? (
               <div className="col-span-full py-12 text-center">
                 <Filter className="h-12 w-12 mx-auto text-muted-foreground" />
-                <h3 className="mt-4 text-lg font-medium">No cards found</h3>
+                <h3 className="mt-4 text-lg font-medium">{t('noCardsFound')}</h3>
                 <p className="mt-2 text-sm text-muted-foreground max-w-sm mx-auto">
-                  Try adjusting your filters or search term to find cards.
+                  {t('tryAdjustingFilters')}
                 </p>
                 <Button onClick={clearFilters} variant="outline" className="mt-4">
-                  Clear Filters
+                  {t('clearFilters')}
                 </Button>
               </div>
             ) : (
@@ -504,12 +519,12 @@ const DeckBuilder = () => {
                           {isSelected ? (
                             <>
                               <Check className="h-3 w-3 mr-1" />
-                              Added
+                              {t('added')}
                             </>
                           ) : (
                             <>
                               <Plus className="h-3 w-3 mr-1" />
-                              Add
+                              {t('add')}
                             </>
                           )}
                         </Button>

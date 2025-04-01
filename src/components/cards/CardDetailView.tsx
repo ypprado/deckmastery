@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from 'recharts';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface CardDetailViewProps {
   card: CardType | null;
@@ -52,6 +53,7 @@ const generatePriceData = () => {
 
 const CardDetailView: React.FC<CardDetailViewProps> = ({ card, isOpen, onOpenChange }) => {
   const [priceData] = React.useState(generatePriceData());
+  const { t } = useLanguage();
   
   if (!card) return null;
   
@@ -86,16 +88,16 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({ card, isOpen, onOpenCha
             {/* Card Details */}
             <div className="space-y-3 mt-4">
               <div className="grid grid-cols-2 gap-2 text-sm">
-                <div className="text-muted-foreground">Type</div>
+                <div className="text-muted-foreground">{t('type')}</div>
                 <div className="font-medium">{card.type}</div>
                 
-                <div className="text-muted-foreground">Cost</div>
+                <div className="text-muted-foreground">{t('cost')}</div>
                 <div className="font-medium">{card.cost}</div>
                 
-                <div className="text-muted-foreground">Rarity</div>
+                <div className="text-muted-foreground">{t('rarity')}</div>
                 <div className="font-medium">{card.rarity}</div>
                 
-                <div className="text-muted-foreground">Set</div>
+                <div className="text-muted-foreground">{t('set')}</div>
                 <div className="font-medium">{card.set}</div>
               </div>
             </div>
@@ -104,12 +106,12 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({ card, isOpen, onOpenCha
             
             {/* Price History Graph */}
             <div className="flex-1 mt-2">
-              <h3 className="text-sm font-medium mb-2">Price History (30 days)</h3>
+              <h3 className="text-sm font-medium mb-2">{t('priceHistory')}</h3>
               <div className="h-[200px] w-full">
                 <ChartContainer
                   config={{
                     price: {
-                      label: "Price",
+                      label: t('price'),
                       theme: {
                         light: "#2563eb", // blue-600
                         dark: "#3b82f6", // blue-500
@@ -125,13 +127,13 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({ card, isOpen, onOpenCha
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="day" label={{ value: 'Days', position: 'insideBottom', offset: -5 }} />
+                    <XAxis dataKey="day" label={{ value: t('days'), position: 'insideBottom', offset: -5 }} />
                     <YAxis 
                       domain={['dataMin - 1', 'dataMax + 1']}
-                      label={{ value: 'Price ($)', angle: -90, position: 'insideLeft' }}
+                      label={{ value: t('price'), angle: -90, position: 'insideLeft' }}
                     />
                     <ChartTooltip
-                      content={<ChartTooltipContent formatter={(value) => [`$${value}`, "Price"]} />}
+                      content={<ChartTooltipContent formatter={(value) => [`$${value}`, t('price')]} />}
                     />
                     <Area
                       type="monotone" 

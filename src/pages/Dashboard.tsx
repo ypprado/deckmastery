@@ -8,11 +8,13 @@ import { Input } from '@/components/ui/input';
 import { useDecks } from '@/hooks/use-decks';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Dashboard = () => {
   const { decks, loading, activeGameCategory } = useDecks();
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const filteredDecks = searchQuery 
     ? decks.filter(deck => 
@@ -41,14 +43,14 @@ const Dashboard = () => {
     <div className="space-y-8">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Your Decks</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t('yourDecks')}</h1>
           <p className="text-muted-foreground mt-1">
-            Manage and create your TCG decks with ease
+            {t('manageCreateDecks')}
           </p>
         </div>
         <Button size="default" onClick={() => navigate('/deck/new')}>
           <PlusCircle className="mr-2 h-4 w-4" />
-          Create New Deck
+          {t('createNewDeck')}
         </Button>
       </div>
 
@@ -57,7 +59,7 @@ const Dashboard = () => {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search decks..."
+            placeholder={t('searchDecks')}
             className="pl-9"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -65,7 +67,7 @@ const Dashboard = () => {
         </div>
         <Button variant="outline" className="shrink-0">
           <Filter className="mr-2 h-4 w-4" />
-          Filter
+          {t('filter')}
         </Button>
       </div>
 
@@ -73,22 +75,22 @@ const Dashboard = () => {
         <div className="mt-20 flex justify-center">
           <div className="flex flex-col items-center">
             <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-            <p className="mt-4 text-sm text-muted-foreground">Loading your decks...</p>
+            <p className="mt-4 text-sm text-muted-foreground">{t('loadingDecks')}</p>
           </div>
         </div>
       ) : filteredDecks.length === 0 ? (
         <div className="mt-20 flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center animate-fade-in">
           <FolderOpen className="h-12 w-12 text-muted-foreground opacity-50" />
-          <h3 className="mt-4 text-lg font-medium">No decks found</h3>
+          <h3 className="mt-4 text-lg font-medium">{t('noDecksFound')}</h3>
           <p className="mt-2 text-sm text-muted-foreground max-w-sm">
             {searchQuery 
-              ? `No results matching "${searchQuery}". Try a different search term.` 
-              : `You haven't created any ${activeGameCategory.charAt(0).toUpperCase() + activeGameCategory.slice(1)} decks yet. Start building your first deck!`}
+              ? `${t('noResultsMatching')} "${searchQuery}". ${t('adjustFilters')}` 
+              : `${t('noDecksYet')} ${activeGameCategory.charAt(0).toUpperCase() + activeGameCategory.slice(1)}. ${t('startBuildingDeck')}`}
           </p>
           {!searchQuery && (
             <Button onClick={() => navigate('/deck/new')} className="mt-4">
               <PlusCircle className="mr-2 h-4 w-4" />
-              Create Your First Deck
+              {t('createFirstDeck')}
             </Button>
           )}
         </div>
@@ -128,7 +130,7 @@ const Dashboard = () => {
               <CardContent className="p-4">
                 <h3 className="font-medium text-lg leading-tight">{deck.name}</h3>
                 <p className="text-sm text-muted-foreground mt-1">
-                  {deck.format} • {deck.cards.reduce((acc, curr) => acc + curr.quantity, 0)} cards
+                  {deck.format} • {deck.cards.reduce((acc, curr) => acc + curr.quantity, 0)} {deck.cards.reduce((acc, curr) => acc + curr.quantity, 0) === 1 ? t('card') : t('cards')}
                 </p>
               </CardContent>
               <CardFooter className="p-4 pt-0 flex justify-between text-xs text-muted-foreground">

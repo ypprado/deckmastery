@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Search, Filter, Plus, X, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { useCards } from '@/hooks/use-decks';
 import { cn } from '@/lib/utils';
 import CardDetailView from '@/components/cards/CardDetailView';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const colorNames: Record<string, string> = {
   white: 'White',
@@ -22,6 +23,7 @@ const colorNames: Record<string, string> = {
 
 const CardLibrary = () => {
   const { cards, loading, searchCards, filterCards, activeGameCategory, saveFilterState, getCurrentFilterState } = useCards();
+  const { t } = useLanguage();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedCard, setSelectedCard] = useState(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
@@ -56,11 +58,16 @@ const CardLibrary = () => {
     setSelectedSet(currentState.selectedSet || null);
   }, [activeGameCategory, getCurrentFilterState]);
   
+  // Use useCallback for saveFilterState to avoid dependency issues
+  const saveFilterStateCallback = useCallback((state) => {
+    saveFilterState(state);
+  }, [saveFilterState]);
+  
   // Save filter state when it changes - with proper dependency array
   useEffect(() => {
     // Add a debounce to avoid infinite loops
     const saveTimer = setTimeout(() => {
-      saveFilterState({
+      saveFilterStateCallback({
         searchQuery,
         colorFilters: activeFilters.colors,
         typeFilters: activeFilters.types,
@@ -70,7 +77,7 @@ const CardLibrary = () => {
     }, 300);
     
     return () => clearTimeout(saveTimer);
-  }, [searchQuery, activeFilters.colors, activeFilters.types, activeFilters.rarities, selectedSet, saveFilterState]);
+  }, [searchQuery, activeFilters.colors, activeFilters.types, activeFilters.rarities, selectedSet, saveFilterStateCallback]);
   
   // Filter cards by selected set
   const cardsInSelectedSet = selectedSet 
@@ -139,9 +146,9 @@ const CardLibrary = () => {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Card Library</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{t('cardLibrary')}</h1>
         <p className="text-muted-foreground mt-1">
-          Browse and search for cards to add to your decks
+          {t('browseSearchCards')}
         </p>
       </div>
 
@@ -154,7 +161,7 @@ const CardLibrary = () => {
             onClick={() => setSelectedSet(null)}
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Sets
+            {t('backToSets')}
           </Button>
 
           <div className="flex items-center gap-2 mb-4">
@@ -166,7 +173,7 @@ const CardLibrary = () => {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                placeholder="Search cards..."
+                placeholder={t('searchCards')}
                 className="pl-9"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -174,8 +181,8 @@ const CardLibrary = () => {
             </div>
             <Tabs defaultValue="grid" className="w-fit">
               <TabsList>
-                <TabsTrigger value="grid" onClick={() => setViewMode('grid')}>Grid</TabsTrigger>
-                <TabsTrigger value="list" onClick={() => setViewMode('list')}>List</TabsTrigger>
+                <TabsTrigger value="grid" onClick={() => setViewMode('grid')}>{t('grid')}</TabsTrigger>
+                <TabsTrigger value="list" onClick={() => setViewMode('list')}>{t('list')}</TabsTrigger>
               </TabsList>
             </Tabs>
           </div>
@@ -183,10 +190,10 @@ const CardLibrary = () => {
           {/* Filters */}
           <div className="rounded-md border bg-card p-4">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-medium">Filters</h3>
+              <h3 className="text-sm font-medium">{t('filters')}</h3>
               {isAnyFilterActive && (
                 <Button variant="ghost" size="sm" onClick={clearFilters} className="h-8 text-xs">
-                  <X className="h-3 w-3 mr-1" /> Clear All
+                  <X className="h-3 w-3 mr-1" /> {t('clearAll')}
                 </Button>
               )}
             </div>
@@ -194,7 +201,7 @@ const CardLibrary = () => {
             <div className="grid gap-4 md:grid-cols-3">
               {/* Colors */}
               <div>
-                <h4 className="text-xs font-medium mb-2">Colors</h4>
+                <h4 className="text-xs font-medium mb-2">{t('colors')}</h4>
                 <div className="flex flex-wrap gap-1">
                   {uniqueColors.map(color => (
                     <Badge 
@@ -214,7 +221,7 @@ const CardLibrary = () => {
               
               {/* Types */}
               <div>
-                <h4 className="text-xs font-medium mb-2">Types</h4>
+                <h4 className="text-xs font-medium mb-2">{t('types')}</h4>
                 <div className="flex flex-wrap gap-1">
                   {uniqueTypes.map(type => (
                     <Badge 
@@ -231,7 +238,7 @@ const CardLibrary = () => {
               
               {/* Rarities */}
               <div>
-                <h4 className="text-xs font-medium mb-2">Rarities</h4>
+                <h4 className="text-xs font-medium mb-2">{t('rarities')}</h4>
                 <div className="flex flex-wrap gap-1">
                   {uniqueRarities.map(rarity => (
                     <Badge 
@@ -253,18 +260,18 @@ const CardLibrary = () => {
             <div className="mt-8 flex justify-center">
               <div className="flex flex-col items-center">
                 <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-                <p className="mt-4 text-sm text-muted-foreground">Loading cards...</p>
+                <p className="mt-4 text-sm text-muted-foreground">{t('loadingSets')}</p>
               </div>
             </div>
           ) : filteredCards.length === 0 ? (
             <div className="mt-8 flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center animate-fade-in">
               <Search className="h-12 w-12 text-muted-foreground opacity-50" />
-              <h3 className="mt-4 text-lg font-medium">No cards found</h3>
+              <h3 className="mt-4 text-lg font-medium">{t('noCardsFound')}</h3>
               <p className="mt-2 text-sm text-muted-foreground max-w-sm">
-                Try adjusting your filters or search term to find what you're looking for.
+                {t('adjustFilters')}
               </p>
               <Button onClick={clearFilters} variant="outline" className="mt-4">
-                Clear Filters
+                {t('clearFilters')}
               </Button>
             </div>
           ) : viewMode === 'grid' ? (
@@ -286,7 +293,7 @@ const CardLibrary = () => {
                     <h3 className="font-medium text-sm leading-tight truncate">{card.name}</h3>
                     <div className="flex justify-between items-center mt-1">
                       <p className="text-xs text-muted-foreground">{card.type}</p>
-                      <p className="text-xs text-muted-foreground">Cost: {card.cost}</p>
+                      <p className="text-xs text-muted-foreground">{t('cost')}: {card.cost}</p>
                     </div>
                   </CardContent>
                   <Button
@@ -320,7 +327,7 @@ const CardLibrary = () => {
                       <span className="text-xs text-muted-foreground">•</span>
                       <span className="text-xs text-muted-foreground">{card.rarity}</span>
                       <span className="text-xs text-muted-foreground">•</span>
-                      <span className="text-xs text-muted-foreground">Cost: {card.cost}</span>
+                      <span className="text-xs text-muted-foreground">{t('cost')}: {card.cost}</span>
                     </div>
                   </div>
                   <div className="flex gap-1">
@@ -345,20 +352,20 @@ const CardLibrary = () => {
       ) : (
         // Sets View
         <>
-          <h2 className="text-xl font-semibold mb-4">Card Sets</h2>
+          <h2 className="text-xl font-semibold mb-4">{t('cardSets')}</h2>
           
           {loading ? (
             <div className="mt-8 flex justify-center">
               <div className="flex flex-col items-center">
                 <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-                <p className="mt-4 text-sm text-muted-foreground">Loading sets...</p>
+                <p className="mt-4 text-sm text-muted-foreground">{t('loadingSets')}</p>
               </div>
             </div>
           ) : availableSets.length === 0 ? (
             <div className="mt-8 flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center animate-fade-in">
-              <h3 className="mt-4 text-lg font-medium">No sets found</h3>
+              <h3 className="mt-4 text-lg font-medium">{t('noSetsFound')}</h3>
               <p className="mt-2 text-sm text-muted-foreground max-w-sm">
-                There are no card sets available for this game category.
+                {t('noSetsAvailable')}
               </p>
             </div>
           ) : (
@@ -388,14 +395,14 @@ const CardLibrary = () => {
                       <div className="flex-1">
                         <h3 className="font-medium">{set}</h3>
                         <p className="text-sm text-muted-foreground mt-1">
-                          {cardCount} card{cardCount !== 1 ? 's' : ''}
+                          {cardCount} {cardCount !== 1 ? t('cards') : t('card')}
                         </p>
                         <Button 
                           variant="secondary" 
                           size="sm" 
                           className="mt-2"
                         >
-                          View Cards
+                          {t('viewCards')}
                         </Button>
                       </div>
                     </div>
