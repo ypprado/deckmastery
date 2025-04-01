@@ -217,8 +217,8 @@ export const useCards = () => {
     });
   };
 
-  // Save filter state for current game category
-  const saveFilterState = (state: Partial<{
+  // Save filter state for current game category with memoization to avoid infinite loops
+  const saveFilterState = React.useCallback((state: Partial<{
     searchQuery: string;
     colorFilters: string[];
     typeFilters: string[];
@@ -232,12 +232,18 @@ export const useCards = () => {
         ...state
       }
     }));
-  };
+  }, [activeGameCategory]);
 
-  // Get current filter state for active game category
-  const getCurrentFilterState = () => {
-    return filterStates[activeGameCategory];
-  };
+  // Get current filter state for active game category - memoized to avoid creating new references on each render
+  const getCurrentFilterState = React.useCallback(() => {
+    return filterStates[activeGameCategory] || {
+      searchQuery: '',
+      colorFilters: [],
+      typeFilters: [],
+      rarityFilters: [],
+      selectedSet: null
+    };
+  }, [filterStates, activeGameCategory]);
 
   return {
     cards: staticCards,

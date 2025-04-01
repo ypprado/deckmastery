@@ -28,17 +28,17 @@ const CardLibrary = () => {
   
   // Get the current filter state for this game category
   const filterState = getCurrentFilterState();
-  const [searchQuery, setSearchQuery] = useState(filterState.searchQuery);
+  const [searchQuery, setSearchQuery] = useState(filterState.searchQuery || '');
   const [activeFilters, setActiveFilters] = useState<{
     colors: string[];
     types: string[];
     rarities: string[];
   }>({
-    colors: filterState.colorFilters,
-    types: filterState.typeFilters,
-    rarities: filterState.rarityFilters,
+    colors: filterState.colorFilters || [],
+    types: filterState.typeFilters || [],
+    rarities: filterState.rarityFilters || [],
   });
-  const [selectedSet, setSelectedSet] = useState<string | null>(filterState.selectedSet);
+  const [selectedSet, setSelectedSet] = useState<string | null>(filterState.selectedSet || null);
 
   // Get unique sets from the current game category
   const availableSets = Array.from(new Set(cards.map(card => card.set)));
@@ -47,25 +47,30 @@ const CardLibrary = () => {
   useEffect(() => {
     // Load filter state for the current game category
     const currentState = getCurrentFilterState();
-    setSearchQuery(currentState.searchQuery);
+    setSearchQuery(currentState.searchQuery || '');
     setActiveFilters({
-      colors: currentState.colorFilters,
-      types: currentState.typeFilters,
-      rarities: currentState.rarityFilters
+      colors: currentState.colorFilters || [],
+      types: currentState.typeFilters || [],
+      rarities: currentState.rarityFilters || []
     });
-    setSelectedSet(currentState.selectedSet);
+    setSelectedSet(currentState.selectedSet || null);
   }, [activeGameCategory, getCurrentFilterState]);
   
-  // Save filter state when it changes
+  // Save filter state when it changes - with proper dependency array
   useEffect(() => {
-    saveFilterState({
-      searchQuery,
-      colorFilters: activeFilters.colors,
-      typeFilters: activeFilters.types,
-      rarityFilters: activeFilters.rarities,
-      selectedSet
-    });
-  }, [searchQuery, activeFilters, selectedSet, saveFilterState]);
+    // Add a debounce to avoid infinite loops
+    const saveTimer = setTimeout(() => {
+      saveFilterState({
+        searchQuery,
+        colorFilters: activeFilters.colors,
+        typeFilters: activeFilters.types,
+        rarityFilters: activeFilters.rarities,
+        selectedSet
+      });
+    }, 300);
+    
+    return () => clearTimeout(saveTimer);
+  }, [searchQuery, activeFilters.colors, activeFilters.types, activeFilters.rarities, selectedSet, saveFilterState]);
   
   // Filter cards by selected set
   const cardsInSelectedSet = selectedSet 
@@ -389,7 +394,6 @@ const CardLibrary = () => {
                           variant="secondary" 
                           size="sm" 
                           className="mt-2"
-                          onClick={() => setSelectedSet(set)}
                         >
                           View Cards
                         </Button>
