@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { toast } from "sonner";
 import { useStaticData } from './use-static-data';
 
@@ -218,7 +218,7 @@ export const useCards = () => {
   };
 
   // Save filter state for current game category with memoization to avoid infinite loops
-  const saveFilterState = React.useCallback((state: Partial<{
+  const saveFilterState = useCallback((state: Partial<{
     searchQuery: string;
     colorFilters: string[];
     typeFilters: string[];
@@ -235,7 +235,7 @@ export const useCards = () => {
   }, [activeGameCategory]);
 
   // Get current filter state for active game category - memoized to avoid creating new references on each render
-  const getCurrentFilterState = React.useCallback(() => {
+  const getCurrentFilterState = useCallback(() => {
     return filterStates[activeGameCategory] || {
       searchQuery: '',
       colorFilters: [],
