@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { useCards } from '@/hooks/use-decks';
 import { cn } from '@/lib/utils';
+import CardDetailView from '@/components/cards/CardDetailView';
 
 const colorNames: Record<string, string> = {
   white: 'White',
@@ -20,34 +21,51 @@ const colorNames: Record<string, string> = {
 };
 
 const CardLibrary = () => {
-  const { cards, loading, searchCards, filterCards, activeGameCategory } = useCards();
-  const [searchQuery, setSearchQuery] = useState('');
+  const { cards, loading, searchCards, filterCards, activeGameCategory, saveFilterState, getCurrentFilterState } = useCards();
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [selectedCard, setSelectedCard] = useState(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  
+  // Get the current filter state for this game category
+  const filterState = getCurrentFilterState();
+  const [searchQuery, setSearchQuery] = useState(filterState.searchQuery);
   const [activeFilters, setActiveFilters] = useState<{
     colors: string[];
     types: string[];
     rarities: string[];
   }>({
-    colors: [],
-    types: [],
-    rarities: []
+    colors: filterState.colorFilters,
+    types: filterState.typeFilters,
+    rarities: filterState.rarityFilters,
   });
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [selectedSet, setSelectedSet] = useState<string | null>(null);
+  const [selectedSet, setSelectedSet] = useState<string | null>(filterState.selectedSet);
 
   // Get unique sets from the current game category
   const availableSets = Array.from(new Set(cards.map(card => card.set)));
 
   // Reset selected set when game category changes
   useEffect(() => {
-    setSelectedSet(null);
-    // Reset filters when game category changes
+    // Load filter state for the current game category
+    const currentState = getCurrentFilterState();
+    setSearchQuery(currentState.searchQuery);
     setActiveFilters({
-      colors: [],
-      types: [],
-      rarities: []
+      colors: currentState.colorFilters,
+      types: currentState.typeFilters,
+      rarities: currentState.rarityFilters
     });
-    setSearchQuery('');
-  }, [activeGameCategory]);
+    setSelectedSet(currentState.selectedSet);
+  }, [activeGameCategory, getCurrentFilterState]);
+  
+  // Save filter state when it changes
+  useEffect(() => {
+    saveFilterState({
+      searchQuery,
+      colorFilters: activeFilters.colors,
+      typeFilters: activeFilters.types,
+      rarityFilters: activeFilters.rarities,
+      selectedSet
+    });
+  }, [searchQuery, activeFilters, selectedSet, saveFilterState]);
   
   // Filter cards by selected set
   const cardsInSelectedSet = selectedSet 
@@ -77,6 +95,11 @@ const CardLibrary = () => {
       rarities: []
     });
     setSearchQuery('');
+  };
+
+  const handleCardClick = (card) => {
+    setSelectedCard(card);
+    setIsDetailOpen(true);
   };
 
   // Apply filters to cards in selected set
@@ -242,7 +265,11 @@ const CardLibrary = () => {
           ) : viewMode === 'grid' ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
               {filteredCards.map((card) => (
-                <Card key={card.id} className="overflow-hidden card-hover relative group transition-all duration-300">
+                <Card 
+                  key={card.id} 
+                  className="overflow-hidden card-hover relative group transition-all duration-300 cursor-pointer"
+                  onClick={() => handleCardClick(card)}
+                >
                   <div className="aspect-[3/4] overflow-hidden card-tilt">
                     <img
                       src={card.imageUrl}
@@ -269,7 +296,11 @@ const CardLibrary = () => {
           ) : (
             <div className="border rounded-md divide-y">
               {filteredCards.map((card) => (
-                <div key={card.id} className="p-4 flex items-center gap-4 hover:bg-muted/40 transition-colors">
+                <div 
+                  key={card.id} 
+                  className="p-4 flex items-center gap-4 hover:bg-muted/40 transition-colors cursor-pointer"
+                  onClick={() => handleCardClick(card)}
+                >
                   <div className="h-16 w-12 shrink-0 overflow-hidden rounded-sm">
                     <img
                       src={card.imageUrl}
@@ -371,6 +402,13 @@ const CardLibrary = () => {
           )}
         </>
       )}
+
+      {/* Card Detail Dialog */}
+      <CardDetailView 
+        card={selectedCard} 
+        isOpen={isDetailOpen} 
+        onOpenChange={setIsDetailOpen} 
+      />
     </div>
   );
 };
