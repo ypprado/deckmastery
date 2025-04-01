@@ -9,6 +9,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { UserProfile } from "@/components/user/UserProfile";
 import { useAuth } from "@/contexts/AuthContext";
 import { useDecks, GameCategory, gameCategories } from "@/hooks/use-decks";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { LanguageSelector } from "@/components/language/LanguageSelector";
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -23,6 +25,7 @@ const Layout = () => {
   } = useToast();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { t } = useLanguage();
   const {
     user,
     loading
@@ -56,27 +59,27 @@ const Layout = () => {
   const handleCreateDeck = () => {
     if (!user) {
       toast({
-        title: "Authentication required",
-        description: "Please sign in to create a deck"
+        title: t('authRequired'),
+        description: t('pleaseSignIn')
       });
       navigate('/auth');
       return;
     }
     navigate('/deck/new');
     toast({
-      title: "Create a new deck",
-      description: "Start building your perfect deck strategy!"
+      title: t('createNewDeck'),
+      description: t('startBuildingDeck')
     });
   };
   
   const navItems = [{
     path: "/",
     icon: <LayoutDashboard className="h-5 w-5" />,
-    label: "Dashboard"
+    label: t('dashboard')
   }, {
     path: "/cards",
     icon: <Book className="h-5 w-5" />,
-    label: "Card Library"
+    label: t('cardLibrary')
   }];
 
   // Get the current game category's name
@@ -130,8 +133,11 @@ const Layout = () => {
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" className="hidden md:flex" onClick={handleCreateDeck}>
               <PlusCircle className="h-4 w-4 mr-2" />
-              New Deck
+              {t('newDeck')}
             </Button>
+            
+            {/* Language Selector */}
+            <LanguageSelector />
             
             <Button variant="ghost" size="icon" onClick={toggleTheme} className="ml-2" aria-label="Toggle theme">
               {isDarkMode ? <Sun className="h-[1.2rem] w-[1.2rem]" /> : <Moon className="h-[1.2rem] w-[1.2rem]" />}
@@ -145,7 +151,7 @@ const Layout = () => {
             
             {!loading && (user ? <UserProfile /> : <Button size="sm" onClick={() => navigate('/auth')} className="ml-2">
                   <LogIn className="h-4 w-4 mr-2" />
-                  Sign In
+                  {t('signIn')}
                 </Button>)}
           </div>
         </div>
@@ -168,11 +174,11 @@ const Layout = () => {
             <div className="mt-auto px-3">
               <Button onClick={handleCreateDeck} className="w-full justify-start">
                 <PlusCircle className="h-4 w-4 mr-2" />
-                New Deck
+                {t('newDeck')}
               </Button>
               
               <div className="mt-4 px-3 py-2 text-xs text-muted-foreground">
-                <p>DeckMastery v1.0</p>
+                <p>DeckMastery {t('version')} 1.0</p>
               </div>
             </div>
           </div>
