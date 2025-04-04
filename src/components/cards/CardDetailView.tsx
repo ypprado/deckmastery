@@ -19,6 +19,9 @@ interface CardDetailViewProps {
   onOpenChange: (open: boolean) => void;
 }
 
+// Type for the combined card data from both sources
+type DisplayCardType = CardType | Database['public']['Tables']['cards']['Row'];
+
 // Mapping color names for display
 const colorNames: Record<string, string> = {
   Red: 'Red',
@@ -72,6 +75,44 @@ const generatePriceData = () => {
   return data;
 };
 
+// Helper function to get image URL from either card type
+const getCardImageUrl = (card: DisplayCardType): string => {
+  if ('imageUrl' in card) {
+    return card.imageUrl;
+  } else if ('artwork_url' in card) {
+    return card.artwork_url;
+  }
+  return '';
+};
+
+// Helper function to get card type from either card type
+const getCardType = (card: DisplayCardType): string => {
+  if ('type' in card) {
+    return card.type;
+  } else if ('card_type' in card) {
+    return card.card_type || '';
+  }
+  return '';
+};
+
+// Helper function to get set from either card type
+const getCardSet = (card: DisplayCardType): string => {
+  if ('set' in card) {
+    return card.set;
+  } else if ('set_id' in card) {
+    return card.set_id;
+  }
+  return '';
+};
+
+// Helper function to get colors from either card type
+const getCardColors = (card: DisplayCardType): string[] => {
+  if ('colors' in card) {
+    return Array.isArray(card.colors) ? card.colors : [];
+  }
+  return [];
+};
+
 const CardDetailView: React.FC<CardDetailViewProps> = ({ card, isOpen, onOpenChange }) => {
   const [priceData] = useState(generatePriceData());
   const { t } = useLanguage();
@@ -114,7 +155,7 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({ card, isOpen, onOpenCha
   const displayCard = supabaseCard || card;
   
   // Ensure colors array exists
-  const colors = displayCard.colors || [];
+  const colors = getCardColors(displayCard);
   
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -124,7 +165,7 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({ card, isOpen, onOpenCha
           <div className="p-6 flex items-center justify-center bg-gradient-to-br from-background to-muted/50">
             <div className="relative aspect-[3/4] max-h-[500px] w-auto shadow-xl rounded-lg overflow-hidden">
               <img
-                src={displayCard.imageUrl || displayCard.artwork_url}
+                src={getCardImageUrl(displayCard)}
                 alt={displayCard.name}
                 className="w-full h-full object-cover"
               />
@@ -148,16 +189,18 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({ card, isOpen, onOpenCha
             <div className="space-y-3 mt-4">
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div className="text-muted-foreground">{t('type')}</div>
-                <div className="font-medium">{displayCard.type || displayCard.card_type}</div>
+                <div className="font-medium">{getCardType(displayCard)}</div>
                 
                 <div className="text-muted-foreground">{t('cost')}</div>
                 <div className="font-medium">{displayCard.cost}</div>
                 
                 <div className="text-muted-foreground">{t('rarity')}</div>
-                <div className="font-medium">{displayCard.rarity}</div>
+                <div className="font-medium">
+                  {'rarity' in displayCard ? displayCard.rarity : ''}
+                </div>
                 
                 <div className="text-muted-foreground">{t('set')}</div>
-                <div className="font-medium">{displayCard.set}</div>
+                <div className="font-medium">{getCardSet(displayCard)}</div>
                 
                 {/* Show additional fields from Supabase if available */}
                 {supabaseCard && (
