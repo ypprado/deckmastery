@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Card as CardType } from '@/hooks/use-decks';
@@ -80,7 +79,14 @@ const getCardImageUrl = (card: DisplayCardType): string => {
   if ('imageUrl' in card) {
     return card.imageUrl;
   } else if ('artwork_url' in card) {
-    return card.artwork_url;
+    let url = card.artwork_url;
+    // If the URL starts with 'card_images/', it's a path in Supabase Storage
+    if (url && url.startsWith('card_images/')) {
+      // Convert to a public URL
+      const { data } = supabase.storage.from('card_images').getPublicUrl(url);
+      return data.publicUrl;
+    }
+    return url;
   }
   return '';
 };

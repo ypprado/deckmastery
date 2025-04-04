@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { CardDetails, CardSet } from '@/types/cardDatabase';
@@ -294,6 +293,17 @@ export const useCardDatabase = () => {
         validRarity = newCard.rarity as RarityType;
       }
       
+      // For storage, we might need to convert the full URL to just the path
+      let artworkUrl = newCard.imageUrl;
+      // If URL contains the bucket name, extract just the path portion
+      if (artworkUrl && artworkUrl.includes('card_images/')) {
+        const regex = /card_images\/(.+)/;
+        const match = artworkUrl.match(regex);
+        if (match && match[1]) {
+          artworkUrl = `card_images/${match[1]}`;
+        }
+      }
+      
       // Prepare data for Supabase insertion
       const cardData: CardInsert = {
         name: newCard.name,
@@ -303,7 +313,7 @@ export const useCardDatabase = () => {
         cost: newCard.cost,
         rarity: validRarity,
         colors: validColors.length > 0 ? validColors : null,
-        artwork_url: newCard.imageUrl,
+        artwork_url: artworkUrl,
         card_text: newCard.flavorText,
       };
       
@@ -376,6 +386,20 @@ export const useCardDatabase = () => {
         }
       }
       
+      // For storage, we might need to convert the full URL to just the path
+      let artworkUrl = undefined;
+      if (cardData.imageUrl) {
+        artworkUrl = cardData.imageUrl;
+        // If URL contains the bucket name, extract just the path portion
+        if (artworkUrl.includes('card_images/')) {
+          const regex = /card_images\/(.+)/;
+          const match = artworkUrl.match(regex);
+          if (match && match[1]) {
+            artworkUrl = `card_images/${match[1]}`;
+          }
+        }
+      }
+      
       // Prepare data for Supabase update
       const updateData: Partial<CardInsert> = {
         name: cardData.name,
@@ -384,7 +408,7 @@ export const useCardDatabase = () => {
         cost: cardData.cost,
         rarity: validRarity,
         colors: validColors,
-        artwork_url: cardData.imageUrl,
+        artwork_url: artworkUrl,
         card_text: cardData.flavorText,
       };
       

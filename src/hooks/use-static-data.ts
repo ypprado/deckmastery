@@ -55,17 +55,27 @@ export const useStaticData = (options: StaticDataOptions = {}) => {
       }
       
       // Map Supabase data to our app's format
-      const mappedCards: Card[] = cardsData?.map(card => ({
-        id: card.id,
-        name: card.name,
-        imageUrl: card.artwork_url,
-        type: card.card_type || '',
-        cost: card.cost || 0,
-        rarity: card.rarity || '',
-        set: card.set_id,
-        colors: card.colors as string[] || [],
-        gameCategory: card.game_category
-      })) || [];
+      const mappedCards: Card[] = cardsData?.map(card => {
+        // Get the artwork URL - if it starts with 'card_images/' assume it's a Supabase Storage URL
+        let imageUrl = card.artwork_url;
+        if (imageUrl && imageUrl.startsWith('card_images/')) {
+          // Get public URL from Supabase Storage
+          const { data } = supabase.storage.from('card_images').getPublicUrl(imageUrl);
+          imageUrl = data.publicUrl;
+        }
+        
+        return {
+          id: card.id,
+          name: card.name,
+          imageUrl: imageUrl,
+          type: card.card_type || '',
+          cost: card.cost || 0,
+          rarity: card.rarity || '',
+          set: card.set_id,
+          colors: card.colors as string[] || [],
+          gameCategory: card.game_category
+        };
+      }) || [];
       
       // For decks, we need to handle the cards field differently
       // Since we don't have a decks table in Supabase yet, we'll leave this as an empty array for now
