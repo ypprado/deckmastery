@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from "sonner";
 import { useStaticData } from './use-static-data';
+import { supabase } from '@/integrations/supabase/client';
 
 export type GameCategory = 'magic' | 'pokemon' | 'yugioh' | 'onepiece';
 
@@ -43,10 +44,10 @@ export const useDecks = () => {
   const [decks, setDecks] = useState<Deck[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeGameCategory, setActiveGameCategory] = useState<GameCategory>('magic');
-  const { decks: staticDecks } = useStaticData({ initialGameCategory: activeGameCategory });
+  const { cards: staticCards } = useStaticData({ initialGameCategory: activeGameCategory });
 
   useEffect(() => {
-    // Load decks from localStorage or use static data if none exist
+    // Load decks from localStorage
     const loadDecks = () => {
       const storedDecks = localStorage.getItem('decks');
       console.log("Loading decks from localStorage:", storedDecks ? JSON.parse(storedDecks) : null);
@@ -54,9 +55,9 @@ export const useDecks = () => {
       if (storedDecks) {
         setDecks(JSON.parse(storedDecks));
       } else {
-        console.log("Using static decks:", staticDecks);
-        setDecks(staticDecks);
-        localStorage.setItem('decks', JSON.stringify(staticDecks));
+        // Initialize with empty array instead of static decks
+        setDecks([]);
+        localStorage.setItem('decks', JSON.stringify([]));
       }
       
       // Load active game category from localStorage or use default
@@ -69,7 +70,7 @@ export const useDecks = () => {
     };
 
     loadDecks();
-  }, [staticDecks]);
+  }, []);
 
   // Filter decks by active game category
   const filteredDecks = decks.filter(deck => deck.gameCategory === activeGameCategory);

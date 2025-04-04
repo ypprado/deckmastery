@@ -2,7 +2,8 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { Card, GameCategory, Deck } from '@/hooks/use-decks';
-import { staticCardDatabase, CardData, DeckData } from '@/utils/sampleJsonStructure';
+import { supabase } from '@/integrations/supabase/client';
+import { Database } from '@/integrations/supabase/types';
 
 interface StaticDataOptions {
   initialGameCategory?: GameCategory;
@@ -24,27 +25,59 @@ export const useStaticData = (options: StaticDataOptions = {}) => {
     loadStaticData(activeGameCategory);
   }, [activeGameCategory]);
 
-  const loadStaticData = (gameCategory: GameCategory) => {
+  const loadStaticData = async (gameCategory: GameCategory) => {
     setLoading(true);
     setError(null);
     
     try {
-      // Get data from the static database for the specific game category
-      const categoryData = staticCardDatabase[gameCategory];
+      // Fetch card sets
+      const { data: setsData, error: setsError } = await supabase
+        .from('card_sets')
+        .select('*')
+        .eq('game_category', gameCategory);
       
-      if (!categoryData) {
-        throw new Error(`No data available for ${gameCategory}`);
+      if (setsError) {
+        throw new Error(`Error fetching sets: ${setsError.message}`);
       }
       
-      // The following type assertions are safe because we've updated the CardData and DeckData types
-      // to use GameCategory instead of string
-      setCards(categoryData.cards as Card[]);
-      setDecks(categoryData.decks as Deck[]);
+      // Fetch cards for the game category
+      const { data: cardsData, error: cardsError } = await supabase
+        .from('cards')
+        .select('*')
+        .eq('game_category', gameCategory);
+      
+      if (cardsError) {
+        throw new Error(`Error fetching cards: ${cardsError.message}`);
+      }
+      
+      if (!cardsData || cardsData.length === 0) {
+        console.log(`No cards found for ${gameCategory}`);
+      }
+      
+      // Map Supabase data to our app's format
+      const mappedCards: Card[] = cardsData?.map(card => ({
+        id: card.id,
+        name: card.name,
+        imageUrl: card.artwork_url,
+        type: card.card_type || '',
+        cost: card.cost || 0,
+        rarity: card.rarity || '',
+        set: card.set_id,
+        colors: card.colors as string[] || [],
+        gameCategory: card.game_category
+      })) || [];
+      
+      // For decks, we need to handle the cards field differently
+      // Since we don't have a decks table in Supabase yet, we'll leave this as an empty array for now
+      const mappedDecks: Deck[] = [];
+      
+      setCards(mappedCards);
+      setDecks(mappedDecks);
       
       toast.success(`Loaded ${gameCategory} data successfully`);
     } catch (err) {
       setError(err instanceof Error ? err : new Error(String(err)));
-      toast.error(`Error loading static data: ${err instanceof Error ? err.message : String(err)}`);
+      toast.error(`Error loading data: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setLoading(false);
     }
