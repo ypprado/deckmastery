@@ -56,11 +56,11 @@ export const useStaticData = (options: StaticDataOptions = {}) => {
       
       // Map Supabase data to our app's format
       const mappedCards: Card[] = cardsData?.map(card => {
-        // Get the artwork URL - if it starts with 'card_images/' assume it's a Supabase Storage URL
+        // Get the artwork URL - if it starts with 'card-images/' assume it's a Supabase Storage URL
         let imageUrl = card.artwork_url;
-        if (imageUrl && imageUrl.startsWith('card_images/')) {
+        if (imageUrl && imageUrl.startsWith('card-images/')) {
           // Get public URL from Supabase Storage
-          const { data } = supabase.storage.from('card_images').getPublicUrl(imageUrl);
+          const { data } = supabase.storage.from('card-images').getPublicUrl(imageUrl);
           imageUrl = data.publicUrl;
         }
         

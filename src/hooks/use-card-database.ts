@@ -296,11 +296,11 @@ export const useCardDatabase = () => {
       // For storage, we might need to convert the full URL to just the path
       let artworkUrl = newCard.imageUrl;
       // If URL contains the bucket name, extract just the path portion
-      if (artworkUrl && artworkUrl.includes('card_images/')) {
-        const regex = /card_images\/(.+)/;
+      if (artworkUrl && artworkUrl.includes('card-images/')) {
+        const regex = /card-images\/(.+)/;
         const match = artworkUrl.match(regex);
         if (match && match[1]) {
-          artworkUrl = `card_images/${match[1]}`;
+          artworkUrl = `card-images/${match[1]}`;
         }
       }
       
@@ -391,11 +391,11 @@ export const useCardDatabase = () => {
       if (cardData.imageUrl) {
         artworkUrl = cardData.imageUrl;
         // If URL contains the bucket name, extract just the path portion
-        if (artworkUrl.includes('card_images/')) {
-          const regex = /card_images\/(.+)/;
+        if (artworkUrl.includes('card-images/')) {
+          const regex = /card-images\/(.+)/;
           const match = artworkUrl.match(regex);
           if (match && match[1]) {
-            artworkUrl = `card_images/${match[1]}`;
+            artworkUrl = `card-images/${match[1]}`;
           }
         }
       }
