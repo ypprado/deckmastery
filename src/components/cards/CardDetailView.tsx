@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Card as CardType } from '@/hooks/use-decks';
 import { Badge } from '@/components/ui/badge';
@@ -7,6 +7,10 @@ import { Separator } from '@/components/ui/separator';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from 'recharts';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { supabase } from '@/integrations/supabase/client';
+import { Switch } from '@/components/ui/switch';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { toast } from 'sonner';
 
 interface CardDetailViewProps {
   card: CardType | null;
@@ -14,7 +18,15 @@ interface CardDetailViewProps {
   onOpenChange: (open: boolean) => void;
 }
 
+// Mapping color names for display
 const colorNames: Record<string, string> = {
+  Red: 'Red',
+  Green: 'Green',
+  Blue: 'Blue',
+  Purple: 'Purple',
+  Black: 'Black',
+  Yellow: 'Yellow',
+  // Legacy mappings for backward compatibility
   white: 'White',
   blue: 'Blue',
   black: 'Black',
@@ -24,7 +36,15 @@ const colorNames: Record<string, string> = {
   purple: 'Purple',
 };
 
+// Tailwind class mapping for colors
 const colorMap: Record<string, string> = {
+  Red: 'bg-red-100 text-red-800',
+  Green: 'bg-green-100 text-green-800',
+  Blue: 'bg-blue-100 text-blue-800',
+  Purple: 'bg-purple-100 text-purple-800',
+  Black: 'bg-gray-700 text-white',
+  Yellow: 'bg-yellow-100 text-yellow-800',
+  // Legacy mappings for backward compatibility
   white: 'bg-amber-100 text-amber-800',
   blue: 'bg-blue-100 text-blue-800',
   black: 'bg-gray-700 text-white',
@@ -52,10 +72,48 @@ const generatePriceData = () => {
 };
 
 const CardDetailView: React.FC<CardDetailViewProps> = ({ card, isOpen, onOpenChange }) => {
-  const [priceData] = React.useState(generatePriceData());
+  const [priceData] = useState(generatePriceData());
   const { t } = useLanguage();
+  const [supabaseCard, setSupabaseCard] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  
+  // Fetch card details from Supabase if available
+  useEffect(() => {
+    const fetchCardDetails = async () => {
+      if (card && card.id) {
+        setIsLoading(true);
+        try {
+          const { data, error } = await supabase
+            .from('cards')
+            .select('*')
+            .eq('id', card.id)
+            .maybeSingle();
+            
+          if (error) {
+            console.error('Error fetching card details:', error);
+          } else if (data) {
+            setSupabaseCard(data);
+          }
+        } catch (error) {
+          console.error('Error fetching card details:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+    
+    if (isOpen) {
+      fetchCardDetails();
+    }
+  }, [card, isOpen]);
   
   if (!card) return null;
+  
+  // Use supabase data if available, otherwise fallback to the card prop
+  const displayCard = supabaseCard || card;
+  
+  // Ensure colors array exists
+  const colors = displayCard.colors || [];
   
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -65,8 +123,8 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({ card, isOpen, onOpenCha
           <div className="p-6 flex items-center justify-center bg-gradient-to-br from-background to-muted/50">
             <div className="relative aspect-[3/4] max-h-[500px] w-auto shadow-xl rounded-lg overflow-hidden">
               <img
-                src={card.imageUrl}
-                alt={card.name}
+                src={displayCard.imageUrl || displayCard.artwork_url}
+                alt={displayCard.name}
                 className="w-full h-full object-cover"
               />
             </div>
@@ -75,9 +133,9 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({ card, isOpen, onOpenCha
           {/* Right side - Details and Price Graph */}
           <div className="flex flex-col h-full p-6">
             <DialogHeader>
-              <DialogTitle className="text-2xl">{card.name}</DialogTitle>
+              <DialogTitle className="text-2xl">{displayCard.name}</DialogTitle>
               <div className="flex flex-wrap gap-2 mt-2">
-                {card.colors.map(color => (
+                {colors.map((color: string) => (
                   <Badge key={color} className={colorMap[color]}>
                     {colorNames[color] || color}
                   </Badge>
@@ -89,16 +147,63 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({ card, isOpen, onOpenCha
             <div className="space-y-3 mt-4">
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div className="text-muted-foreground">{t('type')}</div>
-                <div className="font-medium">{card.type}</div>
+                <div className="font-medium">{displayCard.type || displayCard.card_type}</div>
                 
                 <div className="text-muted-foreground">{t('cost')}</div>
-                <div className="font-medium">{card.cost}</div>
+                <div className="font-medium">{displayCard.cost}</div>
                 
                 <div className="text-muted-foreground">{t('rarity')}</div>
-                <div className="font-medium">{card.rarity}</div>
+                <div className="font-medium">{displayCard.rarity}</div>
                 
                 <div className="text-muted-foreground">{t('set')}</div>
-                <div className="font-medium">{card.set}</div>
+                <div className="font-medium">{displayCard.set}</div>
+                
+                {/* Show additional fields from Supabase if available */}
+                {supabaseCard && (
+                  <>
+                    {supabaseCard.series && (
+                      <>
+                        <div className="text-muted-foreground">Series</div>
+                        <div className="font-medium">{supabaseCard.series}</div>
+                      </>
+                    )}
+                    
+                    {supabaseCard.card_number && (
+                      <>
+                        <div className="text-muted-foreground">Card Number</div>
+                        <div className="font-medium">{supabaseCard.card_number}</div>
+                      </>
+                    )}
+                    
+                    {supabaseCard.parallel && (
+                      <>
+                        <div className="text-muted-foreground">Parallel</div>
+                        <div className="font-medium">{supabaseCard.parallel}</div>
+                      </>
+                    )}
+                    
+                    {supabaseCard.language && (
+                      <>
+                        <div className="text-muted-foreground">Language</div>
+                        <div className="font-medium">{supabaseCard.language}</div>
+                      </>
+                    )}
+                    
+                    {supabaseCard.category && (
+                      <>
+                        <div className="text-muted-foreground">Category</div>
+                        <div className="font-medium">{supabaseCard.category}</div>
+                      </>
+                    )}
+                    
+                    {supabaseCard.attribute && (
+                      <>
+                        <div className="text-muted-foreground">Attribute</div>
+                        <div className="font-medium">{supabaseCard.attribute}</div>
+                      </>
+                    )}
+                  </>
+                )}
               </div>
             </div>
             

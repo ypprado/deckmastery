@@ -9,7 +9,119 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      card_sets: {
+        Row: {
+          created_at: string
+          description: string | null
+          game_category: Database["public"]["Enums"]["game_category"]
+          id: string
+          name: string
+          release_date: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          game_category: Database["public"]["Enums"]["game_category"]
+          id?: string
+          name: string
+          release_date?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          game_category?: Database["public"]["Enums"]["game_category"]
+          id?: string
+          name?: string
+          release_date?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      cards: {
+        Row: {
+          art_urls: string[] | null
+          artwork_url: string
+          attribute: Database["public"]["Enums"]["attribute_type"] | null
+          card_number: number | null
+          card_text: string | null
+          card_type: string | null
+          category: Database["public"]["Enums"]["category_type"] | null
+          colors: Database["public"]["Enums"]["color_type"][] | null
+          cost: number | null
+          counter: number | null
+          created_at: string
+          game_category: Database["public"]["Enums"]["game_category"]
+          id: string
+          language: Database["public"]["Enums"]["language_type"] | null
+          life: number | null
+          name: string
+          parallel: Database["public"]["Enums"]["parallel_type"] | null
+          power: number | null
+          rarity: Database["public"]["Enums"]["rarity_type"] | null
+          series: Database["public"]["Enums"]["series_type"] | null
+          set_id: string
+          updated_at: string
+        }
+        Insert: {
+          art_urls?: string[] | null
+          artwork_url: string
+          attribute?: Database["public"]["Enums"]["attribute_type"] | null
+          card_number?: number | null
+          card_text?: string | null
+          card_type?: string | null
+          category?: Database["public"]["Enums"]["category_type"] | null
+          colors?: Database["public"]["Enums"]["color_type"][] | null
+          cost?: number | null
+          counter?: number | null
+          created_at?: string
+          game_category: Database["public"]["Enums"]["game_category"]
+          id?: string
+          language?: Database["public"]["Enums"]["language_type"] | null
+          life?: number | null
+          name: string
+          parallel?: Database["public"]["Enums"]["parallel_type"] | null
+          power?: number | null
+          rarity?: Database["public"]["Enums"]["rarity_type"] | null
+          series?: Database["public"]["Enums"]["series_type"] | null
+          set_id: string
+          updated_at?: string
+        }
+        Update: {
+          art_urls?: string[] | null
+          artwork_url?: string
+          attribute?: Database["public"]["Enums"]["attribute_type"] | null
+          card_number?: number | null
+          card_text?: string | null
+          card_type?: string | null
+          category?: Database["public"]["Enums"]["category_type"] | null
+          colors?: Database["public"]["Enums"]["color_type"][] | null
+          cost?: number | null
+          counter?: number | null
+          created_at?: string
+          game_category?: Database["public"]["Enums"]["game_category"]
+          id?: string
+          language?: Database["public"]["Enums"]["language_type"] | null
+          life?: number | null
+          name?: string
+          parallel?: Database["public"]["Enums"]["parallel_type"] | null
+          power?: number | null
+          rarity?: Database["public"]["Enums"]["rarity_type"] | null
+          series?: Database["public"]["Enums"]["series_type"] | null
+          set_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cards_set_id_fkey"
+            columns: ["set_id"]
+            isOneToOne: false
+            referencedRelation: "card_sets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -18,7 +130,23 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      attribute_type: "Slash" | "Strike" | "Special" | "Wisdom" | "Ranged"
+      category_type: "Leader" | "Character" | "Event" | "Stage"
+      color_type: "Red" | "Green" | "Blue" | "Purple" | "Black" | "Yellow"
+      game_category: "magic" | "pokemon" | "yugioh" | "onepiece"
+      language_type: "English" | "Japanese" | "Chinese" | "Portuguese"
+      parallel_type: "Alternate Art" | "Manga Art"
+      rarity_type:
+        | "Leader"
+        | "Common"
+        | "Uncommon"
+        | "Rare"
+        | "Super Rare"
+        | "Secret Rare"
+        | "Special Card"
+        | "Treasure Rare"
+        | "Promo"
+      series_type: "OP" | "ST" | "EB" | "P"
     }
     CompositeTypes: {
       [_ in never]: never
