@@ -4,6 +4,13 @@ import { toast } from 'sonner';
 import { CardDetails, CardSet } from '@/types/cardDatabase';
 import { GameCategory } from '@/hooks/use-decks';
 import { supabase } from '@/integrations/supabase/client';
+import { Database } from '@/integrations/supabase/types';
+
+// Types for Supabase tables
+type CardSetInsert = Database['public']['Tables']['card_sets']['Insert'];
+type CardInsert = Database['public']['Tables']['cards']['Insert'];
+type RarityType = Database['public']['Enums']['rarity_type'];
+type ColorType = Database['public']['Enums']['color_type'];
 
 export const useCardDatabase = () => {
   const [cards, setCards] = useState<CardDetails[]>([]);
@@ -116,30 +123,37 @@ export const useCardDatabase = () => {
     }
     
     try {
-      // Try to add to Supabase first
+      // Try to add to Supabase first - prepare data for insertion
+      const cardSetData: CardSetInsert = {
+        name: newSet.name,
+        release_date: newSet.releaseDate,
+        game_category: newSet.gameCategory,
+        description: newSet.description || '',
+      };
+      
       const { data, error } = await supabase
         .from('card_sets')
-        .insert({
-          id: newSet.id,
-          name: newSet.name,
-          release_date: newSet.releaseDate,
-          game_category: newSet.gameCategory,
-          description: newSet.description || '',
-        })
+        .insert(cardSetData)
         .select()
         .single();
         
       if (error) throw error;
       
+      // Set ID from Supabase response
+      const setWithId: CardSet = {
+        ...newSet,
+        id: data.id
+      };
+      
       // Update local state
       setSets(prevSets => {
-        const updatedSets = [...prevSets, newSet];
+        const updatedSets = [...prevSets, setWithId];
         // Save to localStorage as backup
         localStorage.setItem('cardSets', JSON.stringify(updatedSets));
         return updatedSets;
       });
       
-      return newSet;
+      return setWithId;
     } catch (error) {
       console.error("Error adding set to Supabase:", error);
       
@@ -158,15 +172,18 @@ export const useCardDatabase = () => {
 
   const updateSet = async (id: string, setData: Partial<CardSet>) => {
     try {
+      // Prepare data for Supabase update
+      const updateData: Partial<CardSetInsert> = {
+        name: setData.name,
+        release_date: setData.releaseDate,
+        game_category: setData.gameCategory,
+        description: setData.description,
+      };
+      
       // Try to update in Supabase first
       const { error } = await supabase
         .from('card_sets')
-        .update({
-          name: setData.name,
-          release_date: setData.releaseDate,
-          game_category: setData.gameCategory,
-          description: setData.description,
-        })
+        .update(updateData)
         .eq('id', id);
         
       if (error) throw error;
@@ -261,33 +278,59 @@ export const useCardDatabase = () => {
     }
     
     try {
-      // Try to add to Supabase first
-      const { error } = await supabase
+      // Convert input colors to expected enum type values
+      const validColors = newCard.colors.filter(color => 
+        ['Red', 'Green', 'Blue', 'Purple', 'Black', 'Yellow'].includes(color)
+      ) as ColorType[];
+      
+      // Convert rarity to expected enum value or use a default
+      let validRarity: RarityType | null = null;
+      const rarityValues: RarityType[] = [
+        'Leader', 'Common', 'Uncommon', 'Rare', 'Super Rare', 
+        'Secret Rare', 'Special Card', 'Treasure Rare', 'Promo'
+      ];
+      
+      if (rarityValues.includes(newCard.rarity as RarityType)) {
+        validRarity = newCard.rarity as RarityType;
+      }
+      
+      // Prepare data for Supabase insertion
+      const cardData: CardInsert = {
+        name: newCard.name,
+        set_id: newCard.set,
+        game_category: newCard.gameCategory,
+        card_type: newCard.type,
+        cost: newCard.cost,
+        rarity: validRarity,
+        colors: validColors.length > 0 ? validColors : null,
+        artwork_url: newCard.imageUrl,
+        card_text: newCard.flavorText,
+      };
+      
+      // Try to add to Supabase
+      const { data, error } = await supabase
         .from('cards')
-        .insert({
-          id: newCard.id,
-          name: newCard.name,
-          set_id: newCard.set,
-          game_category: newCard.gameCategory,
-          card_type: newCard.type,
-          cost: newCard.cost,
-          rarity: newCard.rarity,
-          colors: newCard.colors,
-          artwork_url: newCard.imageUrl,
-          card_text: newCard.flavorText,
-        });
+        .insert(cardData)
+        .select()
+        .single();
         
       if (error) throw error;
       
+      // Use Supabase-generated ID
+      const cardWithId: CardDetails = {
+        ...newCard,
+        id: data.id
+      };
+      
       // Update local state
       setCards(prevCards => {
-        const updatedCards = [...prevCards, newCard];
+        const updatedCards = [...prevCards, cardWithId];
         // Save to localStorage as backup
         localStorage.setItem('cardDatabase', JSON.stringify(updatedCards));
         return updatedCards;
       });
       
-      return newCard;
+      return cardWithId;
     } catch (error) {
       console.error("Error adding card to Supabase:", error);
       
@@ -306,19 +349,56 @@ export const useCardDatabase = () => {
 
   const updateCard = async (id: string, cardData: Partial<CardDetails>) => {
     try {
+      // Convert input colors to expected enum type values if present
+      let validColors = undefined;
+      if (cardData.colors) {
+        validColors = cardData.colors.filter(color => 
+          ['Red', 'Green', 'Blue', 'Purple', 'Black', 'Yellow'].includes(color)
+        ) as ColorType[];
+        
+        if (validColors.length === 0) {
+          validColors = null; // Use null for empty array
+        }
+      }
+      
+      // Convert rarity to expected enum value if present
+      let validRarity = undefined;
+      if (cardData.rarity) {
+        const rarityValues: RarityType[] = [
+          'Leader', 'Common', 'Uncommon', 'Rare', 'Super Rare', 
+          'Secret Rare', 'Special Card', 'Treasure Rare', 'Promo'
+        ];
+        
+        if (rarityValues.includes(cardData.rarity as RarityType)) {
+          validRarity = cardData.rarity as RarityType;
+        } else {
+          validRarity = null; // Use null if not valid
+        }
+      }
+      
+      // Prepare data for Supabase update
+      const updateData: Partial<CardInsert> = {
+        name: cardData.name,
+        set_id: cardData.set,
+        card_type: cardData.type,
+        cost: cardData.cost,
+        rarity: validRarity,
+        colors: validColors,
+        artwork_url: cardData.imageUrl,
+        card_text: cardData.flavorText,
+      };
+      
+      // Remove undefined values
+      Object.keys(updateData).forEach(key => {
+        if (updateData[key as keyof typeof updateData] === undefined) {
+          delete updateData[key as keyof typeof updateData];
+        }
+      });
+      
       // Try to update in Supabase first
       const { error } = await supabase
         .from('cards')
-        .update({
-          name: cardData.name,
-          set_id: cardData.set,
-          card_type: cardData.type,
-          cost: cardData.cost,
-          rarity: cardData.rarity,
-          colors: cardData.colors,
-          artwork_url: cardData.imageUrl,
-          card_text: cardData.flavorText,
-        })
+        .update(updateData)
         .eq('id', id);
         
       if (error) throw error;

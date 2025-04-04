@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Switch } from '@/components/ui/switch';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { toast } from 'sonner';
+import { Database } from '@/integrations/supabase/types';
 
 interface CardDetailViewProps {
   card: CardType | null;
@@ -74,7 +75,7 @@ const generatePriceData = () => {
 const CardDetailView: React.FC<CardDetailViewProps> = ({ card, isOpen, onOpenChange }) => {
   const [priceData] = useState(generatePriceData());
   const { t } = useLanguage();
-  const [supabaseCard, setSupabaseCard] = useState<any>(null);
+  const [supabaseCard, setSupabaseCard] = useState<Database['public']['Tables']['cards']['Row'] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   
   // Fetch card details from Supabase if available
