@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { CardDetails, CardSet } from '@/types/cardDatabase';
@@ -318,7 +317,6 @@ export const useCardDatabase = () => {
       
       // Prepare data for Supabase insertion
       const cardData: CardInsert = {
-        id: Number(newCard.id), // Convert to number as required by schema
         name: newCard.name,
         groupid_liga: newCard.set, // Use groupid_liga instead of set_id
         game_category: newCard.gameCategory,

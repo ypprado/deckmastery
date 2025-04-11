@@ -24,9 +24,9 @@ const setFormSchema = z.object({
   name: z.string().min(2, {
     message: "Set name must be at least 2 characters.",
   }),
-  releaseDate: z.string(),
-  description: z.string().optional(),
-  symbol: z.string().url().optional(),
+  releaseYear: z.coerce.number().positive({
+    message: "Release year must be a positive number.",
+  }),
 });
 
 type SetFormValues = z.infer<typeof setFormSchema>;
@@ -43,9 +43,7 @@ const AdminSetForm: React.FC<AdminSetFormProps> = ({ gameCategory }) => {
     resolver: zodResolver(setFormSchema),
     defaultValues: {
       name: "",
-      releaseDate: new Date().toISOString().split('T')[0],
-      description: "",
-      symbol: "",
+      releaseYear: new Date().getFullYear(),
     },
   });
 
@@ -53,12 +51,10 @@ const AdminSetForm: React.FC<AdminSetFormProps> = ({ gameCategory }) => {
     setIsSubmitting(true);
     try {
       const newSet: CardSet = {
-        id: `set_${Date.now()}`,
+        id: Date.now(), // Using timestamp as a temporary ID, will be replaced by the database
         name: values.name,
-        releaseDate: values.releaseDate,
+        releaseYear: values.releaseYear,
         gameCategory,
-        description: values.description,
-        symbol: values.symbol,
       };
       
       await addSet(newSet);
@@ -100,48 +96,13 @@ const AdminSetForm: React.FC<AdminSetFormProps> = ({ gameCategory }) => {
           
           <FormField
             control={form.control}
-            name="releaseDate"
+            name="releaseYear"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Release Date</FormLabel>
+                <FormLabel>Release Year</FormLabel>
                 <FormControl>
-                  <Input type="date" {...field} />
+                  <Input type="number" {...field} />
                 </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Description</FormLabel>
-                <FormControl>
-                  <Textarea 
-                    placeholder="Brief description of this set..."
-                    className="resize-none"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="symbol"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Set Symbol URL</FormLabel>
-                <FormControl>
-                  <Input placeholder="https://example.com/symbol.png" {...field} />
-                </FormControl>
-                <FormDescription>
-                  An image URL for the set's symbol
-                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -164,8 +125,7 @@ const AdminSetForm: React.FC<AdminSetFormProps> = ({ gameCategory }) => {
               .map(set => (
                 <div key={set.id} className="border rounded-md p-4">
                   <h4 className="font-medium">{set.name}</h4>
-                  <p className="text-sm text-muted-foreground">Released: {new Date(set.releaseDate).toLocaleDateString()}</p>
-                  {set.description && <p className="text-sm mt-2">{set.description}</p>}
+                  <p className="text-sm text-muted-foreground">Released: {set.releaseYear}</p>
                 </div>
               ))}
           </div>

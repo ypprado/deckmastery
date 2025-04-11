@@ -21,76 +21,6 @@ import { CardDetails, CardDatabaseFormValues } from '@/types/cardDatabase';
 import { useCardDatabase } from '@/hooks/use-card-database';
 import AdminCardSetSelector from './AdminCardSetSelector';
 
-const cardFormSchema = z.object({
-  setId: z.string().min(1, { message: "Please select a set" }),
-  name: z.string().min(2, { message: "Card name must be at least 2 characters" }),
-  type: z.string().min(1, { message: "Card type is required" }),
-  cost: z.coerce.number().int().min(0),
-  rarity: z.string().min(1, { message: "Rarity is required" }),
-  imageUrl: z.string().url({ message: "Please enter a valid image URL" }),
-  flavorText: z.string().optional(),
-  artist: z.string().optional(),
-  legality: z.string().optional(),
-  price: z.coerce.number().min(0).optional(),
-  colors: z.array(z.string()).optional(),
-});
-
-interface ColorOption {
-  id: string;
-  label: string;
-}
-
-const getColorOptions = (gameCategory: GameCategory): ColorOption[] => {
-  switch (gameCategory) {
-    case 'magic':
-      return [
-        { id: 'white', label: 'White' },
-        { id: 'blue', label: 'Blue' },
-        { id: 'black', label: 'Black' },
-        { id: 'red', label: 'Red' },
-        { id: 'green', label: 'Green' },
-        { id: 'colorless', label: 'Colorless' },
-      ];
-    case 'pokemon':
-      return [
-        { id: 'grass', label: 'Grass' },
-        { id: 'fire', label: 'Fire' },
-        { id: 'water', label: 'Water' },
-        { id: 'lightning', label: 'Lightning' },
-        { id: 'psychic', label: 'Psychic' },
-        { id: 'fighting', label: 'Fighting' },
-        { id: 'darkness', label: 'Darkness' },
-        { id: 'metal', label: 'Metal' },
-        { id: 'fairy', label: 'Fairy' },
-        { id: 'dragon', label: 'Dragon' },
-        { id: 'colorless', label: 'Colorless' },
-      ];
-    case 'yugioh':
-      return [
-        { id: 'dark', label: 'Dark' },
-        { id: 'light', label: 'Light' },
-        { id: 'earth', label: 'Earth' },
-        { id: 'water', label: 'Water' },
-        { id: 'fire', label: 'Fire' },
-        { id: 'wind', label: 'Wind' },
-        { id: 'divine', label: 'Divine' },
-      ];
-    case 'onepiece':
-      return [
-        { id: 'red', label: 'Red' },
-        { id: 'blue', label: 'Blue' },
-        { id: 'green', label: 'Green' },
-        { id: 'purple', label: 'Purple' },
-        { id: 'yellow', label: 'Yellow' },
-        { id: 'black', label: 'Black' },
-      ];
-    default:
-      return [];
-  }
-};
-
-type CardFormValues = z.infer<typeof cardFormSchema>;
-
 interface AdminCardFormProps {
   gameCategory: GameCategory;
 }
@@ -120,7 +50,8 @@ const AdminCardForm: React.FC<AdminCardFormProps> = ({ gameCategory }) => {
   const onSubmit = async (values: CardFormValues) => {
     setIsSubmitting(true);
     try {
-      const set = getSetById(values.setId);
+      const setId = Number(values.setId);
+      const set = getSetById(setId);
       if (!set) {
         toast.error("Selected set not found.");
         return;
@@ -141,6 +72,7 @@ const AdminCardForm: React.FC<AdminCardFormProps> = ({ gameCategory }) => {
         artist: values.artist,
         legality: values.legality ? [values.legality] : undefined,
         price: values.price,
+        groupid_tcg: setId,
       };
       
       await addCard(newCard);
@@ -396,3 +328,73 @@ const AdminCardForm: React.FC<AdminCardFormProps> = ({ gameCategory }) => {
 };
 
 export default AdminCardForm;
+
+function getColorOptions(gameCategory: GameCategory): ColorOption[] {
+  switch (gameCategory) {
+    case 'magic':
+      return [
+        { id: 'white', label: 'White' },
+        { id: 'blue', label: 'Blue' },
+        { id: 'black', label: 'Black' },
+        { id: 'red', label: 'Red' },
+        { id: 'green', label: 'Green' },
+        { id: 'colorless', label: 'Colorless' },
+      ];
+    case 'pokemon':
+      return [
+        { id: 'grass', label: 'Grass' },
+        { id: 'fire', label: 'Fire' },
+        { id: 'water', label: 'Water' },
+        { id: 'lightning', label: 'Lightning' },
+        { id: 'psychic', label: 'Psychic' },
+        { id: 'fighting', label: 'Fighting' },
+        { id: 'darkness', label: 'Darkness' },
+        { id: 'metal', label: 'Metal' },
+        { id: 'fairy', label: 'Fairy' },
+        { id: 'dragon', label: 'Dragon' },
+        { id: 'colorless', label: 'Colorless' },
+      ];
+    case 'yugioh':
+      return [
+        { id: 'dark', label: 'Dark' },
+        { id: 'light', label: 'Light' },
+        { id: 'earth', label: 'Earth' },
+        { id: 'water', label: 'Water' },
+        { id: 'fire', label: 'Fire' },
+        { id: 'wind', label: 'Wind' },
+        { id: 'divine', label: 'Divine' },
+      ];
+    case 'onepiece':
+      return [
+        { id: 'red', label: 'Red' },
+        { id: 'blue', label: 'Blue' },
+        { id: 'green', label: 'Green' },
+        { id: 'purple', label: 'Purple' },
+        { id: 'yellow', label: 'Yellow' },
+        { id: 'black', label: 'Black' },
+      ];
+    default:
+      return [];
+  }
+}
+
+type CardFormValues = z.infer<typeof cardFormSchema>;
+
+const cardFormSchema = z.object({
+  setId: z.string().min(1, { message: "Please select a set" }),
+  name: z.string().min(2, { message: "Card name must be at least 2 characters" }),
+  type: z.string().min(1, { message: "Card type is required" }),
+  cost: z.coerce.number().int().min(0),
+  rarity: z.string().min(1, { message: "Rarity is required" }),
+  imageUrl: z.string().url({ message: "Please enter a valid image URL" }),
+  flavorText: z.string().optional(),
+  artist: z.string().optional(),
+  legality: z.string().optional(),
+  price: z.coerce.number().min(0).optional(),
+  colors: z.array(z.string()).optional(),
+});
+
+interface ColorOption {
+  id: string;
+  label: string;
+}

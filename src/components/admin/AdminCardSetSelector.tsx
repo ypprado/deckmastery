@@ -41,7 +41,7 @@ const AdminCardSetSelector: React.FC<AdminCardSetSelectorProps> = ({
           </SelectItem>
         ) : (
           filteredSets.map((set) => (
-            <SelectItem key={set.id} value={set.id}>
+            <SelectItem key={set.id} value={String(set.id)}>
               {set.name}
             </SelectItem>
           ))
