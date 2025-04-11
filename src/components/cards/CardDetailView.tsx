@@ -106,8 +106,8 @@ const getCardType = (card: DisplayCardType): string => {
 const getCardSet = (card: DisplayCardType): string => {
   if ('set' in card) {
     return card.set;
-  } else if ('set_id' in card) {
-    return card.set_id;
+  } else if ('groupid_liga' in card) {
+    return card.groupid_liga || '';
   }
   return '';
 };
@@ -135,7 +135,7 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({ card, isOpen, onOpenCha
           const { data, error } = await supabase
             .from('cards')
             .select('*')
-            .eq('id', card.id)
+            .eq('id', Number(card.id)) // Convert to number for the query
             .maybeSingle();
             
           if (error) {
@@ -212,13 +212,6 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({ card, isOpen, onOpenCha
                 {/* Show additional fields from Supabase if available */}
                 {supabaseCard && (
                   <>
-                    {supabaseCard.series && (
-                      <>
-                        <div className="text-muted-foreground">Series</div>
-                        <div className="font-medium">{supabaseCard.series}</div>
-                      </>
-                    )}
-                    
                     {supabaseCard.card_number && (
                       <>
                         <div className="text-muted-foreground">Card Number</div>
@@ -226,10 +219,32 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({ card, isOpen, onOpenCha
                       </>
                     )}
                     
-                    {supabaseCard.parallel && (
+                    {supabaseCard.subTypeName && (
                       <>
-                        <div className="text-muted-foreground">Parallel</div>
-                        <div className="font-medium">{supabaseCard.parallel}</div>
+                        <div className="text-muted-foreground">Sub Type</div>
+                        <div className="font-medium">{supabaseCard.subTypeName}</div>
+                      </>
+                    )}
+                    
+                    {supabaseCard.url_tcg && (
+                      <>
+                        <div className="text-muted-foreground">TCG URL</div>
+                        <div className="font-medium">
+                          <a href={supabaseCard.url_tcg} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                            View on TCG
+                          </a>
+                        </div>
+                      </>
+                    )}
+                    
+                    {supabaseCard.url_liga && (
+                      <>
+                        <div className="text-muted-foreground">Liga URL</div>
+                        <div className="font-medium">
+                          <a href={supabaseCard.url_liga} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                            View on Liga
+                          </a>
+                        </div>
                       </>
                     )}
                     

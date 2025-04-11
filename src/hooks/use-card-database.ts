@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { CardDetails, CardSet } from '@/types/cardDatabase';
@@ -10,6 +11,7 @@ type CardSetInsert = Database['public']['Tables']['card_sets']['Insert'];
 type CardInsert = Database['public']['Tables']['cards']['Insert'];
 type RarityType = Database['public']['Enums']['rarity_type'];
 type ColorType = Database['public']['Enums']['color_type'];
+type SubTypeNameEnum = Database['public']['Enums']['sub_type'];
 
 export const useCardDatabase = () => {
   const [cards, setCards] = useState<CardDetails[]>([]);
@@ -30,12 +32,11 @@ export const useCardDatabase = () => {
         if (setsData && setsData.length > 0) {
           // Transform Supabase data to match our app's format
           const formattedSets = setsData.map(set => ({
-            id: set.id,
+            id: set.id, // Now a number
             name: set.name,
-            releaseDate: set.release_date || new Date().toISOString(),
+            releaseYear: set.release_year || new Date().getFullYear(), // Use releaseYear instead of releaseDate
             gameCategory: set.game_category,
-            description: set.description || '',
-            symbol: '',
+            groupid_tcg: set.groupid_tcg || undefined,
           }));
           
           setSets(formattedSets);
@@ -51,12 +52,12 @@ export const useCardDatabase = () => {
             // Transform Supabase data to match our app's format
             const formattedCards = cardsData.map(card => {
               // Find the set name for this card
-              const cardSet = formattedSets.find(set => set.id === card.set_id);
+              const cardSet = formattedSets.find(set => set.id === card.groupid_tcg);
               
               return {
-                id: card.id,
+                id: String(card.id), // Convert to string for compatibility
                 name: card.name,
-                set: card.set_id,
+                set: card.groupid_liga || '', // Using groupid_liga instead of set_id
                 setName: cardSet?.name,
                 imageUrl: card.artwork_url,
                 type: card.card_type || '',
@@ -65,6 +66,11 @@ export const useCardDatabase = () => {
                 colors: card.colors || [],
                 gameCategory: card.game_category,
                 flavorText: card.card_text || '',
+                url_tcg: card.url_tcg || '',
+                url_liga: card.url_liga || '',
+                subTypeName: card.subTypeName || '',
+                card_number: card.card_number || '',
+                groupid_tcg: card.groupid_tcg,
                 artist: '',
                 legality: [],
                 price: 0,
@@ -125,9 +131,9 @@ export const useCardDatabase = () => {
       // Try to add to Supabase first - prepare data for insertion
       const cardSetData: CardSetInsert = {
         name: newSet.name,
-        release_date: newSet.releaseDate,
+        release_year: newSet.releaseYear, // Use release_year instead of release_date
         game_category: newSet.gameCategory,
-        description: newSet.description || '',
+        groupid_tcg: newSet.groupid_tcg || null,
       };
       
       const { data, error } = await supabase
@@ -169,14 +175,14 @@ export const useCardDatabase = () => {
     }
   };
 
-  const updateSet = async (id: string, setData: Partial<CardSet>) => {
+  const updateSet = async (id: number, setData: Partial<CardSet>) => {
     try {
       // Prepare data for Supabase update
       const updateData: Partial<CardSetInsert> = {
         name: setData.name,
-        release_date: setData.releaseDate,
+        release_year: setData.releaseYear, // Use release_year instead of release_date
         game_category: setData.gameCategory,
-        description: setData.description,
+        groupid_tcg: setData.groupid_tcg || null,
       };
       
       // Try to update in Supabase first
@@ -229,9 +235,9 @@ export const useCardDatabase = () => {
     }
   };
 
-  const deleteSet = async (id: string) => {
+  const deleteSet = async (id: number) => {
     // Check if there are cards in this set
-    const cardsInSet = cards.filter(card => card.set === id);
+    const cardsInSet = cards.filter(card => Number(card.set) === id);
     if (cardsInSet.length > 0) {
       throw new Error(`Cannot delete set with ${cardsInSet.length} cards. Remove the cards first.`);
     }
@@ -304,10 +310,17 @@ export const useCardDatabase = () => {
         }
       }
       
+      // Convert subTypeName to enum if provided
+      let validSubTypeName: SubTypeNameEnum | null = null;
+      if (newCard.subTypeName && ['Normal', 'Foil'].includes(newCard.subTypeName as SubTypeNameEnum)) {
+        validSubTypeName = newCard.subTypeName as SubTypeNameEnum;
+      }
+      
       // Prepare data for Supabase insertion
       const cardData: CardInsert = {
+        id: Number(newCard.id), // Convert to number as required by schema
         name: newCard.name,
-        set_id: newCard.set,
+        groupid_liga: newCard.set, // Use groupid_liga instead of set_id
         game_category: newCard.gameCategory,
         card_type: newCard.type,
         cost: newCard.cost,
@@ -315,6 +328,11 @@ export const useCardDatabase = () => {
         colors: validColors.length > 0 ? validColors : null,
         artwork_url: artworkUrl,
         card_text: newCard.flavorText,
+        url_tcg: newCard.url_tcg || null,
+        url_liga: newCard.url_liga || null,
+        subTypeName: validSubTypeName,
+        card_number: newCard.card_number || null,
+        groupid_tcg: newCard.groupid_tcg || null,
       };
       
       // Try to add to Supabase
@@ -329,7 +347,7 @@ export const useCardDatabase = () => {
       // Use Supabase-generated ID
       const cardWithId: CardDetails = {
         ...newCard,
-        id: data.id
+        id: String(data.id) // Convert to string for compatibility
       };
       
       // Update local state
@@ -400,16 +418,31 @@ export const useCardDatabase = () => {
         }
       }
       
+      // Convert subTypeName to enum if provided
+      let validSubTypeName = undefined;
+      if (cardData.subTypeName) {
+        if (['Normal', 'Foil'].includes(cardData.subTypeName as SubTypeNameEnum)) {
+          validSubTypeName = cardData.subTypeName as SubTypeNameEnum;
+        } else {
+          validSubTypeName = null;
+        }
+      }
+      
       // Prepare data for Supabase update
       const updateData: Partial<CardInsert> = {
         name: cardData.name,
-        set_id: cardData.set,
+        groupid_liga: cardData.set, // Use groupid_liga instead of set_id
         card_type: cardData.type,
         cost: cardData.cost,
         rarity: validRarity,
         colors: validColors,
         artwork_url: artworkUrl,
         card_text: cardData.flavorText,
+        url_tcg: cardData.url_tcg,
+        url_liga: cardData.url_liga,
+        subTypeName: validSubTypeName,
+        card_number: cardData.card_number,
+        groupid_tcg: cardData.groupid_tcg,
       };
       
       // Remove undefined values
@@ -423,7 +456,7 @@ export const useCardDatabase = () => {
       const { error } = await supabase
         .from('cards')
         .update(updateData)
-        .eq('id', id);
+        .eq('id', Number(id)); // Convert to number as required by schema
         
       if (error) throw error;
       
@@ -475,7 +508,7 @@ export const useCardDatabase = () => {
       const { error } = await supabase
         .from('cards')
         .delete()
-        .eq('id', id);
+        .eq('id', Number(id)); // Convert to number as required by schema
         
       if (error) throw error;
       
@@ -511,7 +544,7 @@ export const useCardDatabase = () => {
     return sets.filter(set => set.gameCategory === gameCategory);
   };
   
-  const getSetById = (id: string) => {
+  const getSetById = (id: number) => {
     return sets.find(set => set.id === id);
   };
 

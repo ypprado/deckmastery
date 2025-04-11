@@ -12,39 +12,38 @@ export type Database = {
       card_sets: {
         Row: {
           created_at: string
-          description: string | null
           game_category: Database["public"]["Enums"]["game_category"]
+          groupid_tcg: number | null
           id: string
           name: string
-          release_date: string | null
+          release_year: number | null
           updated_at: string
         }
         Insert: {
           created_at?: string
-          description?: string | null
           game_category: Database["public"]["Enums"]["game_category"]
-          id?: string
+          groupid_tcg?: number | null
+          id: string
           name: string
-          release_date?: string | null
+          release_year?: number | null
           updated_at?: string
         }
         Update: {
           created_at?: string
-          description?: string | null
           game_category?: Database["public"]["Enums"]["game_category"]
+          groupid_tcg?: number | null
           id?: string
           name?: string
-          release_date?: string | null
+          release_year?: number | null
           updated_at?: string
         }
         Relationships: []
       }
       cards: {
         Row: {
-          art_urls: string[] | null
           artwork_url: string
           attribute: Database["public"]["Enums"]["attribute_type"] | null
-          card_number: number | null
+          card_number: string | null
           card_text: string | null
           card_type: string | null
           category: Database["public"]["Enums"]["category_type"] | null
@@ -53,22 +52,24 @@ export type Database = {
           counter: number | null
           created_at: string
           game_category: Database["public"]["Enums"]["game_category"]
-          id: string
+          groupid_liga: string | null
+          groupid_tcg: number | null
+          id: number
           language: Database["public"]["Enums"]["language_type"] | null
           life: number | null
           name: string
           parallel: Database["public"]["Enums"]["parallel_type"] | null
           power: number | null
           rarity: Database["public"]["Enums"]["rarity_type"] | null
-          series: Database["public"]["Enums"]["series_type"] | null
-          set_id: string
+          subTypeName: Database["public"]["Enums"]["sub_type"] | null
           updated_at: string
+          url_liga: string | null
+          url_tcg: string | null
         }
         Insert: {
-          art_urls?: string[] | null
           artwork_url: string
           attribute?: Database["public"]["Enums"]["attribute_type"] | null
-          card_number?: number | null
+          card_number?: string | null
           card_text?: string | null
           card_type?: string | null
           category?: Database["public"]["Enums"]["category_type"] | null
@@ -77,22 +78,24 @@ export type Database = {
           counter?: number | null
           created_at?: string
           game_category: Database["public"]["Enums"]["game_category"]
-          id?: string
+          groupid_liga?: string | null
+          groupid_tcg?: number | null
+          id: number
           language?: Database["public"]["Enums"]["language_type"] | null
           life?: number | null
           name: string
           parallel?: Database["public"]["Enums"]["parallel_type"] | null
           power?: number | null
           rarity?: Database["public"]["Enums"]["rarity_type"] | null
-          series?: Database["public"]["Enums"]["series_type"] | null
-          set_id: string
+          subTypeName?: Database["public"]["Enums"]["sub_type"] | null
           updated_at?: string
+          url_liga?: string | null
+          url_tcg?: string | null
         }
         Update: {
-          art_urls?: string[] | null
           artwork_url?: string
           attribute?: Database["public"]["Enums"]["attribute_type"] | null
-          card_number?: number | null
+          card_number?: string | null
           card_text?: string | null
           card_type?: string | null
           category?: Database["public"]["Enums"]["category_type"] | null
@@ -101,23 +104,80 @@ export type Database = {
           counter?: number | null
           created_at?: string
           game_category?: Database["public"]["Enums"]["game_category"]
-          id?: string
+          groupid_liga?: string | null
+          groupid_tcg?: number | null
+          id?: number
           language?: Database["public"]["Enums"]["language_type"] | null
           life?: number | null
           name?: string
           parallel?: Database["public"]["Enums"]["parallel_type"] | null
           power?: number | null
           rarity?: Database["public"]["Enums"]["rarity_type"] | null
-          series?: Database["public"]["Enums"]["series_type"] | null
-          set_id?: string
+          subTypeName?: Database["public"]["Enums"]["sub_type"] | null
           updated_at?: string
+          url_liga?: string | null
+          url_tcg?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "cards_set_id_fkey"
-            columns: ["set_id"]
+            foreignKeyName: "cards_groupid_liga_fkey"
+            columns: ["groupid_liga"]
             isOneToOne: false
             referencedRelation: "card_sets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cards_groupid_tcg_fkey"
+            columns: ["groupid_tcg"]
+            isOneToOne: false
+            referencedRelation: "card_sets"
+            referencedColumns: ["groupid_tcg"]
+          },
+        ]
+      }
+      price_history: {
+        Row: {
+          card_id: number
+          id: number
+          price_avg_liga: number | null
+          price_avg_tcg: number | null
+          price_market_tcg: number | null
+          price_max_liga: number | null
+          price_max_tcg: number | null
+          price_min_liga: number | null
+          price_min_tcg: number | null
+          recorded_at: string
+        }
+        Insert: {
+          card_id: number
+          id?: number
+          price_avg_liga?: number | null
+          price_avg_tcg?: number | null
+          price_market_tcg?: number | null
+          price_max_liga?: number | null
+          price_max_tcg?: number | null
+          price_min_liga?: number | null
+          price_min_tcg?: number | null
+          recorded_at?: string
+        }
+        Update: {
+          card_id?: number
+          id?: number
+          price_avg_liga?: number | null
+          price_avg_tcg?: number | null
+          price_market_tcg?: number | null
+          price_max_liga?: number | null
+          price_max_tcg?: number | null
+          price_min_liga?: number | null
+          price_min_tcg?: number | null
+          recorded_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "price_history_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "cards"
             referencedColumns: ["id"]
           },
         ]
@@ -131,7 +191,7 @@ export type Database = {
     }
     Enums: {
       attribute_type: "Slash" | "Strike" | "Special" | "Wisdom" | "Ranged"
-      category_type: "Leader" | "Character" | "Event" | "Stage"
+      category_type: "Leader" | "Character" | "Event" | "Stage" | "DON!!"
       color_type: "Red" | "Green" | "Blue" | "Purple" | "Black" | "Yellow"
       game_category: "magic" | "pokemon" | "yugioh" | "onepiece"
       language_type: "English" | "Japanese" | "Chinese" | "Portuguese"
@@ -146,7 +206,8 @@ export type Database = {
         | "Special Card"
         | "Treasure Rare"
         | "Promo"
-      series_type: "OP" | "ST" | "EB" | "P"
+        | "DON!!"
+      sub_type: "Normal" | "Foil"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -154,27 +215,29 @@ export type Database = {
   }
 }
 
-type PublicSchema = Database[Extract<keyof Database, "public">]
+type DefaultSchema = Database[Extract<keyof Database, "public">]
 
 export type Tables<
-  PublicTableNameOrOptions extends
-    | keyof (PublicSchema["Tables"] & PublicSchema["Views"])
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-        Database[PublicTableNameOrOptions["schema"]]["Views"])
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-      Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
+  ? (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
     : never
-  : PublicTableNameOrOptions extends keyof (PublicSchema["Tables"] &
-        PublicSchema["Views"])
-    ? (PublicSchema["Tables"] &
-        PublicSchema["Views"])[PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
         Row: infer R
       }
       ? R
@@ -182,20 +245,22 @@ export type Tables<
     : never
 
 export type TablesInsert<
-  PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
     | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
+  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
     : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Insert: infer I
       }
       ? I
@@ -203,20 +268,22 @@ export type TablesInsert<
     : never
 
 export type TablesUpdate<
-  PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
     | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
+  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
     : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Update: infer U
       }
       ? U
@@ -224,21 +291,23 @@ export type TablesUpdate<
     : never
 
 export type Enums<
-  PublicEnumNameOrOptions extends
-    | keyof PublicSchema["Enums"]
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
     | { schema: keyof Database },
-  EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof Database
+  }
+    ? keyof Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
-> = PublicEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
-    ? PublicSchema["Enums"][PublicEnumNameOrOptions]
+> = DefaultSchemaEnumNameOrOptions extends { schema: keyof Database }
+  ? Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-    | keyof PublicSchema["CompositeTypes"]
+    | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof Database },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
     schema: keyof Database
@@ -247,6 +316,32 @@ export type CompositeTypes<
     : never = never,
 > = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
   ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
-    ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
+
+export const Constants = {
+  public: {
+    Enums: {
+      attribute_type: ["Slash", "Strike", "Special", "Wisdom", "Ranged"],
+      category_type: ["Leader", "Character", "Event", "Stage", "DON!!"],
+      color_type: ["Red", "Green", "Blue", "Purple", "Black", "Yellow"],
+      game_category: ["magic", "pokemon", "yugioh", "onepiece"],
+      language_type: ["English", "Japanese", "Chinese", "Portuguese"],
+      parallel_type: ["Alternate Art", "Manga Art"],
+      rarity_type: [
+        "Leader",
+        "Common",
+        "Uncommon",
+        "Rare",
+        "Super Rare",
+        "Secret Rare",
+        "Special Card",
+        "Treasure Rare",
+        "Promo",
+        "DON!!",
+      ],
+      sub_type: ["Normal", "Foil"],
+    },
+  },
+} as const

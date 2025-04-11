@@ -65,13 +65,13 @@ export const useStaticData = (options: StaticDataOptions = {}) => {
         }
         
         return {
-          id: card.id,
+          id: String(card.id), // Convert number to string for compatibility
           name: card.name,
           imageUrl: imageUrl,
           type: card.card_type || '',
           cost: card.cost || 0,
           rarity: card.rarity || '',
-          set: card.set_id,
+          set: card.groupid_liga || '', // Using groupid_liga instead of set_id
           colors: card.colors as string[] || [],
           gameCategory: card.game_category
         };
