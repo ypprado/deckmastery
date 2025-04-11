@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { CardDetails, CardSet } from '@/types/cardDatabase';
@@ -31,7 +32,7 @@ export const useCardDatabase = () => {
         if (setsData && setsData.length > 0) {
           // Transform Supabase data to match our app's format
           const formattedSets = setsData.map(set => ({
-            id: set.id, // Now a number
+            id: Number(set.id), // Convert string to number
             name: set.name,
             releaseYear: set.release_year || new Date().getFullYear(), // Use releaseYear instead of releaseDate
             gameCategory: set.game_category,
@@ -51,7 +52,7 @@ export const useCardDatabase = () => {
             // Transform Supabase data to match our app's format
             const formattedCards = cardsData.map(card => {
               // Find the set name for this card
-              const cardSet = formattedSets.find(set => set.id === card.groupid_tcg);
+              const cardSet = formattedSets.find(set => set.id === Number(card.groupid_tcg));
               
               return {
                 id: String(card.id), // Convert to string for compatibility
@@ -129,6 +130,7 @@ export const useCardDatabase = () => {
     try {
       // Try to add to Supabase first - prepare data for insertion
       const cardSetData: CardSetInsert = {
+        id: String(newSet.id), // Convert number to string for the insert
         name: newSet.name,
         release_year: newSet.releaseYear, // Use release_year instead of release_date
         game_category: newSet.gameCategory,
@@ -146,7 +148,7 @@ export const useCardDatabase = () => {
       // Set ID from Supabase response
       const setWithId: CardSet = {
         ...newSet,
-        id: data.id
+        id: Number(data.id) // Convert back to number for our app
       };
       
       // Update local state
@@ -188,7 +190,7 @@ export const useCardDatabase = () => {
       const { error } = await supabase
         .from('card_sets')
         .update(updateData)
-        .eq('id', id);
+        .eq('id', String(id)); // Convert number to string for comparison
         
       if (error) throw error;
       
@@ -246,7 +248,7 @@ export const useCardDatabase = () => {
       const { error } = await supabase
         .from('card_sets')
         .delete()
-        .eq('id', id);
+        .eq('id', String(id)); // Convert number to string for comparison
         
       if (error) throw error;
       
@@ -317,6 +319,7 @@ export const useCardDatabase = () => {
       
       // Prepare data for Supabase insertion
       const cardData: CardInsert = {
+        id: Number(newCard.id), // Use number ID for insertion
         name: newCard.name,
         groupid_liga: newCard.set, // Use groupid_liga instead of set_id
         game_category: newCard.gameCategory,
