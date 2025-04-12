@@ -58,7 +58,7 @@ export type Database = {
           language: Database["public"]["Enums"]["language_type"] | null
           life: number | null
           name: string
-          parallel: Database["public"]["Enums"]["parallel_type"] | null
+          parallel: Database["public"]["Enums"]["parallel_type"][] | null
           power: number | null
           rarity: Database["public"]["Enums"]["rarity_type"] | null
           subTypeName: Database["public"]["Enums"]["sub_type"] | null
@@ -84,7 +84,7 @@ export type Database = {
           language?: Database["public"]["Enums"]["language_type"] | null
           life?: number | null
           name: string
-          parallel?: Database["public"]["Enums"]["parallel_type"] | null
+          parallel?: Database["public"]["Enums"]["parallel_type"][] | null
           power?: number | null
           rarity?: Database["public"]["Enums"]["rarity_type"] | null
           subTypeName?: Database["public"]["Enums"]["sub_type"] | null
@@ -110,7 +110,7 @@ export type Database = {
           language?: Database["public"]["Enums"]["language_type"] | null
           life?: number | null
           name?: string
-          parallel?: Database["public"]["Enums"]["parallel_type"] | null
+          parallel?: Database["public"]["Enums"]["parallel_type"][] | null
           power?: number | null
           rarity?: Database["public"]["Enums"]["rarity_type"] | null
           subTypeName?: Database["public"]["Enums"]["sub_type"] | null
@@ -195,7 +195,11 @@ export type Database = {
       color_type: "Red" | "Green" | "Blue" | "Purple" | "Black" | "Yellow"
       game_category: "magic" | "pokemon" | "yugioh" | "onepiece"
       language_type: "English" | "Japanese" | "Chinese" | "Portuguese"
-      parallel_type: "Alternate Art" | "Manga Art"
+      parallel_type:
+        | "Alternate Art"
+        | "Manga Art"
+        | "Parallel Art"
+        | "Box Topper"
       rarity_type:
         | "Leader"
         | "Common"
@@ -328,7 +332,12 @@ export const Constants = {
       color_type: ["Red", "Green", "Blue", "Purple", "Black", "Yellow"],
       game_category: ["magic", "pokemon", "yugioh", "onepiece"],
       language_type: ["English", "Japanese", "Chinese", "Portuguese"],
-      parallel_type: ["Alternate Art", "Manga Art"],
+      parallel_type: [
+        "Alternate Art",
+        "Manga Art",
+        "Parallel Art",
+        "Box Topper",
+      ],
       rarity_type: [
         "Leader",
         "Common",

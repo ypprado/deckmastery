@@ -1,0 +1,108 @@
+
+import { toast } from 'sonner';
+import { CardDetails, CardSet } from '@/types/cardDatabase';
+import { GameCategory } from '@/hooks/use-decks';
+import { supabase } from '@/integrations/supabase/client';
+import { Database } from '@/integrations/supabase/types';
+
+// Types for Supabase tables
+export type CardSetInsert = Database['public']['Tables']['card_sets']['Insert'];
+export type CardInsert = Database['public']['Tables']['cards']['Insert'];
+export type RarityType = Database['public']['Enums']['rarity_type'];
+export type ColorType = Database['public']['Enums']['color_type'];
+export type SubTypeNameEnum = Database['public']['Enums']['sub_type'];
+
+// Shared utilities
+export const convertSetFromSupabase = (set: any): CardSet => {
+  return {
+    id: Number(set.id),
+    name: set.name,
+    releaseYear: set.release_year || new Date().getFullYear(),
+    gameCategory: set.game_category,
+    groupid_tcg: set.groupid_tcg || undefined,
+  };
+};
+
+export const convertCardFromSupabase = (
+  card: any, 
+  sets: CardSet[]
+): CardDetails => {
+  // Find the set name for this card
+  const cardSet = sets.find(set => set.id === Number(card.groupid_tcg));
+  
+  return {
+    id: String(card.id),
+    name: card.name,
+    set: card.groupid_liga || '',
+    setName: cardSet?.name,
+    imageUrl: card.artwork_url,
+    type: card.card_type || '',
+    cost: card.cost || 0,
+    rarity: card.rarity || '',
+    colors: card.colors || [],
+    gameCategory: card.game_category,
+    flavorText: card.card_text || '',
+    url_tcg: card.url_tcg || '',
+    url_liga: card.url_liga || '',
+    subTypeName: card.subTypeName || '',
+    card_number: card.card_number || '',
+    groupid_tcg: card.groupid_tcg,
+    artist: '',
+    legality: [],
+    price: 0,
+  };
+};
+
+// Load data from Supabase or localStorage
+export const loadCardsAndSets = async (): Promise<{
+  cards: CardDetails[];
+  sets: CardSet[];
+}> => {
+  try {
+    // Try to load from Supabase first
+    const { data: setsData, error: setsError } = await supabase
+      .from('card_sets')
+      .select('*');
+      
+    if (setsError) throw setsError;
+    
+    if (setsData && setsData.length > 0) {
+      // Transform Supabase data to match our app's format
+      const formattedSets = setsData.map(convertSetFromSupabase);
+      
+      // Load cards data
+      const { data: cardsData, error: cardsError } = await supabase
+        .from('cards')
+        .select('*');
+        
+      if (cardsError) throw cardsError;
+      
+      if (cardsData && cardsData.length > 0) {
+        // Transform Supabase data to match our app's format
+        const formattedCards = cardsData.map(card => convertCardFromSupabase(card, formattedSets));
+        
+        return { cards: formattedCards, sets: formattedSets };
+      }
+    }
+    
+    // Fall back to localStorage if no data in Supabase
+    const storedCards = localStorage.getItem('cardDatabase');
+    const storedSets = localStorage.getItem('cardSets');
+    
+    return {
+      cards: storedCards ? JSON.parse(storedCards) : [],
+      sets: storedSets ? JSON.parse(storedSets) : []
+    };
+  } catch (error) {
+    console.error("Error loading data:", error);
+    
+    // Fall back to localStorage on error
+    const storedCards = localStorage.getItem('cardDatabase');
+    const storedSets = localStorage.getItem('cardSets');
+    
+    return {
+      cards: storedCards ? JSON.parse(storedCards) : [],
+      sets: storedSets ? JSON.parse(storedSets) : []
+    };
+  }
+};
