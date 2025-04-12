@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 // Define the supported languages
@@ -87,6 +86,10 @@ export interface Translations {
   added: string;
   add: string;
   tryAdjustingFilters: string;
+  // Pagination
+  showing: string;
+  of: string;
+  page: string;
 }
 
 // Create translation objects for each language
@@ -172,7 +175,11 @@ const translations: Record<Language, Translations> = {
     casual: 'Casual',
     added: 'Adicionada',
     add: 'Adicionar',
-    tryAdjustingFilters: 'Tente ajustar seus filtros ou termo de busca para encontrar cartas'
+    tryAdjustingFilters: 'Tente ajustar seus filtros ou termo de busca para encontrar cartas',
+    // Pagination
+    showing: 'Mostrando',
+    of: 'de',
+    page: 'Página'
   },
   es: {
     dashboard: 'Panel',
@@ -255,7 +262,11 @@ const translations: Record<Language, Translations> = {
     casual: 'Casual',
     added: 'Añadida',
     add: 'Añadir',
-    tryAdjustingFilters: 'Intenta ajustar tus filtros o término de búsqueda para encontrar cartas'
+    tryAdjustingFilters: 'Intenta ajustar tus filtros o término de búsqueda para encontrar cartas',
+    // Pagination
+    showing: 'Mostrando',
+    of: 'de',
+    page: 'Página'
   },
   en: {
     dashboard: 'Dashboard',
@@ -338,7 +349,11 @@ const translations: Record<Language, Translations> = {
     casual: 'Casual',
     added: 'Added',
     add: 'Add',
-    tryAdjustingFilters: 'Try adjusting your filters or search term to find cards'
+    tryAdjustingFilters: 'Try adjusting your filters or search term to find cards',
+    // Pagination
+    showing: 'Showing',
+    of: 'of',
+    page: 'Page'
   }
 };
 
