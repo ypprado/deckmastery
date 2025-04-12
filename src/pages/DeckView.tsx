@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { PieChart, Pie, ResponsiveContainer, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from "recharts";
@@ -12,7 +11,9 @@ import {
   BarChart4,
   ListFilter,
   Clock,
-  AlertCircle
+  AlertCircle,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,6 +26,15 @@ import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { 
+  Pagination, 
+  PaginationContent, 
+  PaginationItem, 
+  PaginationNext, 
+  PaginationPrevious 
+} from "@/components/ui/pagination";
+
+const CARDS_PER_PAGE = 20;
 
 const CardList = ({ 
   cards, 
@@ -33,6 +43,8 @@ const CardList = ({
   cards: { card: CardType; quantity: number }[]; 
   groupBy?: "type" | "cost" | "rarity";
 }) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  
   const groupedCards = cards.reduce((acc, { card, quantity }) => {
     const key = card[groupBy];
     if (!acc[key]) {
@@ -48,55 +60,222 @@ const CardList = ({
     }
     return a.localeCompare(b);
   });
+  
+  const totalCardEntries = Object.values(groupedCards).reduce(
+    (total, group) => total + group.length, 0
+  );
+  
+  const getGroupsForPage = () => {
+    let cardCount = 0;
+    let groupsToShow: string[] = [];
+    
+    for (const group of sortedGroups) {
+      const groupCardCount = groupedCards[group].length;
+      
+      if (cardCount + groupCardCount > CARDS_PER_PAGE && groupsToShow.length > 0) {
+        break;
+      }
+      
+      groupsToShow.push(group);
+      cardCount += groupCardCount;
+      
+      if (cardCount >= CARDS_PER_PAGE) {
+        break;
+      }
+    }
+    
+    return groupsToShow;
+  };
+  
+  const getPagedGroups = () => {
+    let currentCardCount = 0;
+    let startGroup = 0;
+    
+    for (let i = 0; i < sortedGroups.length; i++) {
+      const groupCardCount = groupedCards[sortedGroups[i]].length;
+      
+      if (currentCardCount + groupCardCount > (currentPage - 1) * CARDS_PER_PAGE) {
+        startGroup = i;
+        break;
+      }
+      
+      currentCardCount += groupCardCount;
+    }
+    
+    let visibleGroups: string[] = [];
+    currentCardCount = 0;
+    
+    for (let i = startGroup; i < sortedGroups.length; i++) {
+      const group = sortedGroups[i];
+      const groupCardCount = groupedCards[group].length;
+      
+      if (currentCardCount + groupCardCount > CARDS_PER_PAGE && visibleGroups.length > 0) {
+        break;
+      }
+      
+      visibleGroups.push(group);
+      currentCardCount += groupCardCount;
+      
+      if (currentCardCount >= CARDS_PER_PAGE) {
+        break;
+      }
+    }
+    
+    return visibleGroups;
+  };
+  
+  const visibleGroups = getPagedGroups();
+  
+  const calculateTotalPages = () => {
+    let cardCount = 0;
+    let page = 1;
+    
+    for (const group of sortedGroups) {
+      const groupCardCount = groupedCards[group].length;
+      
+      if (cardCount + groupCardCount > CARDS_PER_PAGE && cardCount > 0) {
+        page++;
+        cardCount = groupCardCount;
+      } else {
+        cardCount += groupCardCount;
+      }
+      
+      if (cardCount === CARDS_PER_PAGE && group !== sortedGroups[sortedGroups.length - 1]) {
+        page++;
+        cardCount = 0;
+      }
+    }
+    
+    return page;
+  };
+  
+  const totalPages = calculateTotalPages();
+  
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+      document.querySelector('.card-list-container')?.scrollTo(0, 0);
+    }
+  };
+
+  const goToPrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+      document.querySelector('.card-list-container')?.scrollTo(0, 0);
+    }
+  };
 
   return (
     <div className="space-y-6">
-      {sortedGroups.map((group) => (
-        <div key={group} className="animate-scale-up">
-          <div className="flex items-center gap-2 mb-2">
-            <h3 className="text-sm font-medium">{group}</h3>
-            <Badge variant="outline" className="text-xs">
-              {groupedCards[group].reduce((acc, { quantity }) => acc + quantity, 0)}
-            </Badge>
-          </div>
-          <div className="space-y-1">
-            {groupedCards[group]
-              .sort((a, b) => a.card.name.localeCompare(b.card.name))
-              .map(({ card, quantity }) => (
-                <div
-                  key={card.id}
-                  className="flex items-center py-1 px-2 rounded-md hover:bg-muted/50 transition-colors"
-                >
-                  <div className="w-8 text-center font-medium text-sm text-muted-foreground">
-                    {quantity}x
-                  </div>
-                  <div className="ml-2 flex-1">
-                    <div className="text-sm">{card.name}</div>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    {card.colors.map(color => (
-                      <div
-                        key={`${card.id}-${color}`}
-                        className={cn(
-                          "w-3 h-3 rounded-full",
-                          color === 'white' ? 'bg-amber-100 dark:bg-amber-800' :
-                          color === 'blue' ? 'bg-blue-100 dark:bg-blue-800' :
-                          color === 'black' ? 'bg-gray-700 dark:bg-gray-900' :
-                          color === 'red' ? 'bg-red-100 dark:bg-red-800' :
-                          color === 'green' ? 'bg-green-100 dark:bg-green-800' :
-                          'bg-gray-200'
-                        )}
-                      />
-                    ))}
-                    <div className="ml-2 text-xs text-muted-foreground">
-                      {card.cost}
-                    </div>
-                  </div>
-                </div>
-              ))}
+      {totalPages > 1 && (
+        <div className="flex justify-between items-center text-sm text-muted-foreground mb-2">
+          <span>
+            Page {currentPage} of {totalPages}
+          </span>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={goToPrevPage}
+              disabled={currentPage === 1}
+              className="h-8 px-2"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={goToNextPage}
+              disabled={currentPage === totalPages}
+              className="h-8 px-2"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
           </div>
         </div>
-      ))}
+      )}
+    
+      <div className="card-list-container">
+        {visibleGroups.map((group) => (
+          <div key={group} className="animate-scale-up mb-6">
+            <div className="flex items-center gap-2 mb-2">
+              <h3 className="text-sm font-medium">{group}</h3>
+              <Badge variant="outline" className="text-xs">
+                {groupedCards[group].reduce((acc, { quantity }) => acc + quantity, 0)}
+              </Badge>
+            </div>
+            <div className="space-y-1">
+              {groupedCards[group]
+                .sort((a, b) => a.card.name.localeCompare(b.card.name))
+                .map(({ card, quantity }) => (
+                  <div
+                    key={card.id}
+                    className="flex items-center py-1 px-2 rounded-md hover:bg-muted/50 transition-colors"
+                  >
+                    <div className="w-8 text-center font-medium text-sm text-muted-foreground">
+                      {quantity}x
+                    </div>
+                    <div className="ml-2 flex-1">
+                      <div className="text-sm">{card.name}</div>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      {card.colors.map(color => (
+                        <div
+                          key={`${card.id}-${color}`}
+                          className={cn(
+                            "w-3 h-3 rounded-full",
+                            color === 'white' ? 'bg-amber-100 dark:bg-amber-800' :
+                            color === 'blue' ? 'bg-blue-100 dark:bg-blue-800' :
+                            color === 'black' ? 'bg-gray-700 dark:bg-gray-900' :
+                            color === 'red' ? 'bg-red-100 dark:bg-red-800' :
+                            color === 'green' ? 'bg-green-100 dark:bg-green-800' :
+                            'bg-gray-200'
+                          )}
+                        />
+                      ))}
+                      <div className="ml-2 text-xs text-muted-foreground">
+                        {card.cost}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      {totalPages > 1 && (
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious 
+                onClick={goToPrevPage}
+                className={cn(currentPage === 1 && "pointer-events-none opacity-50")}
+              />
+            </PaginationItem>
+            
+            {totalPages <= 5 && Array.from({ length: totalPages }, (_, i) => (
+              <PaginationItem key={i + 1}>
+                <Button 
+                  variant={currentPage === i + 1 ? "default" : "outline"}
+                  size="icon"
+                  className="w-10 h-10"
+                  onClick={() => setCurrentPage(i + 1)}
+                >
+                  {i + 1}
+                </Button>
+              </PaginationItem>
+            ))}
+            
+            <PaginationItem>
+              <PaginationNext 
+                onClick={goToNextPage}
+                className={cn(currentPage === totalPages && "pointer-events-none opacity-50")} 
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
     </div>
   );
 };
@@ -119,7 +298,6 @@ const DeckView = () => {
       console.log(`Attempting to load deck with ID: ${id}`);
       console.log("All available decks:", allDecks);
       
-      // Small delay to ensure decks are loaded
       setTimeout(() => {
         const deckData = getDeck(id);
         console.log("Retrieved deck data:", deckData);
