@@ -46,7 +46,15 @@ const CardList = ({
   const [currentPage, setCurrentPage] = useState(1);
   
   const groupedCards = cards.reduce((acc, { card, quantity }) => {
-    const key = card[groupBy];
+    let key: string;
+    if (groupBy === "type") {
+      key = Array.isArray(card.type) 
+        ? (card.type.length > 0 ? String(card.type[0]) : 'Unknown') 
+        : String(card.type);
+    } else {
+      key = String(card[groupBy]);
+    }
+    
     if (!acc[key]) {
       acc[key] = [];
     }
@@ -314,10 +322,6 @@ const DeckView = () => {
     }
   }, [id, getDeck, allDecks]);
 
-  const handleReturnToDashboard = () => {
-    navigate("/dashboard");
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center h-[50vh]">
@@ -336,7 +340,7 @@ const DeckView = () => {
             {error || "The deck you're looking for doesn't exist."}
           </AlertDescription>
         </Alert>
-        <Button onClick={handleReturnToDashboard}>
+        <Button onClick={() => navigate("/")}>
           Return to Dashboard
         </Button>
       </div>
@@ -358,7 +362,13 @@ const DeckView = () => {
   }));
 
   const typeData = deck.cards.reduce((acc, { card, quantity }) => {
-    acc[card.type] = (acc[card.type] || 0) + quantity;
+    const types = Array.isArray(card.type) ? card.type : [card.type];
+    
+    types.forEach(type => {
+      const typeStr = String(type);
+      acc[typeStr] = (acc[typeStr] || 0) + quantity;
+    });
+    
     return acc;
   }, {} as Record<string, number>);
 
@@ -549,7 +559,7 @@ const DeckView = () => {
                           {colorData.map((entry, index) => (
                             <Cell 
                               key={`cell-${index}`} 
-                              fill={colorMap[entry.name.toLowerCase()]} 
+                              fill={colorMap[entry.name.toLowerCase()] || '#cccccc'} 
                             />
                           ))}
                         </Pie>
@@ -566,7 +576,7 @@ const DeckView = () => {
                       >
                         <div 
                           className="w-3 h-3 rounded-full" 
-                          style={{ backgroundColor: colorMap[entry.name.toLowerCase()] }}
+                          style={{ backgroundColor: colorMap[entry.name.toLowerCase()] || '#cccccc' }}
                         />
                         <span>{entry.name}: {entry.value}%</span>
                       </div>
