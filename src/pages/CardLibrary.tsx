@@ -17,18 +17,6 @@ import {
   PaginationNext, 
   PaginationPrevious 
 } from '@/components/ui/pagination';
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-} from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 
 const colorNames: Record<string, string> = {
   white: 'White',
@@ -48,8 +36,6 @@ const CardLibrary = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedCard, setSelectedCard] = useState(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [typeSearchValue, setTypeSearchValue] = useState('');
-  const [typePopoverOpen, setTypePopoverOpen] = useState(false);
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -59,11 +45,9 @@ const CardLibrary = () => {
   const [searchQuery, setSearchQuery] = useState(filterState.searchQuery || '');
   const [activeFilters, setActiveFilters] = useState<{
     colors: string[];
-    types: string[];
     rarities: string[];
   }>({
     colors: filterState.colorFilters || [],
-    types: filterState.typeFilters || [],
     rarities: filterState.rarityFilters || [],
   });
   const [selectedSet, setSelectedSet] = useState<string | null>(filterState.selectedSet || null);
@@ -83,7 +67,6 @@ const CardLibrary = () => {
     setSearchQuery(currentState.searchQuery || '');
     setActiveFilters({
       colors: currentState.colorFilters || [],
-      types: currentState.typeFilters || [],
       rarities: currentState.rarityFilters || []
     });
     setSelectedSet(currentState.selectedSet || null);
@@ -102,32 +85,19 @@ const CardLibrary = () => {
       saveFilterStateCallback({
         searchQuery,
         colorFilters: activeFilters.colors,
-        typeFilters: activeFilters.types,
         rarityFilters: activeFilters.rarities,
         selectedSet
       });
     }, 300);
     
     return () => clearTimeout(saveTimer);
-  }, [searchQuery, activeFilters.colors, activeFilters.types, activeFilters.rarities, selectedSet, saveFilterStateCallback]);
+  }, [searchQuery, activeFilters.colors, activeFilters.rarities, selectedSet, saveFilterStateCallback]);
   
   // Filter cards by selected set
   const cardsInSelectedSet = selectedSet 
     ? cards.filter(card => card.set === selectedSet)
     : [];
 
-  // Extract unique types from cards, handling both string and array types
-  const uniqueTypes = Array.from(new Set(
-    cardsInSelectedSet.flatMap(card => {
-      if (Array.isArray(card.type)) {
-        return card.type;
-      } else if (typeof card.type === 'string') {
-        return [card.type];
-      }
-      return [];
-    })
-  ));
-  
   const uniqueRarities = Array.from(new Set(cardsInSelectedSet.map(card => card.rarity)));
   const uniqueColors = Array.from(new Set(cardsInSelectedSet.flatMap(card => card.colors)));
 
@@ -143,22 +113,9 @@ const CardLibrary = () => {
     });
   };
 
-  const toggleTypeFilter = (value: string) => {
-    setActiveFilters(prev => {
-      const isActive = prev.types.includes(value);
-      return {
-        ...prev,
-        types: isActive
-          ? prev.types.filter(type => type !== value)
-          : [...prev.types, value]
-      };
-    });
-  };
-
   const clearFilters = () => {
     setActiveFilters({
       colors: [],
-      types: [],
       rarities: []
     });
     setSearchQuery('');
@@ -173,10 +130,9 @@ const CardLibrary = () => {
   const filteredCards = selectedSet
     ? (searchQuery 
         ? searchCards(searchQuery).filter(card => card.set === selectedSet)
-        : activeFilters.colors.length || activeFilters.types.length || activeFilters.rarities.length
+        : activeFilters.colors.length || activeFilters.rarities.length
           ? filterCards({
               colors: activeFilters.colors.length ? activeFilters.colors : undefined,
-              type: activeFilters.types.length ? activeFilters.types : undefined,
               rarity: activeFilters.rarities.length ? activeFilters.rarities[0] : undefined,
             }).filter(card => card.set === selectedSet)
           : cardsInSelectedSet)
@@ -215,7 +171,6 @@ const CardLibrary = () => {
 
   const isAnyFilterActive = 
     activeFilters.colors.length > 0 || 
-    activeFilters.types.length > 0 || 
     activeFilters.rarities.length > 0 ||
     searchQuery.length > 0;
 
@@ -279,7 +234,7 @@ const CardLibrary = () => {
               )}
             </div>
             
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-2">
               {/* Colors */}
               <div>
                 <h4 className="text-xs font-medium mb-2">{t('colors')}</h4>
@@ -297,94 +252,6 @@ const CardLibrary = () => {
                       {colorNames[color] || color.charAt(0).toUpperCase() + color.slice(1)}
                     </Badge>
                   ))}
-                </div>
-              </div>
-              
-              {/* Types - Now a dropdown with search */}
-              <div>
-                <h4 className="text-xs font-medium mb-2">{t('types')}</h4>
-                <div className="flex flex-col gap-2">
-                  <Popover open={typePopoverOpen} onOpenChange={setTypePopoverOpen}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        aria-expanded={typePopoverOpen}
-                        className="justify-between w-full text-left h-9 px-3 text-sm"
-                      >
-                        {activeFilters.types.length 
-                          ? `${activeFilters.types.length} ${t('selected')}`
-                          : t('selectTypes')}
-                        <ChevronLeft className={cn(
-                          "ml-2 h-4 w-4 shrink-0 rotate-90 opacity-50",
-                          typePopoverOpen && "rotate-270"
-                        )} />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-full p-0" align="start">
-                      {/* Only render Command when there are types to display */}
-                      {Array.isArray(uniqueTypes) && uniqueTypes.length > 0 ? (
-                        <Command>
-                          <CommandInput 
-                            placeholder={t('searchTypes')} 
-                            value={typeSearchValue}
-                            onValueChange={setTypeSearchValue}
-                          />
-                          <CommandEmpty>{t('noTypesFound')}</CommandEmpty>
-                          <CommandGroup className="max-h-64 overflow-auto">
-                            {uniqueTypes
-                              .filter(type => 
-                                type.toLowerCase().includes(typeSearchValue.toLowerCase())
-                              )
-                              .map(type => (
-                                <CommandItem
-                                  key={type}
-                                  value={type}
-                                  onSelect={() => {
-                                    toggleTypeFilter(type);
-                                    setTypeSearchValue('');
-                                  }}
-                                >
-                                  <Check
-                                    className={cn(
-                                      "mr-2 h-4 w-4",
-                                      activeFilters.types.includes(type) 
-                                        ? "opacity-100" 
-                                        : "opacity-0"
-                                    )}
-                                  />
-                                  {type}
-                                </CommandItem>
-                              ))
-                            }
-                          </CommandGroup>
-                        </Command>
-                      ) : (
-                        <div className="p-2 text-sm text-muted-foreground">
-                          {t('noTypesFound')}
-                        </div>
-                      )}
-                    </PopoverContent>
-                  </Popover>
-                  
-                  {/* Display selected types as removable badges */}
-                  {activeFilters.types.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {activeFilters.types.map(type => (
-                        <Badge 
-                          key={type}
-                          variant="secondary"
-                          className="cursor-pointer"
-                        >
-                          {type}
-                          <X 
-                            className="ml-1 h-3 w-3" 
-                            onClick={() => toggleTypeFilter(type)}
-                          />
-                        </Badge>
-                      ))}
-                    </div>
-                  )}
                 </div>
               </div>
               
@@ -459,7 +326,7 @@ const CardLibrary = () => {
                       <CardContent className="p-3">
                         <h3 className="font-medium text-sm leading-tight truncate">{card.name}</h3>
                         <div className="flex justify-between items-center mt-1">
-                          <p className="text-xs text-muted-foreground">{card.type}</p>
+                          <p className="text-xs text-muted-foreground">{Array.isArray(card.type) ? card.type[0] : card.type}</p>
                           <p className="text-xs text-muted-foreground">{t('cost')}: {card.cost}</p>
                         </div>
                       </CardContent>
@@ -491,7 +358,7 @@ const CardLibrary = () => {
                       <div className="flex-1 min-w-0">
                         <h3 className="font-medium text-sm">{card.name}</h3>
                         <div className="flex flex-wrap gap-1 mt-1">
-                          <span className="text-xs text-muted-foreground">{card.type}</span>
+                          <span className="text-xs text-muted-foreground">{Array.isArray(card.type) ? card.type[0] : card.type}</span>
                           <span className="text-xs text-muted-foreground">•</span>
                           <span className="text-xs text-muted-foreground">{card.rarity}</span>
                           <span className="text-xs text-muted-foreground">•</span>

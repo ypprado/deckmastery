@@ -45,7 +45,7 @@ export type Database = {
           attribute: Database["public"]["Enums"]["attribute_type"] | null
           card_number: string | null
           card_text: string | null
-          card_type: Database["public"]["Enums"]["card_type"][] | null
+          card_type: Database["public"]["Enums"]["card_type"][]
           category: Database["public"]["Enums"]["category_type"] | null
           colors: Database["public"]["Enums"]["color_type"][] | null
           cost: number | null
@@ -71,7 +71,7 @@ export type Database = {
           attribute?: Database["public"]["Enums"]["attribute_type"] | null
           card_number?: string | null
           card_text?: string | null
-          card_type?: Database["public"]["Enums"]["card_type"][] | null
+          card_type: Database["public"]["Enums"]["card_type"][]
           category?: Database["public"]["Enums"]["category_type"] | null
           colors?: Database["public"]["Enums"]["color_type"][] | null
           cost?: number | null
@@ -97,7 +97,7 @@ export type Database = {
           attribute?: Database["public"]["Enums"]["attribute_type"] | null
           card_number?: string | null
           card_text?: string | null
-          card_type?: Database["public"]["Enums"]["card_type"][] | null
+          card_type?: Database["public"]["Enums"]["card_type"][]
           category?: Database["public"]["Enums"]["category_type"] | null
           colors?: Database["public"]["Enums"]["color_type"][] | null
           cost?: number | null
@@ -292,6 +292,8 @@ export type Database = {
         | "Film"
         | "New Giant Pirate Crew"
         | "Barto Club Pirates"
+        | "None"
+        | "No Type"
       category_type: "Leader" | "Character" | "Event" | "Stage" | "DON!!"
       color_type: "Red" | "Green" | "Blue" | "Purple" | "Black" | "Yellow"
       game_category: "magic" | "pokemon" | "yugioh" | "onepiece"
@@ -530,6 +532,8 @@ export const Constants = {
         "Film",
         "New Giant Pirate Crew",
         "Barto Club Pirates",
+        "None",
+        "No Type",
       ],
       category_type: ["Leader", "Character", "Event", "Stage", "DON!!"],
       color_type: ["Red", "Green", "Blue", "Purple", "Black", "Yellow"],
