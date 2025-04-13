@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { 
@@ -48,14 +47,12 @@ const DeckBuilder = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load deck data if in edit mode (id is present)
   useEffect(() => {
     if (id) {
       console.log("Edit mode detected. Loading deck with ID:", id);
       setIsEditMode(true);
       setIsLoading(true);
       
-      // Small delay to ensure decks are loaded
       setTimeout(() => {
         const deckData = getDeck(id);
         console.log("Retrieved deck data for editing:", deckData);
@@ -66,7 +63,6 @@ const DeckBuilder = () => {
           setDeckDescription(deckData.description || "");
           setSelectedCards(deckData.cards);
           
-          // If the deck has a different game category, change it
           if (deckData.gameCategory !== activeGameCategory) {
             changeGameCategory(deckData.gameCategory);
           }
@@ -91,12 +87,27 @@ const DeckBuilder = () => {
     ? searchCards(searchQuery)
     : allCards.filter(card => {
         if (activeColor && !card.colors.includes(activeColor)) return false;
-        if (activeType && card.type !== activeType) return false;
+        if (activeType) {
+          if (typeof card.type === 'string') {
+            if (card.type !== activeType) return false;
+          } else if (Array.isArray(card.type)) {
+            if (!card.type.includes(activeType)) return false;
+          }
+        }
         return card.gameCategory === activeGameCategory;
       });
 
-  const cardTypes = Array.from(new Set(allCards.filter(card => card.gameCategory === activeGameCategory).map(card => card.type)));
-  const availableColors = Array.from(new Set(allCards.filter(card => card.gameCategory === activeGameCategory).flatMap(card => card.colors)));
+  const cardTypes = Array.from(new Set(
+    allCards
+      .filter(card => card.gameCategory === activeGameCategory)
+      .flatMap(card => Array.isArray(card.type) ? card.type : [card.type])
+  ));
+  
+  const availableColors = Array.from(new Set(
+    allCards
+      .filter(card => card.gameCategory === activeGameCategory)
+      .flatMap(card => card.colors)
+  ));
 
   const colorMap: Record<string, string> = {
     white: 'bg-amber-100 text-amber-800 dark:bg-amber-800 dark:text-amber-100',
@@ -172,7 +183,6 @@ const DeckBuilder = () => {
     const coverCard = selectedCards.length > 0 ? selectedCards[0].card : undefined;
 
     if (isEditMode && id) {
-      // Update existing deck
       updateDeck(id, {
         name: deckName,
         format: deckFormat || "Standard",
@@ -186,7 +196,6 @@ const DeckBuilder = () => {
       toast.success(t('deckUpdated'));
       navigate(`/deck/${id}`);
     } else {
-      // Create new deck
       const newDeck = saveDeck({
         name: deckName,
         format: deckFormat || "Standard",
@@ -220,7 +229,6 @@ const DeckBuilder = () => {
     );
   }
 
-  // Function to get translated format names
   const getFormatLabel = (format: string) => {
     switch (format) {
       case 'Standard': return t('standard');
@@ -231,6 +239,24 @@ const DeckBuilder = () => {
       case 'Casual': return t('casual');
       default: return format;
     }
+  };
+
+  const getTypeKey = (card: CardType, type: string | string[]): React.Key => {
+    if (typeof type === 'string') {
+      return `${card.id}-${type}`;
+    } else if (Array.isArray(type)) {
+      return `${card.id}-${type.join('-')}`;
+    }
+    return card.id;
+  };
+
+  const displayCardType = (type: string | string[]): string => {
+    if (typeof type === 'string') {
+      return type;
+    } else if (Array.isArray(type)) {
+      return type.join(', ');
+    }
+    return '';
   };
 
   return (
@@ -438,7 +464,7 @@ const DeckBuilder = () => {
                       className="cursor-pointer hover:bg-muted transition-colors"
                       onClick={() => toggleType(type)}
                     >
-                      {type}
+                      {displayCardType(type)}
                     </Badge>
                   ))}
                 </div>
@@ -465,7 +491,7 @@ const DeckBuilder = () => {
                 
                 return (
                   <Card 
-                    key={card.id} 
+                    key={getTypeKey(card, card.type)} 
                     className={cn(
                       "overflow-hidden card-hover transition-all duration-300 animate-scale-up",
                       isSelected && "ring-2 ring-primary"

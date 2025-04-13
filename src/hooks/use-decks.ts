@@ -199,10 +199,24 @@ export const useCards = () => {
     if (!query) return staticCards;
     
     const lowerQuery = query.toLowerCase();
-    return staticCards.filter(card => 
-      card.name.toLowerCase().includes(lowerQuery) ||
-      card.type.toLowerCase().includes(lowerQuery)
-    );
+    return staticCards.filter(card => {
+      // Check if card name includes query
+      if (card.name.toLowerCase().includes(lowerQuery)) {
+        return true;
+      }
+      
+      // Check if card type includes query, handling both string and array types
+      if (typeof card.type === 'string') {
+        return card.type.toLowerCase().includes(lowerQuery);
+      } else if (Array.isArray(card.type)) {
+        // For array types, check if any type includes the query
+        return card.type.some(t => 
+          typeof t === 'string' && t.toLowerCase().includes(lowerQuery)
+        );
+      }
+      
+      return false;
+    });
   };
 
   const filterCards = (filters: Partial<Record<keyof Card, any>>) => {

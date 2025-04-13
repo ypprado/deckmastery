@@ -47,7 +47,7 @@ export const magicCards: CardData[] = [
     id: "Aetherdrift#1",
     name: "Air Response Unit",
     imageUrl: "https://images.unsplash.com/photo-1601445638532-3c6f6c3aa1d6?q=80&w=250",
-    type: "Vehicle",
+    type: ["Vehicle"],
     cost: 2,
     rarity: "Normal",
     set: "Aetherdrift",

@@ -1,4 +1,7 @@
+
 import React, { createContext, useContext, useState } from 'react';
+
+export type Language = 'en' | 'fr' | 'es' | 'pt';
 
 export interface Translations {
   language: string;
@@ -42,13 +45,65 @@ export interface Translations {
   days: string;
   browseSearchCards: string;
   cardSets: string;
-  showing: string;  // Added missing translation key
-  of: string;       // Added missing translation key
-  page: string;     // Added missing translation key
-  selected: string; // Added missing translation key
-  selectTypes: string; // Added missing translation key
-  searchTypes: string; // Added missing translation key
-  noTypesFound: string; // Added missing translation key
+  showing: string;
+  of: string;
+  page: string;
+  selected: string;
+  selectTypes: string;
+  searchTypes: string;
+  noTypesFound: string;
+  // Dashboard translations
+  yourDecks: string;
+  manageCreateDecks: string;
+  createNewDeck: string;
+  searchDecks: string;
+  filter: string;
+  loadingDecks: string;
+  noDecksFound: string;
+  noResultsMatching: string;
+  noDecksYet: string;
+  startBuildingDeck: string;
+  createFirstDeck: string;
+  // DeckBuilder translations
+  deckNameRequired: string;
+  deckNeedsCards: string;
+  deckUpdated: string;
+  deckCreated: string;
+  standard: string;
+  modern: string;
+  commander: string;
+  legacy: string;
+  vintage: string;
+  casual: string;
+  editDeck: string;
+  deckName: string;
+  enterDeckName: string;
+  format: string;
+  selectFormat: string;
+  description: string;
+  describeStrategy: string;
+  updateDeck: string;
+  saveDeck: string;
+  yourDeck: string;
+  noCardsAddedYet: string;
+  browseAddCards: string;
+  tryAdjustingFilters: string;
+  added: string;
+  add: string;
+  // Index translations
+  welcome: string;
+  welcomeDescription: string;
+  getStarted: string;
+  exploreCardLibrary: string;
+  multipleGameSupport: string;
+  trackCollection: string;
+  shareDeckStrategies: string;
+  // Layout translations
+  authRequired: string;
+  pleaseSignIn: string;
+  newDeck: string;
+  signIn: string;
+  version: string;
 }
 
 const defaultTranslations: Record<string, Translations> = {
@@ -94,13 +149,65 @@ const defaultTranslations: Record<string, Translations> = {
     days: 'Days',
     browseSearchCards: 'Browse and search for cards across all supported game categories.',
     cardSets: 'Card Sets',
-    showing: 'Showing', // Added missing translation
-    of: 'of', // Added missing translation
-    page: 'Page', // Added missing translation
-    selected: 'selected', // Added missing translation
-    selectTypes: 'Select types', // Added missing translation
-    searchTypes: 'Search types...', // Added missing translation
-    noTypesFound: 'No types found' // Added missing translation
+    showing: 'Showing',
+    of: 'of',
+    page: 'Page',
+    selected: 'selected',
+    selectTypes: 'Select types',
+    searchTypes: 'Search types...',
+    noTypesFound: 'No types found',
+    // Dashboard translations
+    yourDecks: 'Your Decks',
+    manageCreateDecks: 'Manage your existing decks or create new ones.',
+    createNewDeck: 'Create New Deck',
+    searchDecks: 'Search decks...',
+    filter: 'Filter',
+    loadingDecks: 'Loading decks...',
+    noDecksFound: 'No Decks Found',
+    noResultsMatching: 'No results matching',
+    noDecksYet: 'You haven\'t created any decks for',
+    startBuildingDeck: 'Start building your first deck now!',
+    createFirstDeck: 'Create your first deck',
+    // DeckBuilder translations
+    deckNameRequired: 'Deck name is required',
+    deckNeedsCards: 'Deck needs at least one card',
+    deckUpdated: 'Deck updated successfully',
+    deckCreated: 'Deck created successfully',
+    standard: 'Standard',
+    modern: 'Modern',
+    commander: 'Commander',
+    legacy: 'Legacy',
+    vintage: 'Vintage',
+    casual: 'Casual',
+    editDeck: 'Edit Deck',
+    deckName: 'Deck Name',
+    enterDeckName: 'Enter a name for your deck',
+    format: 'Format',
+    selectFormat: 'Select a format',
+    description: 'Description',
+    describeStrategy: 'Describe your deck strategy...',
+    updateDeck: 'Update Deck',
+    saveDeck: 'Save Deck',
+    yourDeck: 'Your Deck',
+    noCardsAddedYet: 'No cards added yet',
+    browseAddCards: 'Browse and add cards from the right side',
+    tryAdjustingFilters: 'Try adjusting your filters to find what you\'re looking for',
+    added: 'Added',
+    add: 'Add',
+    // Index translations
+    welcome: 'Welcome to DeckMastery',
+    welcomeDescription: 'Build and manage decks for popular card games in one place',
+    getStarted: 'Get Started',
+    exploreCardLibrary: 'Explore Card Library',
+    multipleGameSupport: 'Multiple Game Support',
+    trackCollection: 'Track Your Collection',
+    shareDeckStrategies: 'Share Deck Strategies',
+    // Layout translations
+    authRequired: 'Authentication Required',
+    pleaseSignIn: 'Please sign in to access this feature',
+    newDeck: 'New Deck',
+    signIn: 'Sign In',
+    version: 'Version'
   },
   fr: {
     language: 'Français',
@@ -150,7 +257,59 @@ const defaultTranslations: Record<string, Translations> = {
     selected: 'sélectionné',
     selectTypes: 'Sélectionner des types',
     searchTypes: 'Rechercher des types...',
-    noTypesFound: 'Aucun type trouvé'
+    noTypesFound: 'Aucun type trouvé',
+    // Dashboard translations
+    yourDecks: 'Vos Decks',
+    manageCreateDecks: 'Gérez vos decks existants ou créez-en de nouveaux.',
+    createNewDeck: 'Créer un Nouveau Deck',
+    searchDecks: 'Rechercher des decks...',
+    filter: 'Filtrer',
+    loadingDecks: 'Chargement des decks...',
+    noDecksFound: 'Aucun Deck Trouvé',
+    noResultsMatching: 'Aucun résultat correspondant',
+    noDecksYet: 'Vous n\'avez créé aucun deck pour',
+    startBuildingDeck: 'Commencez à construire votre premier deck maintenant!',
+    createFirstDeck: 'Créer votre premier deck',
+    // DeckBuilder translations
+    deckNameRequired: 'Le nom du deck est requis',
+    deckNeedsCards: 'Le deck a besoin d\'au moins une carte',
+    deckUpdated: 'Deck mis à jour avec succès',
+    deckCreated: 'Deck créé avec succès',
+    standard: 'Standard',
+    modern: 'Modern',
+    commander: 'Commander',
+    legacy: 'Legacy',
+    vintage: 'Vintage',
+    casual: 'Casual',
+    editDeck: 'Modifier le Deck',
+    deckName: 'Nom du Deck',
+    enterDeckName: 'Entrez un nom pour votre deck',
+    format: 'Format',
+    selectFormat: 'Sélectionnez un format',
+    description: 'Description',
+    describeStrategy: 'Décrivez votre stratégie de deck...',
+    updateDeck: 'Mettre à jour le Deck',
+    saveDeck: 'Sauvegarder le Deck',
+    yourDeck: 'Votre Deck',
+    noCardsAddedYet: 'Aucune carte ajoutée',
+    browseAddCards: 'Parcourez et ajoutez des cartes depuis la droite',
+    tryAdjustingFilters: 'Essayez d\'ajuster vos filtres pour trouver ce que vous cherchez',
+    added: 'Ajouté',
+    add: 'Ajouter',
+    // Index translations
+    welcome: 'Bienvenue sur DeckMastery',
+    welcomeDescription: 'Construisez et gérez des decks pour les jeux de cartes populaires en un seul endroit',
+    getStarted: 'Commencer',
+    exploreCardLibrary: 'Explorer la Bibliothèque de Cartes',
+    multipleGameSupport: 'Support Multi-Jeux',
+    trackCollection: 'Suivez Votre Collection',
+    shareDeckStrategies: 'Partagez vos Stratégies de Deck',
+    // Layout translations
+    authRequired: 'Authentification Requise',
+    pleaseSignIn: 'Veuillez vous connecter pour accéder à cette fonctionnalité',
+    newDeck: 'Nouveau Deck',
+    signIn: 'Se Connecter',
+    version: 'Version'
   },
   es: {
     language: 'Español',
@@ -200,23 +359,75 @@ const defaultTranslations: Record<string, Translations> = {
     selected: 'seleccionado',
     selectTypes: 'Seleccionar tipos',
     searchTypes: 'Buscar tipos...',
-    noTypesFound: 'No se encontraron tipos'
+    noTypesFound: 'No se encontraron tipos',
+    // Dashboard translations
+    yourDecks: 'Tus Mazos',
+    manageCreateDecks: 'Administra tus mazos existentes o crea nuevos.',
+    createNewDeck: 'Crear Nuevo Mazo',
+    searchDecks: 'Buscar mazos...',
+    filter: 'Filtrar',
+    loadingDecks: 'Cargando mazos...',
+    noDecksFound: 'No Se Encontraron Mazos',
+    noResultsMatching: 'No hay resultados que coincidan',
+    noDecksYet: 'No has creado ningún mazo para',
+    startBuildingDeck: '¡Comienza a construir tu primer mazo ahora!',
+    createFirstDeck: 'Crea tu primer mazo',
+    // DeckBuilder translations
+    deckNameRequired: 'El nombre del mazo es obligatorio',
+    deckNeedsCards: 'El mazo necesita al menos una carta',
+    deckUpdated: 'Mazo actualizado con éxito',
+    deckCreated: 'Mazo creado con éxito',
+    standard: 'Estándar',
+    modern: 'Moderno',
+    commander: 'Comandante',
+    legacy: 'Legado',
+    vintage: 'Vintage',
+    casual: 'Casual',
+    editDeck: 'Editar Mazo',
+    deckName: 'Nombre del Mazo',
+    enterDeckName: 'Ingrese un nombre para su mazo',
+    format: 'Formato',
+    selectFormat: 'Seleccione un formato',
+    description: 'Descripción',
+    describeStrategy: 'Describa la estrategia de su mazo...',
+    updateDeck: 'Actualizar Mazo',
+    saveDeck: 'Guardar Mazo',
+    yourDeck: 'Tu Mazo',
+    noCardsAddedYet: 'Aún no se han añadido cartas',
+    browseAddCards: 'Navega y añade cartas desde la derecha',
+    tryAdjustingFilters: 'Intenta ajustar tus filtros para encontrar lo que buscas',
+    added: 'Añadido',
+    add: 'Añadir',
+    // Index translations
+    welcome: 'Bienvenido a DeckMastery',
+    welcomeDescription: 'Construye y administra mazos para juegos de cartas populares en un solo lugar',
+    getStarted: 'Comenzar',
+    exploreCardLibrary: 'Explorar Biblioteca de Cartas',
+    multipleGameSupport: 'Soporte para Múltiples Juegos',
+    trackCollection: 'Rastrea Tu Colección',
+    shareDeckStrategies: 'Comparte Estrategias de Mazos',
+    // Layout translations
+    authRequired: 'Autenticación Requerida',
+    pleaseSignIn: 'Por favor inicia sesión para acceder a esta función',
+    newDeck: 'Nuevo Mazo',
+    signIn: 'Iniciar Sesión',
+    version: 'Versión'
   },
 };
 
 const LanguageContext = createContext({
-  language: 'en',
+  language: 'en' as Language,
   t: (key: keyof Translations) => defaultTranslations.en[key],
-  setLanguage: (language: string) => {},
+  setLanguage: (language: Language) => {},
 });
 
 export const useLanguage = () => useContext(LanguageContext);
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [language, setLanguage] = useState('en');
+  const [language, setLanguage] = useState<Language>('en');
 
   const t = (key: keyof Translations) => {
-    return defaultTranslations[language][key] || defaultTranslations.en[key];
+    return defaultTranslations[language]?.[key] || defaultTranslations.en[key];
   };
 
   const contextValue = {
