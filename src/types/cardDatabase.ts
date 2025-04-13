@@ -15,7 +15,7 @@ export interface CardDetails {
   set: string; // This now refers to groupid_liga
   setName?: string;
   imageUrl: string;
-  type: string;
+  type: string | string[]; // Changed to support both single string and array of strings
   cost: number;
   rarity: string;
   colors: string[];
@@ -35,7 +35,7 @@ export interface CardDatabaseFormValues {
   gameCategory: GameCategory;
   setId: string; // This now refers to groupid_liga
   name: string;
-  type: string;
+  type: string | string[]; // Changed to support both single string and array of strings
   cost: number;
   rarity: string;
   colors: string[];

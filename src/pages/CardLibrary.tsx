@@ -1,5 +1,6 @@
+
 import { useState, useEffect, useCallback } from 'react';
-import { Search, Filter, Plus, X, ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Filter, Plus, X, ArrowLeft, ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -16,6 +17,18 @@ import {
   PaginationNext, 
   PaginationPrevious 
 } from '@/components/ui/pagination';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 const colorNames: Record<string, string> = {
   white: 'White',
@@ -35,6 +48,8 @@ const CardLibrary = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedCard, setSelectedCard] = useState(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [typeSearchValue, setTypeSearchValue] = useState('');
+  const [typePopoverOpen, setTypePopoverOpen] = useState(false);
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -101,11 +116,22 @@ const CardLibrary = () => {
     ? cards.filter(card => card.set === selectedSet)
     : [];
 
-  const uniqueTypes = Array.from(new Set(cardsInSelectedSet.map(card => card.type)));
+  // Extract unique types from cards, handling both string and array types
+  const uniqueTypes = Array.from(new Set(
+    cardsInSelectedSet.flatMap(card => {
+      if (Array.isArray(card.type)) {
+        return card.type;
+      } else if (typeof card.type === 'string') {
+        return [card.type];
+      }
+      return [];
+    })
+  ));
+  
   const uniqueRarities = Array.from(new Set(cardsInSelectedSet.map(card => card.rarity)));
   const uniqueColors = Array.from(new Set(cardsInSelectedSet.flatMap(card => card.colors)));
 
-  const toggleFilter = (type: 'colors' | 'types' | 'rarities', value: string) => {
+  const toggleFilter = (type: 'colors' | 'rarities', value: string) => {
     setActiveFilters(prev => {
       const isActive = prev[type].includes(value);
       return {
@@ -113,6 +139,18 @@ const CardLibrary = () => {
         [type]: isActive 
           ? prev[type].filter(item => item !== value) 
           : [...prev[type], value]
+      };
+    });
+  };
+
+  const toggleTypeFilter = (value: string) => {
+    setActiveFilters(prev => {
+      const isActive = prev.types.includes(value);
+      return {
+        ...prev,
+        types: isActive
+          ? prev.types.filter(type => type !== value)
+          : [...prev.types, value]
       };
     });
   };
@@ -138,7 +176,7 @@ const CardLibrary = () => {
         : activeFilters.colors.length || activeFilters.types.length || activeFilters.rarities.length
           ? filterCards({
               colors: activeFilters.colors.length ? activeFilters.colors : undefined,
-              type: activeFilters.types.length ? activeFilters.types[0] : undefined,
+              type: activeFilters.types.length ? activeFilters.types : undefined,
               rarity: activeFilters.rarities.length ? activeFilters.rarities[0] : undefined,
             }).filter(card => card.set === selectedSet)
           : cardsInSelectedSet)
@@ -262,20 +300,84 @@ const CardLibrary = () => {
                 </div>
               </div>
               
-              {/* Types */}
+              {/* Types - Now a dropdown with search */}
               <div>
                 <h4 className="text-xs font-medium mb-2">{t('types')}</h4>
-                <div className="flex flex-wrap gap-1">
-                  {uniqueTypes.map(type => (
-                    <Badge 
-                      key={type}
-                      variant={activeFilters.types.includes(type) ? "default" : "outline"}
-                      className="cursor-pointer hover:bg-muted transition-colors"
-                      onClick={() => toggleFilter('types', type)}
-                    >
-                      {type}
-                    </Badge>
-                  ))}
+                <div className="flex flex-col gap-2">
+                  <Popover open={typePopoverOpen} onOpenChange={setTypePopoverOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={typePopoverOpen}
+                        className="justify-between w-full text-left h-9 px-3 text-sm"
+                      >
+                        {activeFilters.types.length 
+                          ? `${activeFilters.types.length} ${t('selected')}`
+                          : t('selectTypes')}
+                        <ChevronLeft className={cn(
+                          "ml-2 h-4 w-4 shrink-0 rotate-90 opacity-50",
+                          typePopoverOpen && "rotate-270"
+                        )} />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0" align="start">
+                      <Command>
+                        <CommandInput 
+                          placeholder={t('searchTypes')} 
+                          value={typeSearchValue}
+                          onValueChange={setTypeSearchValue}
+                        />
+                        <CommandEmpty>{t('noTypesFound')}</CommandEmpty>
+                        <CommandGroup className="max-h-64 overflow-auto">
+                          {uniqueTypes
+                            .filter(type => 
+                              type.toLowerCase().includes(typeSearchValue.toLowerCase())
+                            )
+                            .map(type => (
+                              <CommandItem
+                                key={type}
+                                value={type}
+                                onSelect={() => {
+                                  toggleTypeFilter(type);
+                                  setTypeSearchValue('');
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    activeFilters.types.includes(type) 
+                                      ? "opacity-100" 
+                                      : "opacity-0"
+                                  )}
+                                />
+                                {type}
+                              </CommandItem>
+                            ))
+                          }
+                        </CommandGroup>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  
+                  {/* Display selected types as removable badges */}
+                  {activeFilters.types.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {activeFilters.types.map(type => (
+                        <Badge 
+                          key={type}
+                          variant="secondary"
+                          className="cursor-pointer"
+                        >
+                          {type}
+                          <X 
+                            className="ml-1 h-3 w-3" 
+                            onClick={() => toggleTypeFilter(type)}
+                          />
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
               

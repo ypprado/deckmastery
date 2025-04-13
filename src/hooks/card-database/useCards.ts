@@ -54,13 +54,21 @@ export const useCards = (initialCards: CardDetails[] = []) => {
         validSubTypeName = newCard.subTypeName as SubTypeNameEnum;
       }
       
+      // Handle card_type as string or array
+      let cardTypes = null;
+      if (Array.isArray(newCard.type)) {
+        cardTypes = newCard.type;
+      } else if (typeof newCard.type === 'string') {
+        cardTypes = [newCard.type];
+      }
+      
       // Prepare data for Supabase insertion
       const cardData: CardInsert = {
         id: Number(newCard.id), // Use number ID for insertion
         name: newCard.name,
         groupid_liga: newCard.set, // Use groupid_liga instead of set_id
         game_category: newCard.gameCategory,
-        card_type: newCard.type,
+        card_type: cardTypes, // Now using the array format
         cost: newCard.cost,
         rarity: validRarity,
         colors: validColors.length > 0 ? validColors : null,
@@ -166,11 +174,21 @@ export const useCards = (initialCards: CardDetails[] = []) => {
         }
       }
       
+      // Handle card_type as string or array
+      let cardTypes = undefined;
+      if (cardData.type) {
+        if (Array.isArray(cardData.type)) {
+          cardTypes = cardData.type;
+        } else if (typeof cardData.type === 'string') {
+          cardTypes = [cardData.type];
+        }
+      }
+      
       // Prepare data for Supabase update
       const updateData: Partial<CardInsert> = {
         name: cardData.name,
         groupid_liga: cardData.set, // Use groupid_liga instead of set_id
-        card_type: cardData.type,
+        card_type: cardTypes, // Now using the array format
         cost: cardData.cost,
         rarity: validRarity,
         colors: validColors,

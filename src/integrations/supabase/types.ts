@@ -45,7 +45,7 @@ export type Database = {
           attribute: Database["public"]["Enums"]["attribute_type"] | null
           card_number: string | null
           card_text: string | null
-          card_type: string | null
+          card_type: Database["public"]["Enums"]["card_type"][] | null
           category: Database["public"]["Enums"]["category_type"] | null
           colors: Database["public"]["Enums"]["color_type"][] | null
           cost: number | null
@@ -71,7 +71,7 @@ export type Database = {
           attribute?: Database["public"]["Enums"]["attribute_type"] | null
           card_number?: string | null
           card_text?: string | null
-          card_type?: string | null
+          card_type?: Database["public"]["Enums"]["card_type"][] | null
           category?: Database["public"]["Enums"]["category_type"] | null
           colors?: Database["public"]["Enums"]["color_type"][] | null
           cost?: number | null
@@ -97,7 +97,7 @@ export type Database = {
           attribute?: Database["public"]["Enums"]["attribute_type"] | null
           card_number?: string | null
           card_text?: string | null
-          card_type?: string | null
+          card_type?: Database["public"]["Enums"]["card_type"][] | null
           category?: Database["public"]["Enums"]["category_type"] | null
           colors?: Database["public"]["Enums"]["color_type"][] | null
           cost?: number | null
@@ -191,6 +191,107 @@ export type Database = {
     }
     Enums: {
       attribute_type: "Slash" | "Strike" | "Special" | "Wisdom" | "Ranged"
+      card_type:
+        | "Alabasta"
+        | "Amazon Lily"
+        | "Animal"
+        | "Animal Kingdom Pirates"
+        | "Arlong Pirates"
+        | "Baroque Works"
+        | "Barto Club"
+        | "Beautiful Pirates"
+        | "Big Mom Pirates"
+        | "Biological Weapon"
+        | "Black Cat Pirates"
+        | "Blackbeard Pirates"
+        | "Bonney Pirates"
+        | "Buggy Pirates"
+        | "CP0"
+        | "CP9"
+        | "Caribou Pirates"
+        | "Celestial Dragons"
+        | "Cross Guild"
+        | "Donquixote Pirates"
+        | "Drake Pirates"
+        | "Dressrosa"
+        | "Drum Kingdom"
+        | "East Blue"
+        | "Egghead"
+        | "FILM"
+        | "Fallen Monk Pirates"
+        | "Firetank Pirates"
+        | "Fish-Man"
+        | "Fish-Man Island"
+        | "Former Baroque Works"
+        | "Former Navy"
+        | "Former Rocks Pirates"
+        | "Former Roger Pirates"
+        | "Former Whitebeard Pirates"
+        | "Foxy Pirates"
+        | "GERMA 66"
+        | "Galley-La Company"
+        | "Giant"
+        | "Goa Kingdom"
+        | "Golden Lion Pirates"
+        | "Grantesoro"
+        | "Happosui Army"
+        | "Hawkins Pirates"
+        | "Heart Pirates"
+        | "Homies"
+        | "Impel Down"
+        | "Jailer Beast"
+        | "Jaya"
+        | "Kid Pirates"
+        | "Kingdom of GERMA"
+        | "Kouzuki Clan"
+        | "Krieg Pirates"
+        | "Kuja Pirates"
+        | "Kurozumi Clan"
+        | "Land of Wano"
+        | "Merfolk"
+        | "Minks"
+        | "Mountain Bandits"
+        | "Muggy Kingdom"
+        | "Music"
+        | "Navy"
+        | "Neo Navy"
+        | "Neptunian"
+        | "New Fish-Man Pirates"
+        | "ODYSSEY"
+        | "Ohara"
+        | "On-Air Pirates"
+        | "Punk Hazard"
+        | "Red-Haired Pirates"
+        | "Revolutionary Army"
+        | "Roger Pirates"
+        | "SMILE"
+        | "SWORD"
+        | "Scientist"
+        | "Seraphim"
+        | "Shandian Warrior"
+        | "Sky Island"
+        | "Sniper Island"
+        | "Straw Hat Crew"
+        | "Supernovas"
+        | "The Akazaya Nine"
+        | "The Flying Fish Riders"
+        | "The Four Emperors"
+        | "The Franky Family"
+        | "The Pirates Fest"
+        | "The Seven Warlords of the Sea"
+        | "The Sun Pirates"
+        | "The Tontattas"
+        | "The Vinsmoke Family"
+        | "Thriller Bark Pirates"
+        | "Vassals"
+        | "Water Seven"
+        | "Whitebeard Pirates"
+        | "Whitebeard Pirates Allies"
+        | "Windmill Village"
+        | "World Government"
+        | "Film"
+        | "New Giant Pirate Crew"
+        | "Barto Club Pirates"
       category_type: "Leader" | "Character" | "Event" | "Stage" | "DON!!"
       color_type: "Red" | "Green" | "Blue" | "Purple" | "Black" | "Yellow"
       game_category: "magic" | "pokemon" | "yugioh" | "onepiece"
@@ -328,6 +429,108 @@ export const Constants = {
   public: {
     Enums: {
       attribute_type: ["Slash", "Strike", "Special", "Wisdom", "Ranged"],
+      card_type: [
+        "Alabasta",
+        "Amazon Lily",
+        "Animal",
+        "Animal Kingdom Pirates",
+        "Arlong Pirates",
+        "Baroque Works",
+        "Barto Club",
+        "Beautiful Pirates",
+        "Big Mom Pirates",
+        "Biological Weapon",
+        "Black Cat Pirates",
+        "Blackbeard Pirates",
+        "Bonney Pirates",
+        "Buggy Pirates",
+        "CP0",
+        "CP9",
+        "Caribou Pirates",
+        "Celestial Dragons",
+        "Cross Guild",
+        "Donquixote Pirates",
+        "Drake Pirates",
+        "Dressrosa",
+        "Drum Kingdom",
+        "East Blue",
+        "Egghead",
+        "FILM",
+        "Fallen Monk Pirates",
+        "Firetank Pirates",
+        "Fish-Man",
+        "Fish-Man Island",
+        "Former Baroque Works",
+        "Former Navy",
+        "Former Rocks Pirates",
+        "Former Roger Pirates",
+        "Former Whitebeard Pirates",
+        "Foxy Pirates",
+        "GERMA 66",
+        "Galley-La Company",
+        "Giant",
+        "Goa Kingdom",
+        "Golden Lion Pirates",
+        "Grantesoro",
+        "Happosui Army",
+        "Hawkins Pirates",
+        "Heart Pirates",
+        "Homies",
+        "Impel Down",
+        "Jailer Beast",
+        "Jaya",
+        "Kid Pirates",
+        "Kingdom of GERMA",
+        "Kouzuki Clan",
+        "Krieg Pirates",
+        "Kuja Pirates",
+        "Kurozumi Clan",
+        "Land of Wano",
+        "Merfolk",
+        "Minks",
+        "Mountain Bandits",
+        "Muggy Kingdom",
+        "Music",
+        "Navy",
+        "Neo Navy",
+        "Neptunian",
+        "New Fish-Man Pirates",
+        "ODYSSEY",
+        "Ohara",
+        "On-Air Pirates",
+        "Punk Hazard",
+        "Red-Haired Pirates",
+        "Revolutionary Army",
+        "Roger Pirates",
+        "SMILE",
+        "SWORD",
+        "Scientist",
+        "Seraphim",
+        "Shandian Warrior",
+        "Sky Island",
+        "Sniper Island",
+        "Straw Hat Crew",
+        "Supernovas",
+        "The Akazaya Nine",
+        "The Flying Fish Riders",
+        "The Four Emperors",
+        "The Franky Family",
+        "The Pirates Fest",
+        "The Seven Warlords of the Sea",
+        "The Sun Pirates",
+        "The Tontattas",
+        "The Vinsmoke Family",
+        "Thriller Bark Pirates",
+        "Vassals",
+        "Water Seven",
+        "Whitebeard Pirates",
+        "Whitebeard Pirates Allies",
+        "Windmill Village",
+        "World Government",
+        "Film",
+        "New Giant Pirate Crew",
+        "Barto Club Pirates",
+      ],
       category_type: ["Leader", "Character", "Event", "Stage", "DON!!"],
       color_type: ["Red", "Green", "Blue", "Purple", "Black", "Yellow"],
       game_category: ["magic", "pokemon", "yugioh", "onepiece"],
