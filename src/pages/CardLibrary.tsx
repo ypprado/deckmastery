@@ -322,41 +322,48 @@ const CardLibrary = () => {
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-full p-0" align="start">
-                      <Command>
-                        <CommandInput 
-                          placeholder={t('searchTypes')} 
-                          value={typeSearchValue}
-                          onValueChange={setTypeSearchValue}
-                        />
-                        <CommandEmpty>{t('noTypesFound')}</CommandEmpty>
-                        <CommandGroup className="max-h-64 overflow-auto">
-                          {uniqueTypes
-                            .filter(type => 
-                              type.toLowerCase().includes(typeSearchValue.toLowerCase())
-                            )
-                            .map(type => (
-                              <CommandItem
-                                key={type}
-                                value={type}
-                                onSelect={() => {
-                                  toggleTypeFilter(type);
-                                  setTypeSearchValue('');
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    activeFilters.types.includes(type) 
-                                      ? "opacity-100" 
-                                      : "opacity-0"
-                                  )}
-                                />
-                                {type}
-                              </CommandItem>
-                            ))
-                          }
-                        </CommandGroup>
-                      </Command>
+                      {/* Only render Command when there are types to display */}
+                      {Array.isArray(uniqueTypes) && uniqueTypes.length > 0 ? (
+                        <Command>
+                          <CommandInput 
+                            placeholder={t('searchTypes')} 
+                            value={typeSearchValue}
+                            onValueChange={setTypeSearchValue}
+                          />
+                          <CommandEmpty>{t('noTypesFound')}</CommandEmpty>
+                          <CommandGroup className="max-h-64 overflow-auto">
+                            {uniqueTypes
+                              .filter(type => 
+                                type.toLowerCase().includes(typeSearchValue.toLowerCase())
+                              )
+                              .map(type => (
+                                <CommandItem
+                                  key={type}
+                                  value={type}
+                                  onSelect={() => {
+                                    toggleTypeFilter(type);
+                                    setTypeSearchValue('');
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      activeFilters.types.includes(type) 
+                                        ? "opacity-100" 
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                  {type}
+                                </CommandItem>
+                              ))
+                            }
+                          </CommandGroup>
+                        </Command>
+                      ) : (
+                        <div className="p-2 text-sm text-muted-foreground">
+                          {t('noTypesFound')}
+                        </div>
+                      )}
                     </PopoverContent>
                   </Popover>
                   
