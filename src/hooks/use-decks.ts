@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from "sonner";
 import { useStaticData } from './use-static-data';
@@ -10,12 +9,16 @@ export interface Card {
   id: string;
   name: string;
   imageUrl: string;
-  type: string;
+  type: string | string[]; // Updated to support both string and string array
   cost: number;
   rarity: string;
   set: string;
   colors: string[];
   gameCategory: GameCategory;
+  flavorText?: string;
+  artist?: string;
+  legality?: string[];
+  price?: number;
 }
 
 export interface Deck {

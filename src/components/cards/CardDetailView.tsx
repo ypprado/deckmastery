@@ -93,13 +93,21 @@ const getCardImageUrl = (card: DisplayCardType): string => {
 };
 
 // Helper function to get card type from either card type
-const getCardType = (card: DisplayCardType): string => {
+const getCardType = (card: DisplayCardType): string | string[] => {
   if ('type' in card) {
     return card.type;
   } else if ('card_type' in card) {
-    return card.card_type || '';
+    return card.card_type || [];
   }
-  return '';
+  return [];
+};
+
+// Helper function to format card type for display
+const formatCardType = (type: string | string[]): string => {
+  if (Array.isArray(type)) {
+    return type.join(', ');
+  }
+  return type;
 };
 
 // Helper function to get set from either card type
@@ -196,7 +204,7 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({ card, isOpen, onOpenCha
             <div className="space-y-3 mt-4">
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div className="text-muted-foreground">{t('type')}</div>
-                <div className="font-medium">{getCardType(displayCard)}</div>
+                <div className="font-medium">{formatCardType(getCardType(displayCard))}</div>
                 
                 <div className="text-muted-foreground">{t('cost')}</div>
                 <div className="font-medium">{displayCard.cost}</div>

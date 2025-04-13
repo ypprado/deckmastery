@@ -4,7 +4,7 @@ export interface CardData {
   id: string;
   name: string;
   imageUrl: string;
-  type: string;
+  type: string | string[];
   cost: number;
   rarity: string;
   set: string;
@@ -26,7 +26,7 @@ export interface DeckData {
       id: string;
       name: string;
       imageUrl: string;
-      type: string;
+      type: string | string[];
       cost: number;
       rarity: string;
       set: string;

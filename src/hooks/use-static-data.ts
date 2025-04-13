@@ -68,7 +68,7 @@ export const useStaticData = (options: StaticDataOptions = {}) => {
           id: String(card.id), // Convert number to string for compatibility
           name: card.name,
           imageUrl: imageUrl,
-          type: card.card_type || '',
+          type: card.card_type || [], // Now properly handling array type
           cost: card.cost || 0,
           rarity: card.rarity || '',
           set: card.groupid_liga || '', // Using groupid_liga instead of set_id
