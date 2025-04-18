@@ -28,7 +28,9 @@ export interface CardDetails {
   url_liga?: string; // Added new field
   subTypeName?: string; // Added new field
   card_number?: string; // Added field, now text type
+  card_number_liga?: string; // Added the new field
   groupid_tcg?: number; // Added new field
+  attribute?: string[]; // Added support for array of attributes
 }
 
 export interface CardDatabaseFormValues {
@@ -48,5 +50,7 @@ export interface CardDatabaseFormValues {
   url_liga?: string; // Added new field 
   subTypeName?: string; // Added new field
   card_number?: string; // Added field
+  card_number_liga?: string; // Added the new field
   groupid_tcg?: number; // Added new field
+  attribute?: string[]; // Added support for array of attributes
 }

@@ -62,6 +62,9 @@ export const useCards = (initialCards: CardDetails[] = []) => {
         cardTypes = [newCard.type];
       }
       
+      // Handle attribute as array
+      const attributes = newCard.attribute || null;
+      
       // Prepare data for Supabase insertion
       const cardData: CardInsert = {
         id: Number(newCard.id), // Use number ID for insertion
@@ -78,7 +81,9 @@ export const useCards = (initialCards: CardDetails[] = []) => {
         url_liga: newCard.url_liga || null,
         subTypeName: validSubTypeName,
         card_number: newCard.card_number || null,
+        card_number_liga: newCard.card_number_liga || null, // Added new field
         groupid_tcg: newCard.groupid_tcg || null,
+        attribute: attributes, // Added attribute support
       };
       
       // Try to add to Supabase
@@ -184,6 +189,12 @@ export const useCards = (initialCards: CardDetails[] = []) => {
         }
       }
       
+      // Handle attribute as array
+      let attributes = undefined;
+      if (cardData.attribute) {
+        attributes = cardData.attribute;
+      }
+      
       // Prepare data for Supabase update
       const updateData: Partial<CardInsert> = {
         name: cardData.name,
@@ -198,7 +209,9 @@ export const useCards = (initialCards: CardDetails[] = []) => {
         url_liga: cardData.url_liga,
         subTypeName: validSubTypeName,
         card_number: cardData.card_number,
+        card_number_liga: cardData.card_number_liga, // Added new field
         groupid_tcg: cardData.groupid_tcg,
+        attribute: attributes, // Added attribute support
       };
       
       // Remove undefined values

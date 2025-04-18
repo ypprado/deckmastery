@@ -172,6 +172,13 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({ card, isOpen, onOpenCha
   // Ensure colors array exists
   const colors = getCardColors(displayCard);
   
+  // Format attribute array for display if available
+  const formatAttributes = (attributes: any): string => {
+    if (!attributes) return '';
+    if (Array.isArray(attributes)) return attributes.join(', ');
+    return String(attributes);
+  };
+  
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl p-0 overflow-hidden">
@@ -227,6 +234,20 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({ card, isOpen, onOpenCha
                       </>
                     )}
                     
+                    {supabaseCard.card_number_liga && (
+                      <>
+                        <div className="text-muted-foreground">Liga Card Number</div>
+                        <div className="font-medium">{supabaseCard.card_number_liga}</div>
+                      </>
+                    )}
+                    
+                    {supabaseCard.attribute && supabaseCard.attribute.length > 0 && (
+                      <>
+                        <div className="text-muted-foreground">Attributes</div>
+                        <div className="font-medium">{formatAttributes(supabaseCard.attribute)}</div>
+                      </>
+                    )}
+                    
                     {supabaseCard.subTypeName && (
                       <>
                         <div className="text-muted-foreground">Sub Type</div>
@@ -267,13 +288,6 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({ card, isOpen, onOpenCha
                       <>
                         <div className="text-muted-foreground">Category</div>
                         <div className="font-medium">{supabaseCard.category}</div>
-                      </>
-                    )}
-                    
-                    {supabaseCard.attribute && (
-                      <>
-                        <div className="text-muted-foreground">Attribute</div>
-                        <div className="font-medium">{supabaseCard.attribute}</div>
                       </>
                     )}
                   </>

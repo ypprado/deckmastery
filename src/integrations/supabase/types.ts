@@ -42,8 +42,9 @@ export type Database = {
       cards: {
         Row: {
           artwork_url: string
-          attribute: Database["public"]["Enums"]["attribute_type"] | null
+          attribute: Database["public"]["Enums"]["attribute_type"][] | null
           card_number: string | null
+          card_number_liga: string | null
           card_text: string | null
           card_type: Database["public"]["Enums"]["card_type"][]
           category: Database["public"]["Enums"]["category_type"] | null
@@ -68,8 +69,9 @@ export type Database = {
         }
         Insert: {
           artwork_url: string
-          attribute?: Database["public"]["Enums"]["attribute_type"] | null
+          attribute?: Database["public"]["Enums"]["attribute_type"][] | null
           card_number?: string | null
+          card_number_liga?: string | null
           card_text?: string | null
           card_type: Database["public"]["Enums"]["card_type"][]
           category?: Database["public"]["Enums"]["category_type"] | null
@@ -94,8 +96,9 @@ export type Database = {
         }
         Update: {
           artwork_url?: string
-          attribute?: Database["public"]["Enums"]["attribute_type"] | null
+          attribute?: Database["public"]["Enums"]["attribute_type"][] | null
           card_number?: string | null
+          card_number_liga?: string | null
           card_text?: string | null
           card_type?: Database["public"]["Enums"]["card_type"][]
           category?: Database["public"]["Enums"]["category_type"] | null
@@ -294,6 +297,40 @@ export type Database = {
         | "Barto Club Pirates"
         | "None"
         | "No Type"
+        | "Alvida Pirates"
+        | "Asuka Island"
+        | "Blackbeard Pirates Allies"
+        | "Bluejam Pirates"
+        | "Botanist"
+        | "Brownbeard Pirates"
+        | "Buggy's Delivery"
+        | "CP6"
+        | "CP7"
+        | "Crown Island"
+        | "Eldoraggo Crew"
+        | "Flying Pirates"
+        | "Former Arlong Pirates"
+        | "Former CP9"
+        | "Frost Moon Village"
+        | "Gasparde Pirates"
+        | "Jellyfish Pirates"
+        | "Journalist"
+        | "King of the Pirates"
+        | "Kingdom of Prodence"
+        | "Lunarian"
+        | "Mecha Island"
+        | "Mugiwara Chase"
+        | "Omatsuri Island"
+        | "Plague"
+        | "Shipbuilding Town"
+        | "Spade Pirates"
+        | "The Moon"
+        | "Trump Pirates"
+        | "Weevil's Mother"
+        | "Whole Cake Island"
+        | "Yonta Maria Fleet"
+        | "Rumbar Pirates"
+        | "Monkey Mountain Alliance"
       category_type: "Leader" | "Character" | "Event" | "Stage" | "DON!!"
       color_type: "Red" | "Green" | "Blue" | "Purple" | "Black" | "Yellow"
       game_category: "magic" | "pokemon" | "yugioh" | "onepiece"
@@ -534,6 +571,40 @@ export const Constants = {
         "Barto Club Pirates",
         "None",
         "No Type",
+        "Alvida Pirates",
+        "Asuka Island",
+        "Blackbeard Pirates Allies",
+        "Bluejam Pirates",
+        "Botanist",
+        "Brownbeard Pirates",
+        "Buggy's Delivery",
+        "CP6",
+        "CP7",
+        "Crown Island",
+        "Eldoraggo Crew",
+        "Flying Pirates",
+        "Former Arlong Pirates",
+        "Former CP9",
+        "Frost Moon Village",
+        "Gasparde Pirates",
+        "Jellyfish Pirates",
+        "Journalist",
+        "King of the Pirates",
+        "Kingdom of Prodence",
+        "Lunarian",
+        "Mecha Island",
+        "Mugiwara Chase",
+        "Omatsuri Island",
+        "Plague",
+        "Shipbuilding Town",
+        "Spade Pirates",
+        "The Moon",
+        "Trump Pirates",
+        "Weevil's Mother",
+        "Whole Cake Island",
+        "Yonta Maria Fleet",
+        "Rumbar Pirates",
+        "Monkey Mountain Alliance",
       ],
       category_type: ["Leader", "Character", "Event", "Stage", "DON!!"],
       color_type: ["Red", "Green", "Blue", "Purple", "Black", "Yellow"],

@@ -11,6 +11,7 @@ export type CardInsert = Database['public']['Tables']['cards']['Insert'];
 export type RarityType = Database['public']['Enums']['rarity_type'];
 export type ColorType = Database['public']['Enums']['color_type'];
 export type SubTypeNameEnum = Database['public']['Enums']['sub_type'];
+export type AttributeType = Database['public']['Enums']['attribute_type'];
 
 // Shared utilities
 export const convertSetFromSupabase = (set: any): CardSet => {
@@ -46,7 +47,9 @@ export const convertCardFromSupabase = (
     url_liga: card.url_liga || '',
     subTypeName: card.subTypeName || '',
     card_number: card.card_number || '',
+    card_number_liga: card.card_number_liga || '', // Added new field
     groupid_tcg: card.groupid_tcg,
+    attribute: card.attribute || [], // Added attribute as array
     artist: '',
     legality: [],
     price: 0,

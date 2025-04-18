@@ -73,7 +73,10 @@ export const useStaticData = (options: StaticDataOptions = {}) => {
           rarity: card.rarity || '',
           set: card.groupid_liga || '', // Using groupid_liga instead of set_id
           colors: card.colors as string[] || [],
-          gameCategory: card.game_category
+          gameCategory: card.game_category,
+          // Add the new fields
+          card_number_liga: card.card_number_liga,
+          attribute: card.attribute || []
         };
       }) || [];
       
