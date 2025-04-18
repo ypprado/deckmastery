@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { CardDetails } from '@/types/cardDatabase';
 import { GameCategory } from '@/hooks/use-decks';
 import { supabase } from '@/integrations/supabase/client';
-import { CardInsert, RarityType, ColorType, SubTypeNameEnum } from './useSupabaseCardData';
+import { CardInsert, RarityType, ColorType, SubTypeNameEnum, AttributeType } from './useSupabaseCardData';
 
 export const useCards = (initialCards: CardDetails[] = []) => {
   const [cards, setCards] = useState<CardDetails[]>(initialCards);
@@ -62,8 +62,18 @@ export const useCards = (initialCards: CardDetails[] = []) => {
         cardTypes = [newCard.type];
       }
       
-      // Handle attribute as array
-      const attributes = newCard.attribute || null;
+      // Handle attribute as array of enum values
+      let attributes: AttributeType[] | null = null;
+      if (newCard.attribute && newCard.attribute.length > 0) {
+        // Filter to only include valid attribute enum values
+        attributes = newCard.attribute.filter(attr => 
+          ['Slash', 'Strike', 'Special', 'Wisdom', 'Ranged'].includes(attr)
+        ) as AttributeType[];
+        
+        if (attributes.length === 0) {
+          attributes = null;
+        }
+      }
       
       // Prepare data for Supabase insertion
       const cardData: CardInsert = {
@@ -81,9 +91,9 @@ export const useCards = (initialCards: CardDetails[] = []) => {
         url_liga: newCard.url_liga || null,
         subTypeName: validSubTypeName,
         card_number: newCard.card_number || null,
-        card_number_liga: newCard.card_number_liga || null, // Added new field
+        card_number_liga: newCard.card_number_liga || null,
         groupid_tcg: newCard.groupid_tcg || null,
-        attribute: attributes, // Added attribute support
+        attribute: attributes, // Now properly typed as AttributeType[] or null
       };
       
       // Try to add to Supabase

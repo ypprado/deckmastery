@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { Card, GameCategory, Deck } from '@/hooks/use-decks';
 import { supabase } from '@/integrations/supabase/client';
 import { Database } from '@/integrations/supabase/types';
+import { AttributeType } from './card-database/useSupabaseCardData';
 
 interface StaticDataOptions {
   initialGameCategory?: GameCategory;
@@ -76,7 +77,7 @@ export const useStaticData = (options: StaticDataOptions = {}) => {
           gameCategory: card.game_category,
           // Add the new fields
           card_number_liga: card.card_number_liga,
-          attribute: card.attribute || []
+          attribute: card.attribute as AttributeType[] || []
         };
       }) || [];
       

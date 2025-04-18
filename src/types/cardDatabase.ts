@@ -1,5 +1,6 @@
 
 import { GameCategory } from '@/hooks/use-decks';
+import { AttributeType } from '@/hooks/card-database/useSupabaseCardData';
 
 export interface CardSet {
   id: number; // Changed from string to number to match int8
@@ -30,7 +31,7 @@ export interface CardDetails {
   card_number?: string; // Added field, now text type
   card_number_liga?: string; // Added the new field
   groupid_tcg?: number; // Added new field
-  attribute?: string[]; // Added support for array of attributes
+  attribute?: AttributeType[]; // Use the proper enum type here
 }
 
 export interface CardDatabaseFormValues {
@@ -52,5 +53,5 @@ export interface CardDatabaseFormValues {
   card_number?: string; // Added field
   card_number_liga?: string; // Added the new field
   groupid_tcg?: number; // Added new field
-  attribute?: string[]; // Added support for array of attributes
+  attribute?: AttributeType[]; // Use the proper enum type here
 }
