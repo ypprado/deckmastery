@@ -1,21 +1,29 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Search, Filter, Plus, X, ArrowLeft, ChevronLeft, ChevronRight, Check } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCards } from '@/hooks/use-decks';
-import { cn } from '@/lib/utils';
-import CardDetailView from '@/components/cards/CardDetailView';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { 
-  Pagination, 
-  PaginationContent, 
-  PaginationItem, 
-  PaginationNext, 
-  PaginationPrevious 
-} from '@/components/ui/pagination';
+import CardDetailView from '@/components/cards/CardDetailView';
+import CardSetsGrid from '@/components/card-library/CardSetsGrid';
+import CardFilters from '@/components/card-library/CardFilters';
+import CardGrid from '@/components/card-library/CardGrid';
+import CardList from '@/components/card-library/CardList';
+import SearchBar from '@/components/card-library/SearchBar';
+import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
+
+const CARDS_PER_PAGE = 20;
+
+const colorMap: Record<string, string> = {
+  white: 'bg-amber-100 text-amber-800 dark:bg-amber-800 dark:text-amber-100',
+  blue: 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100',
+  black: 'bg-gray-700 text-white dark:bg-gray-900 dark:text-gray-100',
+  red: 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100',
+  green: 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100',
+  yellow: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100',
+  purple: 'bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-100',
+};
 
 const colorNames: Record<string, string> = {
   white: 'White',
@@ -26,8 +34,6 @@ const colorNames: Record<string, string> = {
   yellow: 'Yellow',
   purple: 'Purple'
 };
-
-const CARDS_PER_PAGE = 20;
 
 const CardLibrary = () => {
   const { cards, loading, searchCards, filterCards, activeGameCategory, saveFilterState, getCurrentFilterState } = useCards();
@@ -152,16 +158,6 @@ const CardLibrary = () => {
     }
   };
 
-  const colorMap: Record<string, string> = {
-    white: 'bg-amber-100 text-amber-800 dark:bg-amber-800 dark:text-amber-100',
-    blue: 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100',
-    black: 'bg-gray-700 text-white dark:bg-gray-900 dark:text-gray-100',
-    red: 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100',
-    green: 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100',
-    yellow: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100',
-    purple: 'bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-100',
-  };
-
   const isAnyFilterActive = 
     activeFilters.colors.length > 0 || 
     activeFilters.rarities.length > 0 ||
@@ -198,86 +194,30 @@ const CardLibrary = () => {
           </div>
 
           <div className="flex flex-col gap-4 sm:flex-row">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder={t('searchCards')}
-                className="pl-9"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
+            <SearchBar searchQuery={searchQuery} onSearchChange={setSearchQuery} />
             <Tabs defaultValue="grid" className="w-fit">
               <TabsList>
-                <TabsTrigger value="grid" onClick={() => setViewMode('grid')}>{t('grid')}</TabsTrigger>
-                <TabsTrigger value="list" onClick={() => setViewMode('list')}>{t('list')}</TabsTrigger>
+                <TabsTrigger value="grid" onClick={() => setViewMode('grid')}>
+                  {t('grid')}
+                </TabsTrigger>
+                <TabsTrigger value="list" onClick={() => setViewMode('list')}>
+                  {t('list')}
+                </TabsTrigger>
               </TabsList>
             </Tabs>
           </div>
 
-          <div className="rounded-md border bg-card p-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-medium">{t('filters')}</h3>
-              {isAnyFilterActive && (
-                <Button variant="ghost" size="sm" onClick={clearFilters} className="h-8 text-xs">
-                  <X className="h-3 w-3 mr-1" /> {t('clearAll')}
-                </Button>
-              )}
-            </div>
-            
-            <div className="grid gap-4 md:grid-cols-3">
-              <div>
-                <h4 className="text-xs font-medium mb-2">{t('colors')}</h4>
-                <div className="flex flex-wrap gap-1">
-                  {uniqueColors.map(color => (
-                    <Badge 
-                      key={color}
-                      variant={activeFilters.colors.includes(color) ? "default" : "outline"}
-                      className={cn(
-                        "cursor-pointer hover:bg-muted transition-colors",
-                        activeFilters.colors.includes(color) && colorMap[color]
-                      )}
-                      onClick={() => toggleFilter('colors', color)}
-                    >
-                      {colorNames[color] || color.charAt(0).toUpperCase() + color.slice(1)}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-              
-              <div>
-                <h4 className="text-xs font-medium mb-2">{t('rarities')}</h4>
-                <div className="flex flex-wrap gap-1">
-                  {uniqueRarities.map(rarity => (
-                    <Badge 
-                      key={rarity}
-                      variant={activeFilters.rarities.includes(rarity) ? "default" : "outline"}
-                      className="cursor-pointer hover:bg-muted transition-colors"
-                      onClick={() => toggleFilter('rarities', rarity)}
-                    >
-                      {rarity}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <h4 className="text-xs font-medium mb-2">Parallels</h4>
-                <div className="flex flex-wrap gap-1">
-                  {uniqueParallels.map(parallel => (
-                    <Badge 
-                      key={parallel}
-                      variant={activeFilters.parallels.includes(parallel) ? "default" : "outline"}
-                      className="cursor-pointer hover:bg-muted transition-colors"
-                      onClick={() => toggleFilter('parallels', parallel)}
-                    >
-                      {parallel}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
+          <CardFilters
+            uniqueColors={uniqueColors}
+            uniqueRarities={uniqueRarities}
+            uniqueParallels={uniqueParallels}
+            activeFilters={activeFilters}
+            toggleFilter={toggleFilter}
+            clearFilters={clearFilters}
+            isAnyFilterActive={isAnyFilterActive}
+            colorMap={colorMap}
+            colorNames={colorNames}
+          />
 
           {loading ? (
             <div className="mt-8 flex justify-center">
@@ -285,17 +225,6 @@ const CardLibrary = () => {
                 <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
                 <p className="mt-4 text-sm text-muted-foreground">{t('loadingSets')}</p>
               </div>
-            </div>
-          ) : filteredCards.length === 0 ? (
-            <div className="mt-8 flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center animate-fade-in">
-              <Search className="h-12 w-12 text-muted-foreground opacity-50" />
-              <h3 className="mt-4 text-lg font-medium">{t('noCardsFound')}</h3>
-              <p className="mt-2 text-sm text-muted-foreground max-w-sm">
-                {t('adjustFilters')}
-              </p>
-              <Button onClick={clearFilters} variant="outline" className="mt-4">
-                {t('clearFilters')}
-              </Button>
             </div>
           ) : (
             <>
@@ -482,46 +411,11 @@ const CardLibrary = () => {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {availableSets.map((set) => {
-                const setCoverCard = cards.find(card => card.set === set);
-                const cardCount = cards.filter(card => card.set === set).length;
-                
-                return (
-                  <Card 
-                    key={set} 
-                    className="cursor-pointer hover:shadow-md transition-shadow" 
-                    onClick={() => setSelectedSet(set)}
-                  >
-                    <div className="flex p-4 gap-4">
-                      {setCoverCard && (
-                        <div className="h-20 w-16 shrink-0 overflow-hidden rounded-sm">
-                          <img
-                            src={setCoverCard.imageUrl}
-                            alt={set}
-                            className="object-cover w-full h-full"
-                            loading="lazy"
-                          />
-                        </div>
-                      )}
-                      <div className="flex-1">
-                        <h3 className="font-medium">{set}</h3>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {cardCount} {cardCount !== 1 ? t('cards') : t('card')}
-                        </p>
-                        <Button 
-                          variant="secondary" 
-                          size="sm" 
-                          className="mt-2"
-                        >
-                          {t('viewCards')}
-                        </Button>
-                      </div>
-                    </div>
-                  </Card>
-                );
-              })}
-            </div>
+            <CardSetsGrid 
+              availableSets={availableSets}
+              cards={cards}
+              onSelectSet={setSelectedSet}
+            />
           )}
         </>
       )}
