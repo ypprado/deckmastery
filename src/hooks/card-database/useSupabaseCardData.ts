@@ -1,3 +1,4 @@
+
 import { toast } from 'sonner';
 import { CardDetails, CardSet } from '@/types/cardDatabase';
 import { GameCategory } from '@/hooks/use-decks';
@@ -72,17 +73,36 @@ export const loadCardsAndSets = async (): Promise<{
       // Transform Supabase data to match our app's format
       const formattedSets = setsData.map(convertSetFromSupabase);
       
-      // Load cards data with no row limit
-      const { data: cardsData, error: cardsError } = await supabase
-        .from('cards')
-        .select('*')
-        .order('id', { ascending: true });
-        
-      if (cardsError) throw cardsError;
+      // Load all cards using pagination to overcome the 1000 row limit
+      let allCards: any[] = [];
+      let page = 0;
+      const pageSize = 1000;
+      let hasMore = true;
       
-      if (cardsData && cardsData.length > 0) {
+      while (hasMore) {
+        const { data: cardsData, error: cardsError } = await supabase
+          .from('cards')
+          .select('*')
+          .range(page * pageSize, (page + 1) * pageSize - 1)
+          .order('id', { ascending: true });
+          
+        if (cardsError) throw cardsError;
+        
+        if (cardsData && cardsData.length > 0) {
+          allCards = [...allCards, ...cardsData];
+          // Check if we need to fetch more pages
+          hasMore = cardsData.length === pageSize;
+          page++;
+        } else {
+          hasMore = false;
+        }
+      }
+      
+      console.log(`Loaded ${allCards.length} cards from database`);
+      
+      if (allCards.length > 0) {
         // Transform Supabase data to match our app's format
-        const formattedCards = cardsData.map(card => convertCardFromSupabase(card, formattedSets));
+        const formattedCards = allCards.map(card => convertCardFromSupabase(card, formattedSets));
         
         return { cards: formattedCards, sets: formattedSets };
       }

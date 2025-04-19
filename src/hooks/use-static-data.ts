@@ -41,22 +41,41 @@ export const useStaticData = (options: StaticDataOptions = {}) => {
         throw new Error(`Error fetching sets: ${setsError.message}`);
       }
       
-      // Fetch cards for the game category
-      const { data: cardsData, error: cardsError } = await supabase
-        .from('cards')
-        .select('*')
-        .eq('game_category', gameCategory);
+      // Fetch cards for the game category using pagination to overcome the 1000 row limit
+      let allCards: any[] = [];
+      let page = 0;
+      const pageSize = 1000;
+      let hasMore = true;
       
-      if (cardsError) {
-        throw new Error(`Error fetching cards: ${cardsError.message}`);
+      while (hasMore) {
+        const { data: cardsData, error: cardsError } = await supabase
+          .from('cards')
+          .select('*')
+          .eq('game_category', gameCategory)
+          .range(page * pageSize, (page + 1) * pageSize - 1);
+          
+        if (cardsError) {
+          throw new Error(`Error fetching cards: ${cardsError.message}`);
+        }
+        
+        if (cardsData && cardsData.length > 0) {
+          allCards = [...allCards, ...cardsData];
+          // Check if we need to fetch more pages
+          hasMore = cardsData.length === pageSize;
+          page++;
+        } else {
+          hasMore = false;
+        }
       }
       
-      if (!cardsData || cardsData.length === 0) {
+      if (allCards.length === 0) {
         console.log(`No cards found for ${gameCategory}`);
+      } else {
+        console.log(`Loaded ${allCards.length} cards for ${gameCategory}`);
       }
       
       // Map Supabase data to our app's format
-      const mappedCards: Card[] = cardsData?.map(card => {
+      const mappedCards: Card[] = allCards.map(card => {
         // Get the artwork URL - if it starts with 'card-images/' assume it's a Supabase Storage URL
         let imageUrl = card.artwork_url;
         if (imageUrl && imageUrl.startsWith('card-images/')) {
