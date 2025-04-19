@@ -19,6 +19,7 @@ export interface Card {
   artist?: string;
   legality?: string[];
   price?: number;
+  parallel?: string[];
 }
 
 export interface Deck {

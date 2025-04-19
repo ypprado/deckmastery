@@ -66,18 +66,18 @@ export const useStaticData = (options: StaticDataOptions = {}) => {
         }
         
         return {
-          id: String(card.id), // Convert number to string for compatibility
+          id: String(card.id),
           name: card.name,
           imageUrl: imageUrl,
-          type: card.card_type || [], // Properly handle array type
+          type: card.card_type || [],
           cost: card.cost || 0,
           rarity: card.rarity || '',
-          set: card.groupid_liga || '', // Using groupid_liga instead of set_id
+          set: card.groupid_liga || '',
           colors: card.colors as string[] || [],
           gameCategory: card.game_category,
-          // Add the new fields
           card_number_liga: card.card_number_liga,
-          attribute: card.attribute as AttributeType[] || []
+          attribute: card.attribute as AttributeType[] || [],
+          parallel: card.parallel || [] // Add parallel to the mapped data
         };
       }) || [];
       

@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { Search, Filter, Plus, X, ArrowLeft, ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -33,24 +32,22 @@ const CARDS_PER_PAGE = 20;
 const CardLibrary = () => {
   const { cards, loading, searchCards, filterCards, activeGameCategory, saveFilterState, getCurrentFilterState } = useCards();
   const { t } = useLanguage();
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [selectedCard, setSelectedCard] = useState(null);
-  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [viewMode, setViewMode<'grid' | 'list'>('grid');
+  const [selectedCard, setSelectedCard<any>(null);
+  const [isDetailOpen, setIsDetailOpen<any>(false);
   
   // Pagination state
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage<any>(1);
   
   // Get the current filter state for this game category
   const filterState = getCurrentFilterState();
-  const [searchQuery, setSearchQuery] = useState(filterState.searchQuery || '');
-  const [activeFilters, setActiveFilters] = useState<{
-    colors: string[];
-    rarities: string[];
-  }>({
+  const [searchQuery, setSearchQuery<any>(filterState.searchQuery || '');
+  const [activeFilters, setActiveFilters<any>>({
     colors: filterState.colorFilters || [],
     rarities: filterState.rarityFilters || [],
+    parallels: filterState.parallelFilters || [], // Add parallel to initial state
   });
-  const [selectedSet, setSelectedSet] = useState<string | null>(filterState.selectedSet || null);
+  const [selectedSet, setSelectedSet<any>(filterState.selectedSet || null);
 
   // Reset to first page when filters change
   useEffect(() => {
@@ -67,7 +64,8 @@ const CardLibrary = () => {
     setSearchQuery(currentState.searchQuery || '');
     setActiveFilters({
       colors: currentState.colorFilters || [],
-      rarities: currentState.rarityFilters || []
+      rarities: currentState.rarityFilters || [],
+      parallels: currentState.parallelFilters || []
     });
     setSelectedSet(currentState.selectedSet || null);
     setCurrentPage(1); // Reset to first page when changing game category
@@ -86,12 +84,13 @@ const CardLibrary = () => {
         searchQuery,
         colorFilters: activeFilters.colors,
         rarityFilters: activeFilters.rarities,
+        parallelFilters: activeFilters.parallels, // Add parallel to saved state
         selectedSet
       });
     }, 300);
     
     return () => clearTimeout(saveTimer);
-  }, [searchQuery, activeFilters.colors, activeFilters.rarities, selectedSet, saveFilterStateCallback]);
+  }, [searchQuery, activeFilters.colors, activeFilters.rarities, activeFilters.parallels, selectedSet, saveFilterStateCallback]);
   
   // Filter cards by selected set
   const cardsInSelectedSet = selectedSet 
@@ -100,8 +99,9 @@ const CardLibrary = () => {
 
   const uniqueRarities = Array.from(new Set(cardsInSelectedSet.map(card => card.rarity)));
   const uniqueColors = Array.from(new Set(cardsInSelectedSet.flatMap(card => card.colors)));
+  const uniqueParallels = Array.from(new Set(cardsInSelectedSet.flatMap(card => card.parallel || [])));
 
-  const toggleFilter = (type: 'colors' | 'rarities', value: string) => {
+  const toggleFilter = (type: 'colors' | 'rarities' | 'parallels', value: string) => {
     setActiveFilters(prev => {
       const isActive = prev[type].includes(value);
       return {
@@ -116,7 +116,8 @@ const CardLibrary = () => {
   const clearFilters = () => {
     setActiveFilters({
       colors: [],
-      rarities: []
+      rarities: [],
+      parallels: []
     });
     setSearchQuery('');
   };
@@ -130,10 +131,11 @@ const CardLibrary = () => {
   const filteredCards = selectedSet
     ? (searchQuery 
         ? searchCards(searchQuery).filter(card => card.set === selectedSet)
-        : activeFilters.colors.length || activeFilters.rarities.length
+        : activeFilters.colors.length || activeFilters.rarities.length || activeFilters.parallels.length
           ? filterCards({
               colors: activeFilters.colors.length ? activeFilters.colors : undefined,
               rarity: activeFilters.rarities.length ? activeFilters.rarities[0] : undefined,
+              parallel: activeFilters.parallels.length ? activeFilters.parallels : undefined,
             }).filter(card => card.set === selectedSet)
           : cardsInSelectedSet)
     : [];
@@ -172,6 +174,7 @@ const CardLibrary = () => {
   const isAnyFilterActive = 
     activeFilters.colors.length > 0 || 
     activeFilters.rarities.length > 0 ||
+    activeFilters.parallels.length > 0 ||
     searchQuery.length > 0;
 
   return (
@@ -234,7 +237,7 @@ const CardLibrary = () => {
               )}
             </div>
             
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-3">
               {/* Colors */}
               <div>
                 <h4 className="text-xs font-medium mb-2">{t('colors')}</h4>
@@ -271,8 +274,25 @@ const CardLibrary = () => {
                   ))}
                 </div>
               </div>
+
+              {/* Parallels */}
+              <div>
+                <h4 className="text-xs font-medium mb-2">{t('parallels')}</h4>
+                <div className="flex flex-wrap gap-1">
+                  {uniqueParallels.map(parallel => (
+                    <Badge 
+                      key={parallel}
+                      variant={activeFilters.parallels.includes(parallel) ? "default" : "outline"}
+                      className="cursor-pointer hover:bg-muted transition-colors"
+                      onClick={() => toggleFilter('parallels', parallel)}
+                >
+                  {parallel}
+                </Badge>
+              ))}
             </div>
           </div>
+        </div>
+      </div>
 
           {/* Card display */}
           {loading ? (

@@ -331,6 +331,8 @@ export type Database = {
         | "Yonta Maria Fleet"
         | "Rumbar Pirates"
         | "Monkey Mountain Alliance"
+        | "World Pirates"
+        | "The House of Lambs"
       category_type: "Leader" | "Character" | "Event" | "Stage" | "DON!!"
       color_type: "Red" | "Green" | "Blue" | "Purple" | "Black" | "Yellow"
       game_category: "magic" | "pokemon" | "yugioh" | "onepiece"
@@ -340,6 +342,7 @@ export type Database = {
         | "Manga Art"
         | "Parallel Art"
         | "Box Topper"
+        | "Wanted Poster"
       rarity_type:
         | "Leader"
         | "Common"
@@ -605,6 +608,8 @@ export const Constants = {
         "Yonta Maria Fleet",
         "Rumbar Pirates",
         "Monkey Mountain Alliance",
+        "World Pirates",
+        "The House of Lambs",
       ],
       category_type: ["Leader", "Character", "Event", "Stage", "DON!!"],
       color_type: ["Red", "Green", "Blue", "Purple", "Black", "Yellow"],
@@ -615,6 +620,7 @@ export const Constants = {
         "Manga Art",
         "Parallel Art",
         "Box Topper",
+        "Wanted Poster",
       ],
       rarity_type: [
         "Leader",
