@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -178,14 +179,14 @@ const CardLibrary = () => {
             <SearchBar searchQuery={searchQuery} onSearchChange={setSearchQuery} />
           </div>
           <Select
-            value={activeFilters.set || ""}
-            onValueChange={(value) => handleSetChange(value || null)}
+            value={activeFilters.set || "all"}
+            onValueChange={(value) => handleSetChange(value === "all" ? null : value)}
           >
             <SelectTrigger className="w-[200px]">
               <SelectValue placeholder={t('selectSet')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Sets</SelectItem>
+              <SelectItem value="all">{t('allSets')}</SelectItem>
               {availableSets.map(set => (
                 <SelectItem key={set} value={set}>{set}</SelectItem>
               ))}
@@ -219,7 +220,7 @@ const CardLibrary = () => {
           <div className="mt-8 flex justify-center">
             <div className="flex flex-col items-center">
               <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-              <p className="mt-4 text-sm text-muted-foreground">{t('loadingCards')}</p>
+              <p className="mt-4 text-sm text-muted-foreground">{t('loading')}</p>
             </div>
           </div>
         ) : (

@@ -36,7 +36,7 @@ const AdminCardSetSelector: React.FC<AdminCardSetSelectorProps> = ({
       </SelectTrigger>
       <SelectContent>
         {filteredSets.length === 0 ? (
-          <SelectItem value="no-sets" disabled>
+          <SelectItem value="no-sets">
             No sets available for {gameCategory}
           </SelectItem>
         ) : (
