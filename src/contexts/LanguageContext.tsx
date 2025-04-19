@@ -54,7 +54,6 @@ export interface Translations {
   searchTypes: string;
   noTypesFound: string;
   selectSet: string;
-  parallels: string;
   allSets: string;
   loading: string;
   // Dashboard translations
