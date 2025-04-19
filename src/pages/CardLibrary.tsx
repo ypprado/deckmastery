@@ -1,10 +1,13 @@
-import { useState, useEffect } from 'react';
-import { ArrowLeft } from 'lucide-react';
+
+import { useState, useEffect, useCallback } from 'react';
+import { ArrowLeft, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent } from '@/components/ui/card';
 import { useCards } from '@/hooks/use-decks';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { cn } from '@/lib/utils';
 import CardDetailView from '@/components/cards/CardDetailView';
 import CardSetsGrid from '@/components/card-library/CardSetsGrid';
 import CardFilters from '@/components/card-library/CardFilters';
@@ -239,80 +242,13 @@ const CardLibrary = () => {
               </div>
               
               {viewMode === 'grid' ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                  {paginatedCards.map((card) => (
-                    <Card 
-                      key={card.id} 
-                      className="overflow-hidden card-hover relative group transition-all duration-300 cursor-pointer"
-                      onClick={() => handleCardClick(card)}
-                    >
-                      <div className="aspect-[3/4] overflow-hidden card-tilt">
-                        <img
-                          src={card.imageUrl}
-                          alt={card.name}
-                          className="object-cover w-full h-full"
-                          loading="lazy"
-                        />
-                      </div>
-                      <CardContent className="p-3">
-                        <h3 className="font-medium text-sm leading-tight truncate">{card.name}</h3>
-                        <div className="flex justify-between items-center mt-1">
-                          <p className="text-xs text-muted-foreground">{Array.isArray(card.type) ? card.type[0] : card.type}</p>
-                          <p className="text-xs text-muted-foreground">{t('cost')}: {card.cost}</p>
-                        </div>
-                      </CardContent>
-                      <Button
-                        size="icon"
-                        className="absolute top-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 backdrop-blur-sm"
-                      >
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                    </Card>
-                  ))}
-                </div>
+                <CardGrid cards={paginatedCards} onCardClick={handleCardClick} />
               ) : (
-                <div className="border rounded-md divide-y">
-                  {paginatedCards.map((card) => (
-                    <div 
-                      key={card.id} 
-                      className="p-4 flex items-center gap-4 hover:bg-muted/40 transition-colors cursor-pointer"
-                      onClick={() => handleCardClick(card)}
-                    >
-                      <div className="h-16 w-12 shrink-0 overflow-hidden rounded-sm">
-                        <img
-                          src={card.imageUrl}
-                          alt={card.name}
-                          className="object-cover w-full h-full"
-                          loading="lazy"
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-sm">{card.name}</h3>
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          <span className="text-xs text-muted-foreground">{Array.isArray(card.type) ? card.type[0] : card.type}</span>
-                          <span className="text-xs text-muted-foreground">•</span>
-                          <span className="text-xs text-muted-foreground">{card.rarity}</span>
-                          <span className="text-xs text-muted-foreground">•</span>
-                          <span className="text-xs text-muted-foreground">{t('cost')}: {card.cost}</span>
-                        </div>
-                      </div>
-                      <div className="flex gap-1">
-                        {card.colors.map(color => (
-                          <div
-                            key={color}
-                            className={cn(
-                              "w-4 h-4 rounded-full",
-                              colorMap[color]?.split(" ")[0] || "bg-gray-200"
-                            )}
-                          />
-                        ))}
-                      </div>
-                      <Button size="icon" className="h-8 w-8 shrink-0">
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
+                <CardList 
+                  cards={paginatedCards} 
+                  onCardClick={handleCardClick} 
+                  colorMap={colorMap} 
+                />
               )}
               
               {totalPages > 1 && (
