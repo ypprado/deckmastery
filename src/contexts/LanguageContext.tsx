@@ -29,7 +29,7 @@ export interface Translations {
   backToSets: string;
   card: string;
   cards: string;
-  loadingSets: string;
+  loadingCards: string;
   noCardsFound: string;
   adjustFilters: string;
   clearFilters: string;
@@ -52,6 +52,8 @@ export interface Translations {
   selectTypes: string;
   searchTypes: string;
   noTypesFound: string;
+  selectSet: string;
+  parallels: string;
   // Dashboard translations
   yourDecks: string;
   manageCreateDecks: string;
@@ -130,10 +132,11 @@ const defaultTranslations: Record<string, Translations> = {
     colors: 'Colors',
     types: 'Types',
     rarities: 'Rarities',
+    parallels: 'Parallels',
     backToSets: 'Back to Sets',
     card: 'Card',
     cards: 'Cards',
-    loadingSets: 'Loading sets...',
+    loadingCards: 'Loading cards...',
     noCardsFound: 'No Cards Found',
     adjustFilters: 'Try adjusting your filters or search query to find what you\'re looking for.',
     clearFilters: 'Clear Filters',
@@ -156,6 +159,7 @@ const defaultTranslations: Record<string, Translations> = {
     selectTypes: 'Select types',
     searchTypes: 'Search types...',
     noTypesFound: 'No types found',
+    selectSet: 'Select set',
     // Dashboard translations
     yourDecks: 'Your Decks',
     manageCreateDecks: 'Manage your existing decks or create new ones.',
@@ -232,10 +236,11 @@ const defaultTranslations: Record<string, Translations> = {
     colors: 'Couleurs',
     types: 'Types',
     rarities: 'Raretés',
+    parallels: 'Parallèles',
     backToSets: 'Retour aux séries',
     card: 'Carte',
     cards: 'Cartes',
-    loadingSets: 'Chargement des séries...',
+    loadingCards: 'Chargement des cartes...',
     noCardsFound: 'Aucune carte trouvée',
     adjustFilters: 'Essayez d\'ajuster vos filtres ou votre requête de recherche pour trouver ce que vous cherchez.',
     clearFilters: 'Effacer les filtres',
@@ -258,6 +263,7 @@ const defaultTranslations: Record<string, Translations> = {
     selectTypes: 'Sélectionner des types',
     searchTypes: 'Rechercher des types...',
     noTypesFound: 'Aucun type trouvé',
+    selectSet: 'Sélectionner une série',
     // Dashboard translations
     yourDecks: 'Vos Decks',
     manageCreateDecks: 'Gérez vos decks existants ou créez-en de nouveaux.',
@@ -334,10 +340,11 @@ const defaultTranslations: Record<string, Translations> = {
     colors: 'Colores',
     types: 'Tipos',
     rarities: 'Rarezas',
+    parallels: 'Paralelos',
     backToSets: 'Volver a los sets',
     card: 'Carta',
     cards: 'Cartas',
-    loadingSets: 'Cargando sets...',
+    loadingCards: 'Cargando cartas...',
     noCardsFound: 'No se encontraron cartas',
     adjustFilters: 'Intenta ajustar tus filtros o la búsqueda para encontrar lo que buscas.',
     clearFilters: 'Borrar filtros',
@@ -360,6 +367,7 @@ const defaultTranslations: Record<string, Translations> = {
     selectTypes: 'Seleccionar tipos',
     searchTypes: 'Buscar tipos...',
     noTypesFound: 'No se encontraron tipos',
+    selectSet: 'Seleccionar set',
     // Dashboard translations
     yourDecks: 'Tus Mazos',
     manageCreateDecks: 'Administra tus mazos existentes o crea nuevos.',

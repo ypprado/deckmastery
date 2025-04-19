@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface CardFiltersProps {
   uniqueColors: string[];
@@ -32,20 +33,22 @@ const CardFilters = ({
   colorMap,
   colorNames,
 }: CardFiltersProps) => {
+  const { t } = useLanguage();
+  
   return (
     <div className="rounded-md border bg-card p-4">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-medium">Filters</h3>
+        <h3 className="text-sm font-medium">{t('filters')}</h3>
         {isAnyFilterActive && (
           <Button variant="ghost" size="sm" onClick={clearFilters} className="h-8 text-xs">
-            <X className="h-3 w-3 mr-1" /> Clear All
+            <X className="h-3 w-3 mr-1" /> {t('clearAll')}
           </Button>
         )}
       </div>
       
       <div className="grid gap-4 md:grid-cols-3">
         <div>
-          <h4 className="text-xs font-medium mb-2">Colors</h4>
+          <h4 className="text-xs font-medium mb-2">{t('colors')}</h4>
           <div className="flex flex-wrap gap-1">
             {uniqueColors.map(color => (
               <Badge 
@@ -64,7 +67,7 @@ const CardFilters = ({
         </div>
         
         <div>
-          <h4 className="text-xs font-medium mb-2">Rarities</h4>
+          <h4 className="text-xs font-medium mb-2">{t('rarities')}</h4>
           <div className="flex flex-wrap gap-1">
             {uniqueRarities.map(rarity => (
               <Badge 
@@ -80,7 +83,7 @@ const CardFilters = ({
         </div>
 
         <div>
-          <h4 className="text-xs font-medium mb-2">Parallels</h4>
+          <h4 className="text-xs font-medium mb-2">{t('parallels')}</h4>
           <div className="flex flex-wrap gap-1">
             {uniqueParallels.map(parallel => (
               <Badge 

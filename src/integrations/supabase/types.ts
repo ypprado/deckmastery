@@ -340,6 +340,8 @@ export type Database = {
         | "Long Ring Long Land"
         | "Bellamy Pirates"
         | "Mary Geoise"
+        | "Peachbeard Pirates"
+        | "New Giant Pirates"
       category_type: "Leader" | "Character" | "Event" | "Stage" | "DON!!"
       color_type: "Red" | "Green" | "Blue" | "Purple" | "Black" | "Yellow"
       game_category: "magic" | "pokemon" | "yugioh" | "onepiece"
@@ -350,6 +352,8 @@ export type Database = {
         | "Parallel Art"
         | "Box Topper"
         | "Wanted Poster"
+        | "SP"
+        | "TR"
       rarity_type:
         | "Leader"
         | "Common"
@@ -624,6 +628,8 @@ export const Constants = {
         "Long Ring Long Land",
         "Bellamy Pirates",
         "Mary Geoise",
+        "Peachbeard Pirates",
+        "New Giant Pirates",
       ],
       category_type: ["Leader", "Character", "Event", "Stage", "DON!!"],
       color_type: ["Red", "Green", "Blue", "Purple", "Black", "Yellow"],
@@ -635,6 +641,8 @@ export const Constants = {
         "Parallel Art",
         "Box Topper",
         "Wanted Poster",
+        "SP",
+        "TR",
       ],
       rarity_type: [
         "Leader",
