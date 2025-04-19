@@ -12,6 +12,7 @@ interface CardFiltersProps {
     colors: string[];
     rarities: string[];
     parallels: string[];
+    set: string | null;
   };
   toggleFilter: (type: 'colors' | 'rarities' | 'parallels', value: string) => void;
   clearFilters: () => void;

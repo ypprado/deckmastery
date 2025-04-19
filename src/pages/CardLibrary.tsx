@@ -1,14 +1,14 @@
-import { useState, useEffect, useCallback } from 'react';
-import { ArrowLeft, Plus } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useCards } from '@/hooks/use-decks';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
 import CardDetailView from '@/components/cards/CardDetailView';
-import CardSetsGrid from '@/components/card-library/CardSetsGrid';
 import CardFilters from '@/components/card-library/CardFilters';
 import CardGrid from '@/components/card-library/CardGrid';
 import CardList from '@/components/card-library/CardList';
@@ -43,7 +43,6 @@ const CardLibrary = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedCard, setSelectedCard] = useState<any>(null);
   const [isDetailOpen, setIsDetailOpen] = useState<boolean>(false);
-  
   const [currentPage, setCurrentPage] = useState<number>(1);
   
   const filterState = getCurrentFilterState();
@@ -52,62 +51,35 @@ const CardLibrary = () => {
     colors: string[];
     rarities: string[];
     parallels: string[];
+    set: string | null;
   }>({
     colors: filterState.colorFilters || [],
     rarities: filterState.rarityFilters || [],
     parallels: filterState.parallelFilters || [],
+    set: filterState.selectedSet || null,
   });
-  const [selectedSet, setSelectedSet] = useState<string | null>(filterState.selectedSet || null);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, activeFilters, selectedSet]);
+  }, [searchQuery, activeFilters]);
 
   const availableSets = Array.from(new Set(cards.map(card => card.set)));
+  const allCards = cards;
 
-  useEffect(() => {
-    const currentState = getCurrentFilterState();
-    setSearchQuery(currentState.searchQuery || '');
-    setActiveFilters({
-      colors: currentState.colorFilters || [],
-      rarities: currentState.rarityFilters || [],
-      parallels: currentState.parallelFilters || []
-    });
-    setSelectedSet(currentState.selectedSet || null);
-    setCurrentPage(1);
-  }, [activeGameCategory, getCurrentFilterState]);
-  
-  const saveFilterStateCallback = useCallback((state) => {
-    saveFilterState(state);
-  }, [saveFilterState]);
-  
-  useEffect(() => {
-    const saveTimer = setTimeout(() => {
-      saveFilterStateCallback({
-        searchQuery,
-        colorFilters: activeFilters.colors,
-        rarityFilters: activeFilters.rarities,
-        parallelFilters: activeFilters.parallels,
-        selectedSet
-      });
-    }, 300);
-    
-    return () => clearTimeout(saveTimer);
-  }, [searchQuery, activeFilters.colors, activeFilters.rarities, activeFilters.parallels, selectedSet, saveFilterStateCallback]);
-  
-  const cardsInSelectedSet = selectedSet 
-    ? cards.filter(card => card.set === selectedSet)
-    : [];
-
-  const uniqueRarities = Array.from(new Set(cardsInSelectedSet.map(card => card.rarity)));
-  const uniqueColors = Array.from(new Set(cardsInSelectedSet.flatMap(card => card.colors)));
-  
-  // Extract unique parallels and handle cases where card.parallel is undefined
+  const uniqueColors = Array.from(new Set(allCards.flatMap(card => card.colors)));
+  const uniqueRarities = Array.from(new Set(allCards.map(card => card.rarity)));
   const uniqueParallels = Array.from(new Set(
-    cardsInSelectedSet
+    allCards
       .filter(card => card.parallel && card.parallel.length > 0)
       .flatMap(card => card.parallel || [])
   ));
+
+  const handleSetChange = (value: string | null) => {
+    setActiveFilters(prev => ({
+      ...prev,
+      set: value
+    }));
+  };
 
   const toggleFilter = (type: 'colors' | 'rarities' | 'parallels', value: string) => {
     setActiveFilters(prev => {
@@ -125,7 +97,8 @@ const CardLibrary = () => {
     setActiveFilters({
       colors: [],
       rarities: [],
-      parallels: []
+      parallels: [],
+      set: null
     });
     setSearchQuery('');
   };
@@ -135,36 +108,34 @@ const CardLibrary = () => {
     setIsDetailOpen(true);
   };
 
-  // Updated filtering logic to properly handle parallel filters
-  const filteredCards = selectedSet
-    ? (searchQuery 
-        ? searchCards(searchQuery).filter(card => card.set === selectedSet)
-        : cardsInSelectedSet
-      ).filter(card => {
-        // Apply color filters if any are selected
-        if (activeFilters.colors.length > 0) {
-          if (!card.colors || !activeFilters.colors.some(color => card.colors.includes(color))) {
-            return false;
-          }
-        }
-        
-        // Apply rarity filters if any are selected
-        if (activeFilters.rarities.length > 0) {
-          if (!card.rarity || !activeFilters.rarities.includes(card.rarity)) {
-            return false;
-          }
-        }
-        
-        // Apply parallel filters if any are selected
-        if (activeFilters.parallels.length > 0) {
-          if (!card.parallel || !card.parallel.some(p => activeFilters.parallels.includes(p))) {
-            return false;
-          }
-        }
-        
-        return true;
-      })
-    : [];
+  const filteredCards = (searchQuery 
+    ? searchCards(searchQuery)
+    : allCards
+  ).filter(card => {
+    if (activeFilters.set && card.set !== activeFilters.set) {
+      return false;
+    }
+    
+    if (activeFilters.colors.length > 0) {
+      if (!card.colors || !activeFilters.colors.some(color => card.colors.includes(color))) {
+        return false;
+      }
+    }
+    
+    if (activeFilters.rarities.length > 0) {
+      if (!card.rarity || !activeFilters.rarities.includes(card.rarity)) {
+        return false;
+      }
+    }
+    
+    if (activeFilters.parallels.length > 0) {
+      if (!card.parallel || !card.parallel.some(p => activeFilters.parallels.includes(p))) {
+        return false;
+      }
+    }
+    
+    return true;
+  });
 
   const totalPages = Math.ceil(filteredCards.length / CARDS_PER_PAGE);
   const startIndex = (currentPage - 1) * CARDS_PER_PAGE;
@@ -189,6 +160,7 @@ const CardLibrary = () => {
     activeFilters.colors.length > 0 || 
     activeFilters.rarities.length > 0 ||
     activeFilters.parallels.length > 0 ||
+    activeFilters.set !== null ||
     searchQuery.length > 0;
 
   return (
@@ -200,185 +172,155 @@ const CardLibrary = () => {
         </p>
       </div>
 
-      {selectedSet ? (
-        <>
-          <Button 
-            variant="outline" 
-            className="mb-4"
-            onClick={() => setSelectedSet(null)}
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            {t('backToSets')}
-          </Button>
-
-          <div className="flex items-center gap-2 mb-4">
-            <h2 className="text-xl font-semibold">{selectedSet}</h2>
-            {filteredCards.length > 0 && (
-              <Badge variant="outline">
-                {filteredCards.length} {filteredCards.length === 1 ? t('card') : t('cards')}
-              </Badge>
-            )}
-          </div>
-
-          <div className="flex flex-col gap-4 sm:flex-row">
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 sm:flex-row">
+          <div className="flex-1">
             <SearchBar searchQuery={searchQuery} onSearchChange={setSearchQuery} />
-            <Tabs defaultValue="grid" className="w-fit">
-              <TabsList>
-                <TabsTrigger value="grid" onClick={() => setViewMode('grid')}>
-                  {t('grid')}
-                </TabsTrigger>
-                <TabsTrigger value="list" onClick={() => setViewMode('list')}>
-                  {t('list')}
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
           </div>
+          <Select
+            value={activeFilters.set || ""}
+            onValueChange={(value) => handleSetChange(value || null)}
+          >
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder={t('selectSet')} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">All Sets</SelectItem>
+              {availableSets.map(set => (
+                <SelectItem key={set} value={set}>{set}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Tabs defaultValue="grid" className="w-fit">
+            <TabsList>
+              <TabsTrigger value="grid" onClick={() => setViewMode('grid')}>
+                {t('grid')}
+              </TabsTrigger>
+              <TabsTrigger value="list" onClick={() => setViewMode('list')}>
+                {t('list')}
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
 
-          <CardFilters
-            uniqueColors={uniqueColors}
-            uniqueRarities={uniqueRarities}
-            uniqueParallels={uniqueParallels}
-            activeFilters={activeFilters}
-            toggleFilter={toggleFilter}
-            clearFilters={clearFilters}
-            isAnyFilterActive={isAnyFilterActive}
-            colorMap={colorMap}
-            colorNames={colorNames}
-          />
+        <CardFilters
+          uniqueColors={uniqueColors}
+          uniqueRarities={uniqueRarities}
+          uniqueParallels={uniqueParallels}
+          activeFilters={activeFilters}
+          toggleFilter={toggleFilter}
+          clearFilters={clearFilters}
+          isAnyFilterActive={isAnyFilterActive}
+          colorMap={colorMap}
+          colorNames={colorNames}
+        />
 
-          {loading ? (
-            <div className="mt-8 flex justify-center">
-              <div className="flex flex-col items-center">
-                <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-                <p className="mt-4 text-sm text-muted-foreground">{t('loadingSets')}</p>
+        {loading ? (
+          <div className="mt-8 flex justify-center">
+            <div className="flex flex-col items-center">
+              <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+              <p className="mt-4 text-sm text-muted-foreground">{t('loadingCards')}</p>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="flex justify-between items-center my-4">
+              <p className="text-sm text-muted-foreground">
+                {t('showing')} {startIndex + 1}-{Math.min(endIndex, filteredCards.length)} {t('of')} {filteredCards.length} {filteredCards.length === 1 ? t('card') : t('cards')}
+              </p>
+              
+              <div className="md:hidden text-sm">
+                {t('page')} {currentPage} {t('of')} {totalPages}
               </div>
             </div>
-          ) : (
-            <>
-              <div className="flex justify-between items-center my-4">
-                <p className="text-sm text-muted-foreground">
-                  {t('showing')} {startIndex + 1}-{Math.min(endIndex, filteredCards.length)} {t('of')} {filteredCards.length} {filteredCards.length === 1 ? t('card') : t('cards')}
-                </p>
-                
-                <div className="md:hidden text-sm">
-                  {t('page')} {currentPage} {t('of')} {totalPages}
-                </div>
-              </div>
-              
-              {viewMode === 'grid' ? (
-                <CardGrid cards={paginatedCards} onCardClick={handleCardClick} />
-              ) : (
-                <CardList 
-                  cards={paginatedCards} 
-                  onCardClick={handleCardClick} 
-                  colorMap={colorMap} 
-                />
-              )}
-              
-              {totalPages > 1 && (
-                <Pagination className="mt-8">
-                  <PaginationContent>
-                    <PaginationItem>
-                      <PaginationPrevious 
-                        onClick={goToPrevPage} 
-                        className={cn(currentPage === 1 && "pointer-events-none opacity-50")}
-                      />
-                    </PaginationItem>
-                    
-                    <div className="hidden md:flex">
-                      {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                        if (totalPages <= 5) {
-                          return (
-                            <PaginationItem key={i + 1}>
-                              <Button 
-                                variant={currentPage === i + 1 ? "default" : "outline"}
-                                size="icon"
-                                className="w-10 h-10"
-                                onClick={() => setCurrentPage(i + 1)}
-                              >
-                                {i + 1}
-                              </Button>
-                            </PaginationItem>
-                          );
-                        }
-                        
-                        let pageNum;
-                        if (currentPage <= 3) {
-                          if (i < 4) {
-                            pageNum = i + 1;
-                          } else {
-                            pageNum = totalPages;
-                          }
-                        } else if (currentPage > totalPages - 3) {
-                          if (i === 0) {
-                            pageNum = 1;
-                          } else {
-                            pageNum = totalPages - 4 + i;
-                          }
-                        } else {
-                          if (i === 0) {
-                            pageNum = 1;
-                          } else if (i === 4) {
-                            pageNum = totalPages;
-                          } else {
-                            pageNum = currentPage - 2 + i;
-                          }
-                        }
-                        
+            
+            {viewMode === 'grid' ? (
+              <CardGrid cards={paginatedCards} onCardClick={handleCardClick} />
+            ) : (
+              <CardList 
+                cards={paginatedCards} 
+                onCardClick={handleCardClick} 
+                colorMap={colorMap} 
+              />
+            )}
+            
+            {totalPages > 1 && (
+              <Pagination className="mt-8">
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious 
+                      onClick={goToPrevPage} 
+                      className={cn(currentPage === 1 && "pointer-events-none opacity-50")}
+                    />
+                  </PaginationItem>
+                  
+                  <div className="hidden md:flex">
+                    {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                      if (totalPages <= 5) {
                         return (
-                          <PaginationItem key={pageNum}>
+                          <PaginationItem key={i + 1}>
                             <Button 
-                              variant={currentPage === pageNum ? "default" : "outline"}
+                              variant={currentPage === i + 1 ? "default" : "outline"}
                               size="icon"
                               className="w-10 h-10"
-                              onClick={() => setCurrentPage(pageNum)}
+                              onClick={() => setCurrentPage(i + 1)}
                             >
-                              {pageNum}
+                              {i + 1}
                             </Button>
                           </PaginationItem>
                         );
-                      })}
-                    </div>
-                    
-                    <PaginationItem>
-                      <PaginationNext 
-                        onClick={goToNextPage} 
-                        className={cn(currentPage === totalPages && "pointer-events-none opacity-50")}
-                      />
-                    </PaginationItem>
-                  </PaginationContent>
-                </Pagination>
-              )}
-            </>
-          )}
-        </>
-      ) : (
-        <>
-          <h2 className="text-xl font-semibold mb-4">{t('cardSets')}</h2>
-          
-          {loading ? (
-            <div className="mt-8 flex justify-center">
-              <div className="flex flex-col items-center">
-                <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-                <p className="mt-4 text-sm text-muted-foreground">{t('loadingSets')}</p>
-              </div>
-            </div>
-          ) : availableSets.length === 0 ? (
-            <div className="mt-8 flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center animate-fade-in">
-              <h3 className="mt-4 text-lg font-medium">{t('noSetsFound')}</h3>
-              <p className="mt-2 text-sm text-muted-foreground max-w-sm">
-                {t('noSetsAvailable')}
-              </p>
-            </div>
-          ) : (
-            <CardSetsGrid 
-              availableSets={availableSets}
-              cards={cards}
-              onSelectSet={setSelectedSet}
-            />
-          )}
-        </>
-      )}
+                      }
+                      
+                      let pageNum;
+                      if (currentPage <= 3) {
+                        if (i < 4) {
+                          pageNum = i + 1;
+                        } else {
+                          pageNum = totalPages;
+                        }
+                      } else if (currentPage > totalPages - 3) {
+                        if (i === 0) {
+                          pageNum = 1;
+                        } else {
+                          pageNum = totalPages - 4 + i;
+                        }
+                      } else {
+                        if (i === 0) {
+                          pageNum = 1;
+                        } else if (i === 4) {
+                          pageNum = totalPages;
+                        } else {
+                          pageNum = currentPage - 2 + i;
+                        }
+                      }
+                      
+                      return (
+                        <PaginationItem key={pageNum}>
+                          <Button 
+                            variant={currentPage === pageNum ? "default" : "outline"}
+                            size="icon"
+                            className="w-10 h-10"
+                            onClick={() => setCurrentPage(pageNum)}
+                          >
+                            {pageNum}
+                          </Button>
+                        </PaginationItem>
+                      );
+                    })}
+                  </div>
+                  
+                  <PaginationItem>
+                    <PaginationNext 
+                      onClick={goToNextPage} 
+                      className={cn(currentPage === totalPages && "pointer-events-none opacity-50")}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            )}
+          </>
+        )}
+      </div>
 
       <CardDetailView 
         card={selectedCard} 
