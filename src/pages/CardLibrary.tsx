@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { Search, Filter, Plus, X, ArrowLeft, ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -37,10 +36,8 @@ const CardLibrary = () => {
   const [selectedCard, setSelectedCard] = useState<any>(null);
   const [isDetailOpen, setIsDetailOpen] = useState<boolean>(false);
   
-  // Pagination state
   const [currentPage, setCurrentPage] = useState<number>(1);
   
-  // Get the current filter state for this game category
   const filterState = getCurrentFilterState();
   const [searchQuery, setSearchQuery] = useState<string>(filterState.searchQuery || '');
   const [activeFilters, setActiveFilters] = useState<{
@@ -54,17 +51,13 @@ const CardLibrary = () => {
   });
   const [selectedSet, setSelectedSet] = useState<string | null>(filterState.selectedSet || null);
 
-  // Reset to first page when filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, activeFilters, selectedSet]);
 
-  // Get unique sets from the current game category
   const availableSets = Array.from(new Set(cards.map(card => card.set)));
 
-  // Reset selected set when game category changes
   useEffect(() => {
-    // Load filter state for the current game category
     const currentState = getCurrentFilterState();
     setSearchQuery(currentState.searchQuery || '');
     setActiveFilters({
@@ -73,17 +66,14 @@ const CardLibrary = () => {
       parallels: currentState.parallelFilters || []
     });
     setSelectedSet(currentState.selectedSet || null);
-    setCurrentPage(1); // Reset to first page when changing game category
+    setCurrentPage(1);
   }, [activeGameCategory, getCurrentFilterState]);
   
-  // Use useCallback for saveFilterState to avoid dependency issues
   const saveFilterStateCallback = useCallback((state) => {
     saveFilterState(state);
   }, [saveFilterState]);
   
-  // Save filter state when it changes - with proper dependency array
   useEffect(() => {
-    // Add a debounce to avoid infinite loops
     const saveTimer = setTimeout(() => {
       saveFilterStateCallback({
         searchQuery,
@@ -97,7 +87,6 @@ const CardLibrary = () => {
     return () => clearTimeout(saveTimer);
   }, [searchQuery, activeFilters.colors, activeFilters.rarities, activeFilters.parallels, selectedSet, saveFilterStateCallback]);
   
-  // Filter cards by selected set
   const cardsInSelectedSet = selectedSet 
     ? cards.filter(card => card.set === selectedSet)
     : [];
@@ -132,7 +121,6 @@ const CardLibrary = () => {
     setIsDetailOpen(true);
   };
 
-  // Apply filters to cards in selected set
   const filteredCards = selectedSet
     ? (searchQuery 
         ? searchCards(searchQuery).filter(card => card.set === selectedSet)
@@ -145,13 +133,11 @@ const CardLibrary = () => {
           : cardsInSelectedSet)
     : [];
 
-  // Pagination calculations
   const totalPages = Math.ceil(filteredCards.length / CARDS_PER_PAGE);
   const startIndex = (currentPage - 1) * CARDS_PER_PAGE;
   const endIndex = startIndex + CARDS_PER_PAGE;
   const paginatedCards = filteredCards.slice(startIndex, endIndex);
 
-  // Page navigation handlers
   const goToNextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
@@ -193,7 +179,6 @@ const CardLibrary = () => {
 
       {selectedSet ? (
         <>
-          {/* Back button to return to sets view */}
           <Button 
             variant="outline" 
             className="mb-4"
@@ -212,7 +197,6 @@ const CardLibrary = () => {
             )}
           </div>
 
-          {/* Search and view toggles */}
           <div className="flex flex-col gap-4 sm:flex-row">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -231,7 +215,6 @@ const CardLibrary = () => {
             </Tabs>
           </div>
 
-          {/* Filters */}
           <div className="rounded-md border bg-card p-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-medium">{t('filters')}</h3>
@@ -243,7 +226,6 @@ const CardLibrary = () => {
             </div>
             
             <div className="grid gap-4 md:grid-cols-3">
-              {/* Colors */}
               <div>
                 <h4 className="text-xs font-medium mb-2">{t('colors')}</h4>
                 <div className="flex flex-wrap gap-1">
@@ -263,7 +245,6 @@ const CardLibrary = () => {
                 </div>
               </div>
               
-              {/* Rarities */}
               <div>
                 <h4 className="text-xs font-medium mb-2">{t('rarities')}</h4>
                 <div className="flex flex-wrap gap-1">
@@ -280,9 +261,8 @@ const CardLibrary = () => {
                 </div>
               </div>
 
-              {/* Parallels */}
               <div>
-                <h4 className="text-xs font-medium mb-2">{t('parallels')}</h4>
+                <h4 className="text-xs font-medium mb-2">Parallels</h4>
                 <div className="flex flex-wrap gap-1">
                   {uniqueParallels.map(parallel => (
                     <Badge 
@@ -299,7 +279,6 @@ const CardLibrary = () => {
             </div>
           </div>
 
-          {/* Card display */}
           {loading ? (
             <div className="mt-8 flex justify-center">
               <div className="flex flex-col items-center">
@@ -320,13 +299,11 @@ const CardLibrary = () => {
             </div>
           ) : (
             <>
-              {/* Pagination stats */}
               <div className="flex justify-between items-center my-4">
                 <p className="text-sm text-muted-foreground">
                   {t('showing')} {startIndex + 1}-{Math.min(endIndex, filteredCards.length)} {t('of')} {filteredCards.length} {filteredCards.length === 1 ? t('card') : t('cards')}
                 </p>
                 
-                {/* Page indicator for smaller screens */}
                 <div className="md:hidden text-sm">
                   {t('page')} {currentPage} {t('of')} {totalPages}
                 </div>
@@ -409,7 +386,6 @@ const CardLibrary = () => {
                 </div>
               )}
               
-              {/* Pagination controls */}
               {totalPages > 1 && (
                 <Pagination className="mt-8">
                   <PaginationContent>
@@ -420,10 +396,8 @@ const CardLibrary = () => {
                       />
                     </PaginationItem>
                     
-                    {/* Page numbers - show on larger screens */}
                     <div className="hidden md:flex">
                       {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                        // For 5 or fewer pages, show all page numbers
                         if (totalPages <= 5) {
                           return (
                             <PaginationItem key={i + 1}>
@@ -439,24 +413,20 @@ const CardLibrary = () => {
                           );
                         }
                         
-                        // For more than 5 pages, show a context-aware range
                         let pageNum;
                         if (currentPage <= 3) {
-                          // Near the start: show 1,2,3,4,...,n
                           if (i < 4) {
                             pageNum = i + 1;
                           } else {
                             pageNum = totalPages;
                           }
                         } else if (currentPage > totalPages - 3) {
-                          // Near the end: show 1,...,n-3,n-2,n-1,n
                           if (i === 0) {
                             pageNum = 1;
                           } else {
                             pageNum = totalPages - 4 + i;
                           }
                         } else {
-                          // In the middle: show 1,...,c-1,c,c+1,...,n
                           if (i === 0) {
                             pageNum = 1;
                           } else if (i === 4) {
@@ -494,7 +464,6 @@ const CardLibrary = () => {
           )}
         </>
       ) : (
-        // Sets View
         <>
           <h2 className="text-xl font-semibold mb-4">{t('cardSets')}</h2>
           
@@ -515,9 +484,7 @@ const CardLibrary = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {availableSets.map((set) => {
-                // Find the first card of the set to use as cover
                 const setCoverCard = cards.find(card => card.set === set);
-                // Count cards in this set
                 const cardCount = cards.filter(card => card.set === set).length;
                 
                 return (
@@ -559,7 +526,6 @@ const CardLibrary = () => {
         </>
       )}
 
-      {/* Card Detail Dialog */}
       <CardDetailView 
         card={selectedCard} 
         isOpen={isDetailOpen} 

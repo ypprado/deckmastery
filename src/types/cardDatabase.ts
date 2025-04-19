@@ -32,6 +32,7 @@ export interface CardDetails {
   card_number_liga?: string; // Added the new field
   groupid_tcg?: number; // Added new field
   attribute?: AttributeType[]; // Use the proper enum type here
+  parallel?: string[]; // Added parallel property
 }
 
 export interface CardDatabaseFormValues {

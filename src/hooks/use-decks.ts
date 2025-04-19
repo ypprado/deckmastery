@@ -165,12 +165,13 @@ export const useCards = () => {
     colorFilters: string[];
     typeFilters: string[];
     rarityFilters: string[];
+    parallelFilters: string[];
     selectedSet: string | null;
   }>>({
-    magic: { searchQuery: '', colorFilters: [], typeFilters: [], rarityFilters: [], selectedSet: null },
-    pokemon: { searchQuery: '', colorFilters: [], typeFilters: [], rarityFilters: [], selectedSet: null },
-    yugioh: { searchQuery: '', colorFilters: [], typeFilters: [], rarityFilters: [], selectedSet: null },
-    onepiece: { searchQuery: '', colorFilters: [], typeFilters: [], rarityFilters: [], selectedSet: null },
+    magic: { searchQuery: '', colorFilters: [], typeFilters: [], rarityFilters: [], parallelFilters: [], selectedSet: null },
+    pokemon: { searchQuery: '', colorFilters: [], typeFilters: [], rarityFilters: [], parallelFilters: [], selectedSet: null },
+    yugioh: { searchQuery: '', colorFilters: [], typeFilters: [], rarityFilters: [], parallelFilters: [], selectedSet: null },
+    onepiece: { searchQuery: '', colorFilters: [], typeFilters: [], rarityFilters: [], parallelFilters: [], selectedSet: null },
   });
 
   useEffect(() => {
@@ -242,6 +243,7 @@ export const useCards = () => {
     colorFilters: string[];
     typeFilters: string[];
     rarityFilters: string[];
+    parallelFilters: string[];
     selectedSet: string | null;
   }>) => {
     setFilterStates(prev => ({
@@ -260,6 +262,7 @@ export const useCards = () => {
       colorFilters: [],
       typeFilters: [],
       rarityFilters: [],
+      parallelFilters: [],
       selectedSet: null
     };
   }, [filterStates, activeGameCategory]);
