@@ -333,6 +333,13 @@ export type Database = {
         | "Monkey Mountain Alliance"
         | "World Pirates"
         | "The House of Lambs"
+        | "Former Rumbar Pirates"
+        | "Gyro Pirates"
+        | "Lulucia Kingdom"
+        | "Foolshout Island"
+        | "Long Ring Long Land"
+        | "Bellamy Pirates"
+        | "Mary Geoise"
       category_type: "Leader" | "Character" | "Event" | "Stage" | "DON!!"
       color_type: "Red" | "Green" | "Blue" | "Purple" | "Black" | "Yellow"
       game_category: "magic" | "pokemon" | "yugioh" | "onepiece"
@@ -610,6 +617,13 @@ export const Constants = {
         "Monkey Mountain Alliance",
         "World Pirates",
         "The House of Lambs",
+        "Former Rumbar Pirates",
+        "Gyro Pirates",
+        "Lulucia Kingdom",
+        "Foolshout Island",
+        "Long Ring Long Land",
+        "Bellamy Pirates",
+        "Mary Geoise",
       ],
       category_type: ["Leader", "Character", "Event", "Stage", "DON!!"],
       color_type: ["Red", "Green", "Blue", "Purple", "Black", "Yellow"],

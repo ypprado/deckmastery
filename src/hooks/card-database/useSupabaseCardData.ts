@@ -1,4 +1,3 @@
-
 import { toast } from 'sonner';
 import { CardDetails, CardSet } from '@/types/cardDatabase';
 import { GameCategory } from '@/hooks/use-decks';
@@ -73,10 +72,11 @@ export const loadCardsAndSets = async (): Promise<{
       // Transform Supabase data to match our app's format
       const formattedSets = setsData.map(convertSetFromSupabase);
       
-      // Load cards data
+      // Load cards data with no row limit
       const { data: cardsData, error: cardsError } = await supabase
         .from('cards')
-        .select('*');
+        .select('*')
+        .order('id', { ascending: true });
         
       if (cardsError) throw cardsError;
       
