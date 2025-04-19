@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { ArrowLeft, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -102,7 +101,13 @@ const CardLibrary = () => {
 
   const uniqueRarities = Array.from(new Set(cardsInSelectedSet.map(card => card.rarity)));
   const uniqueColors = Array.from(new Set(cardsInSelectedSet.flatMap(card => card.colors)));
-  const uniqueParallels = Array.from(new Set(cardsInSelectedSet.flatMap(card => card.parallel || [])));
+  
+  // Extract unique parallels and handle cases where card.parallel is undefined
+  const uniqueParallels = Array.from(new Set(
+    cardsInSelectedSet
+      .filter(card => card.parallel && card.parallel.length > 0)
+      .flatMap(card => card.parallel || [])
+  ));
 
   const toggleFilter = (type: 'colors' | 'rarities' | 'parallels', value: string) => {
     setActiveFilters(prev => {
@@ -130,16 +135,35 @@ const CardLibrary = () => {
     setIsDetailOpen(true);
   };
 
+  // Updated filtering logic to properly handle parallel filters
   const filteredCards = selectedSet
     ? (searchQuery 
         ? searchCards(searchQuery).filter(card => card.set === selectedSet)
-        : activeFilters.colors.length || activeFilters.rarities.length || activeFilters.parallels.length
-          ? filterCards({
-              colors: activeFilters.colors.length ? activeFilters.colors : undefined,
-              rarity: activeFilters.rarities.length ? activeFilters.rarities[0] : undefined,
-              parallel: activeFilters.parallels.length ? activeFilters.parallels : undefined,
-            }).filter(card => card.set === selectedSet)
-          : cardsInSelectedSet)
+        : cardsInSelectedSet
+      ).filter(card => {
+        // Apply color filters if any are selected
+        if (activeFilters.colors.length > 0) {
+          if (!card.colors || !activeFilters.colors.some(color => card.colors.includes(color))) {
+            return false;
+          }
+        }
+        
+        // Apply rarity filters if any are selected
+        if (activeFilters.rarities.length > 0) {
+          if (!card.rarity || !activeFilters.rarities.includes(card.rarity)) {
+            return false;
+          }
+        }
+        
+        // Apply parallel filters if any are selected
+        if (activeFilters.parallels.length > 0) {
+          if (!card.parallel || !card.parallel.some(p => activeFilters.parallels.includes(p))) {
+            return false;
+          }
+        }
+        
+        return true;
+      })
     : [];
 
   const totalPages = Math.ceil(filteredCards.length / CARDS_PER_PAGE);

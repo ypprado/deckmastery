@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { CardDetails } from '@/types/cardDatabase';
 import { useStaticData } from './use-static-data';
@@ -5,7 +6,7 @@ import { useStaticData } from './use-static-data';
 interface FilterOptions {
   colors?: string[];
   rarity?: string;
-  parallel?: string[]; // Add parallel filter option
+  parallel?: string[]; // Ensure parallel filter option exists
 }
 
 export const useCards = (initialCards: CardDetails[] = []) => {
@@ -38,7 +39,7 @@ export const useCards = (initialCards: CardDetails[] = []) => {
     return cards.filter(card => {
       // Check colors if filter is provided
       if (filters.colors && filters.colors.length > 0) {
-        if (!card.colors.some(color => filters.colors?.includes(color))) {
+        if (!card.colors || !card.colors.some(color => filters.colors?.includes(color))) {
           return false;
         }
       }
@@ -50,7 +51,8 @@ export const useCards = (initialCards: CardDetails[] = []) => {
 
       // Check parallels if filter is provided
       if (filters.parallel && filters.parallel.length > 0) {
-        if (!card.parallel?.some(p => filters.parallel?.includes(p))) {
+        // Make sure card.parallel exists and has at least one matching value
+        if (!card.parallel || !card.parallel.some(p => filters.parallel?.includes(p))) {
           return false;
         }
       }

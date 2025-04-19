@@ -19,6 +19,7 @@ const SearchBar = ({ searchQuery, onSearchChange }: SearchBarProps) => {
         className="pl-9"
         value={searchQuery}
         onChange={(e) => onSearchChange(e.target.value)}
+        aria-label="Search cards"
       />
     </div>
   );
