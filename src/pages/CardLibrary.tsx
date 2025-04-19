@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { Search, Filter, Plus, X, ArrowLeft, ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -32,22 +33,26 @@ const CARDS_PER_PAGE = 20;
 const CardLibrary = () => {
   const { cards, loading, searchCards, filterCards, activeGameCategory, saveFilterState, getCurrentFilterState } = useCards();
   const { t } = useLanguage();
-  const [viewMode, setViewMode<'grid' | 'list'>('grid');
-  const [selectedCard, setSelectedCard<any>(null);
-  const [isDetailOpen, setIsDetailOpen<any>(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [selectedCard, setSelectedCard] = useState<any>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState<boolean>(false);
   
   // Pagination state
-  const [currentPage, setCurrentPage<any>(1);
+  const [currentPage, setCurrentPage] = useState<number>(1);
   
   // Get the current filter state for this game category
   const filterState = getCurrentFilterState();
-  const [searchQuery, setSearchQuery<any>(filterState.searchQuery || '');
-  const [activeFilters, setActiveFilters<any>>({
+  const [searchQuery, setSearchQuery] = useState<string>(filterState.searchQuery || '');
+  const [activeFilters, setActiveFilters] = useState<{
+    colors: string[];
+    rarities: string[];
+    parallels: string[];
+  }>({
     colors: filterState.colorFilters || [],
     rarities: filterState.rarityFilters || [],
-    parallels: filterState.parallelFilters || [], // Add parallel to initial state
+    parallels: filterState.parallelFilters || [],
   });
-  const [selectedSet, setSelectedSet<any>(filterState.selectedSet || null);
+  const [selectedSet, setSelectedSet] = useState<string | null>(filterState.selectedSet || null);
 
   // Reset to first page when filters change
   useEffect(() => {
@@ -84,7 +89,7 @@ const CardLibrary = () => {
         searchQuery,
         colorFilters: activeFilters.colors,
         rarityFilters: activeFilters.rarities,
-        parallelFilters: activeFilters.parallels, // Add parallel to saved state
+        parallelFilters: activeFilters.parallels,
         selectedSet
       });
     }, 300);
@@ -122,7 +127,7 @@ const CardLibrary = () => {
     setSearchQuery('');
   };
 
-  const handleCardClick = (card) => {
+  const handleCardClick = (card: any) => {
     setSelectedCard(card);
     setIsDetailOpen(true);
   };
@@ -285,14 +290,14 @@ const CardLibrary = () => {
                       variant={activeFilters.parallels.includes(parallel) ? "default" : "outline"}
                       className="cursor-pointer hover:bg-muted transition-colors"
                       onClick={() => toggleFilter('parallels', parallel)}
-                >
-                  {parallel}
-                </Badge>
-              ))}
+                    >
+                      {parallel}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
 
           {/* Card display */}
           {loading ? (
