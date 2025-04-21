@@ -56,6 +56,7 @@ export interface Translations {
   selectSet: string;
   allSets: string;
   loading: string;
+  cardDetails: string;
   // Dashboard translations
   yourDecks: string;
   manageCreateDecks: string;
@@ -164,6 +165,7 @@ const defaultTranslations: Record<string, Translations> = {
     noTypesFound: 'No types found',
     selectSet: 'Select set',
     allSets: 'All Sets',
+    cardDetails: 'Card details',
     // Dashboard translations
     yourDecks: 'Your Decks',
     manageCreateDecks: 'Manage your existing decks or create new ones.',
@@ -270,6 +272,7 @@ const defaultTranslations: Record<string, Translations> = {
     noTypesFound: 'Aucun type trouvé',
     selectSet: 'Sélectionner une série',
     allSets: 'Toutes les séries',
+    cardDetails: 'Détails de la carte',
     // Dashboard translations
     yourDecks: 'Vos Decks',
     manageCreateDecks: 'Gérez vos decks existants ou créez-en de nouveaux.',
@@ -376,6 +379,7 @@ const defaultTranslations: Record<string, Translations> = {
     noTypesFound: 'No se encontraron tipos',
     selectSet: 'Seleccionar set',
     allSets: 'Todos los sets',
+    cardDetails: 'Detalles de la carta',
     // Dashboard translations
     yourDecks: 'Tus Mazos',
     manageCreateDecks: 'Administra tus mazos existentes o crea nuevos.',

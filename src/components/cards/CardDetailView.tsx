@@ -199,7 +199,7 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
           <Button
             variant="secondary"
             size="icon"
-            className="absolute left-0 -translate-x-1/2 top-1/2 -translate-y-1/2 opacity-80 hover:opacity-100 z-20"
+            className="absolute left-0 -translate-x-full top-1/2 -translate-y-1/2 opacity-80 hover:opacity-100 z-20 border border-border bg-background/70 backdrop-blur-sm shadow"
             onClick={(e) => {
               e.stopPropagation();
               onPreviousCard?.();
@@ -213,7 +213,7 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
           <Button
             variant="secondary"
             size="icon"
-            className="absolute right-0 translate-x-1/2 top-1/2 -translate-y-1/2 opacity-80 hover:opacity-100 z-20"
+            className="absolute right-0 translate-x-full top-1/2 -translate-y-1/2 opacity-80 hover:opacity-100 z-20 border border-border bg-background/70 backdrop-blur-sm shadow"
             onClick={(e) => {
               e.stopPropagation();
               onNextCard?.();
