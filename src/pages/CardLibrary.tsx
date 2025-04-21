@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useMemo } from 'react';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -63,23 +64,25 @@ const CardLibrary = () => {
     colors: filterState.colorFilters || [],
     rarities: filterState.rarityFilters || [],
     parallels: filterState.parallelFilters || [],
-    set: filterState.selectedSet || null,
+    set: filterState.selectedSet ?? null,
   });
 
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, activeFilters]);
 
+  // Convert all used set ids to string, since sets id is number but Select expects string values
   const usedSetIds = useMemo(() => {
-    return Array.from(new Set(cards.map(card => card.set).filter(Boolean)));
+    return Array.from(new Set(cards.map(card => card.set).filter(Boolean))).map(String);
   }, [cards]);
 
+  // Filter sets to only sets in use and prepare label with string id
   const usedSets = useMemo(() => {
     if (!sets || sets.length === 0) return [];
     return sets
-      .filter(set => usedSetIds.includes(set.id))
+      .filter(set => usedSetIds.includes(String(set.id)))
       .map(set => ({
-        id: set.id,
+        id: String(set.id),  // convert to string for Select value
         name: set.name,
         label: `${set.id} - ${set.name}`,
       }));
@@ -356,3 +359,4 @@ const CardLibrary = () => {
 };
 
 export default CardLibrary;
+
