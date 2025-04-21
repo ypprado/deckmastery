@@ -49,8 +49,11 @@ const CardFilters = ({
 }: CardFiltersProps) => {
   const { t } = useLanguage();
 
-  // Only show allowed parallel types, and present using clean labels
-  const allowedParallels = uniqueParallels.filter((p) => p && typeof p === 'string' && Object.keys(PARALLEL_TYPE_LABELS).includes(p));
+  // Display all parallels from PARALLEL_TYPE_LABELS if there are no uniqueParallels from the data
+  // This ensures we always show the complete list of valid parallel types
+  const displayParallels = uniqueParallels.length > 0 
+    ? uniqueParallels.filter(p => p && typeof p === 'string' && Object.keys(PARALLEL_TYPE_LABELS).includes(p))
+    : Object.keys(PARALLEL_TYPE_LABELS);
 
   return (
     <div className="rounded-md border bg-card p-4">
@@ -102,7 +105,7 @@ const CardFilters = ({
         <div>
           <h4 className="text-xs font-medium mb-2">{t('parallels')}</h4>
           <div className="flex flex-wrap gap-1">
-            {allowedParallels.map(parallel => (
+            {displayParallels.map(parallel => (
               <Badge
                 key={parallel}
                 variant={activeFilters.parallels.includes(parallel) ? "default" : "outline"}
@@ -120,4 +123,3 @@ const CardFilters = ({
 };
 
 export default CardFilters;
-

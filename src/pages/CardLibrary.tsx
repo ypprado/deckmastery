@@ -73,15 +73,8 @@ const CardLibrary = () => {
 
   const uniqueColors = Array.from(new Set(allCards.flatMap(card => card.colors)));
   const uniqueRarities = Array.from(new Set(allCards.map(card => card.rarity)));
-  const uniqueParallels = Array.from(
-    new Set(
-      allCards
-        .filter(card => card.parallel && card.parallel.length > 0)
-        .flatMap(card => card.parallel || [])
-    )
-  ).filter(
-    (parallel) => parallel && typeof parallel === 'string' && PARALLEL_TYPES.includes(parallel)
-  );
+  
+  const uniqueParallels = PARALLEL_TYPES;
 
   const handleSetChange = (value: string | null) => {
     setActiveFilters(prev => ({
@@ -171,6 +164,11 @@ const CardLibrary = () => {
     activeFilters.parallels.length > 0 ||
     activeFilters.set !== null ||
     searchQuery.length > 0;
+
+  console.log("Parallel filters:", {
+    uniqueParallels,
+    activeParallels: activeFilters.parallels,
+  });
 
   return (
     <div className="space-y-8">
