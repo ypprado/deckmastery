@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCards } from '@/hooks/use-decks';
@@ -63,13 +62,11 @@ const CardLibrary = () => {
     setCurrentPage(1);
   }, [searchQuery, activeFilters]);
 
-  // Get unique sets from cards and match with set names
   const availableSets = Array.from(
     new Set(cards.map(card => card.set))
   )
   .filter((setId): setId is string => setId !== null && setId !== undefined)
   .map(setId => {
-    // Try to find a match in the sets data
     const setIdNumber = parseInt(setId);
     const setInfo = !isNaN(setIdNumber) ? sets.find(set => set.id === setIdNumber) : null;
     
@@ -106,8 +103,23 @@ const CardLibrary = () => {
   };
 
   const handleCardClick = (card: any) => {
+    const cardIndex = filteredCards.findIndex(c => c.id === card.id);
     setSelectedCard(card);
     setIsDetailOpen(true);
+  };
+
+  const handleNextCard = () => {
+    const currentIndex = filteredCards.findIndex(card => card.id === selectedCard?.id);
+    if (currentIndex < filteredCards.length - 1) {
+      setSelectedCard(filteredCards[currentIndex + 1]);
+    }
+  };
+
+  const handlePreviousCard = () => {
+    const currentIndex = filteredCards.findIndex(card => card.id === selectedCard?.id);
+    if (currentIndex > 0) {
+      setSelectedCard(filteredCards[currentIndex - 1]);
+    }
   };
 
   const filteredCards = (searchQuery 
@@ -224,7 +236,11 @@ const CardLibrary = () => {
       <CardDetailView 
         card={selectedCard} 
         isOpen={isDetailOpen} 
-        onOpenChange={setIsDetailOpen} 
+        onOpenChange={setIsDetailOpen}
+        onNextCard={handleNextCard}
+        onPreviousCard={handlePreviousCard}
+        hasNextCard={selectedCard ? filteredCards.findIndex(card => card.id === selectedCard.id) < filteredCards.length - 1 : false}
+        hasPreviousCard={selectedCard ? filteredCards.findIndex(card => card.id === selectedCard.id) > 0 : false}
       />
     </div>
   );

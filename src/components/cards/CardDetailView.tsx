@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Card as CardType } from '@/hooks/use-decks';
@@ -12,11 +11,17 @@ import { Switch } from '@/components/ui/switch';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { toast } from 'sonner';
 import { Database } from '@/integrations/supabase/types';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface CardDetailViewProps {
   card: CardType | null;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
+  onNextCard?: () => void;
+  onPreviousCard?: () => void;
+  hasNextCard?: boolean;
+  hasPreviousCard?: boolean;
 }
 
 // Type for the combined card data from both sources
@@ -128,13 +133,35 @@ const getCardColors = (card: DisplayCardType): string[] => {
   return [];
 };
 
-const CardDetailView: React.FC<CardDetailViewProps> = ({ card, isOpen, onOpenChange }) => {
+const CardDetailView: React.FC<CardDetailViewProps> = ({ 
+  card, 
+  isOpen, 
+  onOpenChange,
+  onNextCard,
+  onPreviousCard,
+  hasNextCard = false,
+  hasPreviousCard = false
+}) => {
   const [priceData] = useState(generatePriceData());
   const { t } = useLanguage();
   const [supabaseCard, setSupabaseCard] = useState<Database['public']['Tables']['cards']['Row'] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   
-  // Fetch card details from Supabase if available
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!isOpen) return;
+      
+      if (event.key === 'ArrowLeft' && hasPreviousCard && onPreviousCard) {
+        onPreviousCard();
+      } else if (event.key === 'ArrowRight' && hasNextCard && onNextCard) {
+        onNextCard();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onNextCard, onPreviousCard, hasNextCard, hasPreviousCard]);
+
   useEffect(() => {
     const fetchCardDetails = async () => {
       if (card && card.id) {
@@ -183,14 +210,44 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({ card, isOpen, onOpenCha
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl p-0 overflow-hidden">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
-          {/* Left side - Card Image */}
-          <div className="p-6 flex items-center justify-center bg-gradient-to-br from-background to-muted/50">
+          {/* Left side - Card Image with Navigation */}
+          <div className="p-6 flex items-center justify-center bg-gradient-to-br from-background to-muted/50 relative">
             <div className="relative aspect-[3/4] max-h-[500px] w-auto shadow-xl rounded-lg overflow-hidden">
               <img
                 src={getCardImageUrl(displayCard)}
                 alt={displayCard.name}
                 className="w-full h-full object-cover"
               />
+            </div>
+            
+            {/* Navigation Arrows */}
+            <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-4 pointer-events-none">
+              {hasPreviousCard && (
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="pointer-events-auto opacity-80 hover:opacity-100"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onPreviousCard?.();
+                  }}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+              )}
+              {hasNextCard && (
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="pointer-events-auto opacity-80 hover:opacity-100"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onNextCard?.();
+                  }}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              )}
             </div>
           </div>
           
