@@ -24,10 +24,8 @@ interface CardDetailViewProps {
   hasPreviousCard?: boolean;
 }
 
-// Type for the combined card data from both sources
 type DisplayCardType = CardType | Database['public']['Tables']['cards']['Row'];
 
-// Mapping color names for display
 const colorNames: Record<string, string> = {
   Red: 'Red',
   Green: 'Green',
@@ -35,7 +33,6 @@ const colorNames: Record<string, string> = {
   Purple: 'Purple',
   Black: 'Black',
   Yellow: 'Yellow',
-  // Legacy mappings for backward compatibility
   white: 'White',
   blue: 'Blue',
   black: 'Black',
@@ -45,7 +42,6 @@ const colorNames: Record<string, string> = {
   purple: 'Purple',
 };
 
-// Tailwind class mapping for colors
 const colorMap: Record<string, string> = {
   Red: 'bg-red-100 text-red-800',
   Green: 'bg-green-100 text-green-800',
@@ -53,7 +49,6 @@ const colorMap: Record<string, string> = {
   Purple: 'bg-purple-100 text-purple-800',
   Black: 'bg-gray-700 text-white',
   Yellow: 'bg-yellow-100 text-yellow-800',
-  // Legacy mappings for backward compatibility
   white: 'bg-amber-100 text-amber-800',
   blue: 'bg-blue-100 text-blue-800',
   black: 'bg-gray-700 text-white',
@@ -63,13 +58,11 @@ const colorMap: Record<string, string> = {
   purple: 'bg-purple-100 text-purple-800',
 };
 
-// Dummy price history data
 const generatePriceData = () => {
   const data = [];
-  const startPrice = Math.random() * 20 + 5; // Start between $5 and $25
+  const startPrice = Math.random() * 20 + 5;
   
   for (let i = 0; i < 30; i++) {
-    // Create some random fluctuation
     const dayPrice = startPrice + (Math.random() * 10 - 5) * (i / 15);
     data.push({
       day: i + 1,
@@ -80,15 +73,12 @@ const generatePriceData = () => {
   return data;
 };
 
-// Helper function to get image URL from either card type
 const getCardImageUrl = (card: DisplayCardType): string => {
   if ('imageUrl' in card) {
     return card.imageUrl;
   } else if ('artwork_url' in card) {
     let url = card.artwork_url;
-    // If the URL starts with 'card-images/', it's a path in Supabase Storage
     if (url && url.startsWith('card-images/')) {
-      // Convert to a public URL
       const { data } = supabase.storage.from('card-images').getPublicUrl(url);
       return data.publicUrl;
     }
@@ -97,7 +87,6 @@ const getCardImageUrl = (card: DisplayCardType): string => {
   return '';
 };
 
-// Helper function to get card type from either card type
 const getCardType = (card: DisplayCardType): string | string[] => {
   if ('type' in card) {
     return card.type;
@@ -107,7 +96,6 @@ const getCardType = (card: DisplayCardType): string | string[] => {
   return [];
 };
 
-// Helper function to format card type for display
 const formatCardType = (type: string | string[]): string => {
   if (Array.isArray(type)) {
     return type.join(', ');
@@ -115,7 +103,6 @@ const formatCardType = (type: string | string[]): string => {
   return type;
 };
 
-// Helper function to get set from either card type
 const getCardSet = (card: DisplayCardType): string => {
   if ('set' in card) {
     return card.set;
@@ -125,7 +112,6 @@ const getCardSet = (card: DisplayCardType): string => {
   return '';
 };
 
-// Helper function to get colors from either card type
 const getCardColors = (card: DisplayCardType): string[] => {
   if ('colors' in card) {
     return Array.isArray(card.colors) ? card.colors : [];
@@ -170,7 +156,7 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
           const { data, error } = await supabase
             .from('cards')
             .select('*')
-            .eq('id', Number(card.id)) // Convert to number for the query
+            .eq('id', Number(card.id))
             .maybeSingle();
             
           if (error) {
@@ -193,13 +179,10 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
   
   if (!card) return null;
   
-  // Use supabase data if available, otherwise fallback to the card prop
   const displayCard = supabaseCard || card;
   
-  // Ensure colors array exists
   const colors = getCardColors(displayCard);
   
-  // Format attribute array for display if available
   const formatAttributes = (attributes: any): string => {
     if (!attributes) return '';
     if (Array.isArray(attributes)) return attributes.join(', ');
@@ -208,9 +191,8 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
   
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl p-0 overflow-hidden">
+      <DialogContent className="max-w-4xl p-0 overflow-hidden relative">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
-          {/* Left side - Card Image with Navigation */}
           <div className="p-6 flex items-center justify-center bg-gradient-to-br from-background to-muted/50 relative">
             <div className="relative aspect-[3/4] max-h-[500px] w-auto shadow-xl rounded-lg overflow-hidden">
               <img
@@ -220,38 +202,38 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
               />
             </div>
             
-            {/* Navigation Arrows */}
-            <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-4 pointer-events-none">
+            <div className="absolute inset-y-0 left-0 flex items-center -ml-12">
               {hasPreviousCard && (
                 <Button
                   variant="secondary"
                   size="icon"
-                  className="pointer-events-auto opacity-80 hover:opacity-100"
+                  className="opacity-80 hover:opacity-100"
                   onClick={(e) => {
                     e.stopPropagation();
                     onPreviousCard?.();
                   }}
                 >
-                  <ChevronLeft className="h-4 w-4" />
+                  <ChevronLeft className="h-6 w-6" />
                 </Button>
               )}
+            </div>
+            <div className="absolute inset-y-0 right-0 flex items-center -mr-12">
               {hasNextCard && (
                 <Button
                   variant="secondary"
                   size="icon"
-                  className="pointer-events-auto opacity-80 hover:opacity-100"
+                  className="opacity-80 hover:opacity-100"
                   onClick={(e) => {
                     e.stopPropagation();
                     onNextCard?.();
                   }}
                 >
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRight className="h-6 w-6" />
                 </Button>
               )}
             </div>
           </div>
           
-          {/* Right side - Details and Price Graph */}
           <div className="flex flex-col h-full p-6">
             <DialogHeader>
               <DialogTitle className="text-2xl">{displayCard.name}</DialogTitle>
@@ -264,7 +246,6 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
               </div>
             </DialogHeader>
             
-            {/* Card Details */}
             <div className="space-y-3 mt-4">
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div className="text-muted-foreground">{t('type')}</div>
@@ -281,7 +262,6 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
                 <div className="text-muted-foreground">{t('set')}</div>
                 <div className="font-medium">{getCardSet(displayCard)}</div>
                 
-                {/* Show additional fields from Supabase if available */}
                 {supabaseCard && (
                   <>
                     {supabaseCard.card_number && (
@@ -354,7 +334,6 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
             
             <Separator className="my-4" />
             
-            {/* Price History Graph */}
             <div className="flex-1 mt-2">
               <h3 className="text-sm font-medium mb-2">{t('priceHistory')}</h3>
               <div className="h-[200px] w-full">
@@ -363,8 +342,8 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
                     price: {
                       label: t('price'),
                       theme: {
-                        light: "#2563eb", // blue-600
-                        dark: "#3b82f6", // blue-500
+                        light: "#2563eb",
+                        dark: "#3b82f6",
                       },
                     },
                   }}
