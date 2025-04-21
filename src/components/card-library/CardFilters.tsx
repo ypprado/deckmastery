@@ -5,6 +5,20 @@ import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
 
+// Official parallel types enum values
+const PARALLEL_TYPE_LABELS: Record<string, string> = {
+  "Alternate Art": "Alternate Art",
+  "Manga Art": "Manga Art",
+  "Parallel Art": "Parallel Art",
+  "Box Topper": "Box Topper",
+  "Wanted Poster": "Wanted Poster",
+  "SP": "SP",
+  "TR": "TR",
+  "Jolly Roger Foil": "Jolly Roger Foil",
+  "Reprint": "Reprint",
+  "Full Art": "Full Art",
+};
+
 interface CardFiltersProps {
   uniqueColors: string[];
   uniqueRarities: string[];
@@ -34,7 +48,10 @@ const CardFilters = ({
   colorNames,
 }: CardFiltersProps) => {
   const { t } = useLanguage();
-  
+
+  // Only show allowed parallel types, and present using clean labels
+  const allowedParallels = uniqueParallels.filter((p) => p && typeof p === 'string' && Object.keys(PARALLEL_TYPE_LABELS).includes(p));
+
   return (
     <div className="rounded-md border bg-card p-4">
       <div className="flex items-center justify-between mb-4">
@@ -45,13 +62,13 @@ const CardFilters = ({
           </Button>
         )}
       </div>
-      
+
       <div className="grid gap-4 md:grid-cols-3">
         <div>
           <h4 className="text-xs font-medium mb-2">{t('colors')}</h4>
           <div className="flex flex-wrap gap-1">
             {uniqueColors.map(color => (
-              <Badge 
+              <Badge
                 key={color}
                 variant={activeFilters.colors.includes(color) ? "default" : "outline"}
                 className={cn(
@@ -65,12 +82,12 @@ const CardFilters = ({
             ))}
           </div>
         </div>
-        
+
         <div>
           <h4 className="text-xs font-medium mb-2">{t('rarities')}</h4>
           <div className="flex flex-wrap gap-1">
             {uniqueRarities.map(rarity => (
-              <Badge 
+              <Badge
                 key={rarity}
                 variant={activeFilters.rarities.includes(rarity) ? "default" : "outline"}
                 className="cursor-pointer hover:bg-muted transition-colors"
@@ -85,14 +102,14 @@ const CardFilters = ({
         <div>
           <h4 className="text-xs font-medium mb-2">{t('parallels')}</h4>
           <div className="flex flex-wrap gap-1">
-            {uniqueParallels.map(parallel => (
-              <Badge 
+            {allowedParallels.map(parallel => (
+              <Badge
                 key={parallel}
                 variant={activeFilters.parallels.includes(parallel) ? "default" : "outline"}
                 className="cursor-pointer hover:bg-muted transition-colors"
                 onClick={() => toggleFilter('parallels', parallel)}
               >
-                {parallel}
+                {PARALLEL_TYPE_LABELS[parallel] || parallel}
               </Badge>
             ))}
           </div>
@@ -103,3 +120,4 @@ const CardFilters = ({
 };
 
 export default CardFilters;
+

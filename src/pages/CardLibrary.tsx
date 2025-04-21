@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -17,6 +16,11 @@ import SearchBar from '@/components/card-library/SearchBar';
 import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 
 const CARDS_PER_PAGE = 20;
+
+const PARALLEL_TYPES = [
+  "Alternate Art", "Manga Art", "Parallel Art", "Box Topper", "Wanted Poster",
+  "SP", "TR", "Jolly Roger Foil", "Reprint", "Full Art"
+];
 
 const colorMap: Record<string, string> = {
   white: 'bg-amber-100 text-amber-800 dark:bg-amber-800 dark:text-amber-100',
@@ -69,11 +73,15 @@ const CardLibrary = () => {
 
   const uniqueColors = Array.from(new Set(allCards.flatMap(card => card.colors)));
   const uniqueRarities = Array.from(new Set(allCards.map(card => card.rarity)));
-  const uniqueParallels = Array.from(new Set(
-    allCards
-      .filter(card => card.parallel && card.parallel.length > 0)
-      .flatMap(card => card.parallel || [])
-  ));
+  const uniqueParallels = Array.from(
+    new Set(
+      allCards
+        .filter(card => card.parallel && card.parallel.length > 0)
+        .flatMap(card => card.parallel || [])
+    )
+  ).filter(
+    (parallel) => parallel && typeof parallel === 'string' && PARALLEL_TYPES.includes(parallel)
+  );
 
   const handleSetChange = (value: string | null) => {
     setActiveFilters(prev => ({

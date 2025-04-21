@@ -342,6 +342,7 @@ export type Database = {
         | "Mary Geoise"
         | "Peachbeard Pirates"
         | "New Giant Pirates"
+        | "Bowin Island"
       category_type: "Leader" | "Character" | "Event" | "Stage" | "DON!!"
       color_type: "Red" | "Green" | "Blue" | "Purple" | "Black" | "Yellow"
       game_category: "magic" | "pokemon" | "yugioh" | "onepiece"
@@ -354,6 +355,9 @@ export type Database = {
         | "Wanted Poster"
         | "SP"
         | "TR"
+        | "Jolly Roger Foil"
+        | "Reprint"
+        | "Full Art"
       rarity_type:
         | "Leader"
         | "Common"
@@ -630,6 +634,7 @@ export const Constants = {
         "Mary Geoise",
         "Peachbeard Pirates",
         "New Giant Pirates",
+        "Bowin Island",
       ],
       category_type: ["Leader", "Character", "Event", "Stage", "DON!!"],
       color_type: ["Red", "Green", "Blue", "Purple", "Black", "Yellow"],
@@ -643,6 +648,9 @@ export const Constants = {
         "Wanted Poster",
         "SP",
         "TR",
+        "Jolly Roger Foil",
+        "Reprint",
+        "Full Art",
       ],
       rarity_type: [
         "Leader",
