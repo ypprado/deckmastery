@@ -65,14 +65,17 @@ const CardLibrary = () => {
 
   // Get unique sets from cards and match with set names
   const availableSets = Array.from(
-    new Set(cards.map(card => card.groupid_tcg))
+    new Set(cards.map(card => card.set))
   )
-  .filter((setId): setId is number => setId !== null && setId !== undefined)
+  .filter((setId): setId is string => setId !== null && setId !== undefined)
   .map(setId => {
-    const setInfo = sets.find(set => set.id === setId);
+    // Try to find a match in the sets data
+    const setIdNumber = parseInt(setId);
+    const setInfo = !isNaN(setIdNumber) ? sets.find(set => set.id === setIdNumber) : null;
+    
     return {
-      id: String(setId),
-      name: setInfo ? setInfo.name : String(setId)
+      id: setId,
+      name: setInfo ? setInfo.name : setId
     };
   });
 
@@ -111,7 +114,7 @@ const CardLibrary = () => {
     ? searchCards(searchQuery)
     : cards
   ).filter(card => {
-    if (activeFilters.set && String(card.groupid_tcg) !== activeFilters.set) {
+    if (activeFilters.set && String(card.set) !== activeFilters.set) {
       return false;
     }
     
