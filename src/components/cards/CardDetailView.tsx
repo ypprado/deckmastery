@@ -191,7 +191,7 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
   
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl p-0 overflow-hidden relative">
+      <DialogContent className="max-w-4xl p-0 overflow-hidden">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
           <div className="p-6 flex items-center justify-center bg-gradient-to-br from-background to-muted/50 relative">
             <div className="relative aspect-[3/4] max-h-[500px] w-auto shadow-xl rounded-lg overflow-hidden">
@@ -202,36 +202,33 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
               />
             </div>
             
-            <div className="absolute inset-y-0 left-0 flex items-center -ml-12">
-              {hasPreviousCard && (
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  className="opacity-80 hover:opacity-100"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onPreviousCard?.();
-                  }}
-                >
-                  <ChevronLeft className="h-6 w-6" />
-                </Button>
-              )}
-            </div>
-            <div className="absolute inset-y-0 right-0 flex items-center -mr-12">
-              {hasNextCard && (
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  className="opacity-80 hover:opacity-100"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onNextCard?.();
-                  }}
-                >
-                  <ChevronRight className="h-6 w-6" />
-                </Button>
-              )}
-            </div>
+            {hasPreviousCard && (
+              <Button
+                variant="secondary"
+                size="icon"
+                className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-6 opacity-80 hover:opacity-100 z-10"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onPreviousCard?.();
+                }}
+              >
+                <ChevronLeft className="h-6 w-6" />
+              </Button>
+            )}
+            
+            {hasNextCard && (
+              <Button
+                variant="secondary"
+                size="icon"
+                className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-6 opacity-80 hover:opacity-100 z-10"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onNextCard?.();
+                }}
+              >
+                <ChevronRight className="h-6 w-6" />
+              </Button>
+            )}
           </div>
           
           <div className="flex flex-col h-full p-6">
