@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -14,6 +14,7 @@ import CardGrid from '@/components/card-library/CardGrid';
 import CardList from '@/components/card-library/CardList';
 import SearchBar from '@/components/card-library/SearchBar';
 import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
+import { useCardDatabase } from '@/hooks/card-database/useCardDatabase';
 
 const CARDS_PER_PAGE = 20;
 
@@ -44,6 +45,7 @@ const colorNames: Record<string, string> = {
 
 const CardLibrary = () => {
   const { cards, loading, searchCards, filterCards, activeGameCategory, saveFilterState, getCurrentFilterState } = useCards();
+  const { sets } = useCardDatabase();
   const { t } = useLanguage();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedCard, setSelectedCard] = useState<any>(null);
@@ -67,6 +69,21 @@ const CardLibrary = () => {
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, activeFilters]);
+
+  const usedSetIds = useMemo(() => {
+    return Array.from(new Set(cards.map(card => card.set).filter(Boolean)));
+  }, [cards]);
+
+  const usedSets = useMemo(() => {
+    if (!sets || sets.length === 0) return [];
+    return sets
+      .filter(set => usedSetIds.includes(set.id))
+      .map(set => ({
+        id: set.id,
+        name: set.name,
+        label: `${set.id} - ${set.name}`,
+      }));
+  }, [sets, usedSetIds]);
 
   const availableSets = Array.from(new Set(cards.map(card => card.set)));
   const allCards = cards;
@@ -188,13 +205,13 @@ const CardLibrary = () => {
             value={activeFilters.set || "all"}
             onValueChange={(value) => handleSetChange(value === "all" ? null : value)}
           >
-            <SelectTrigger className="w-[200px]">
+            <SelectTrigger className="w-[220px]">
               <SelectValue placeholder={t('selectSet')} />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{t('allSets')}</SelectItem>
-              {availableSets.map(set => (
-                <SelectItem key={set} value={set}>{set}</SelectItem>
+              {usedSets.map(set => (
+                <SelectItem key={set.id} value={set.id}>{set.label}</SelectItem>
               ))}
             </SelectContent>
           </Select>
