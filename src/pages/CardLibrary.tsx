@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -14,7 +14,6 @@ import CardGrid from '@/components/card-library/CardGrid';
 import CardList from '@/components/card-library/CardList';
 import SearchBar from '@/components/card-library/SearchBar';
 import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
-import { useCardDatabase } from '@/hooks/card-database/useCardDatabase';
 
 const CARDS_PER_PAGE = 20;
 
@@ -45,7 +44,6 @@ const colorNames: Record<string, string> = {
 
 const CardLibrary = () => {
   const { cards, loading, searchCards, filterCards, activeGameCategory, saveFilterState, getCurrentFilterState } = useCards();
-  const { sets } = useCardDatabase();
   const { t } = useLanguage();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedCard, setSelectedCard] = useState<any>(null);
@@ -63,33 +61,12 @@ const CardLibrary = () => {
     colors: filterState.colorFilters || [],
     rarities: filterState.rarityFilters || [],
     parallels: filterState.parallelFilters || [],
-    set: filterState.selectedSet ?? null,
+    set: filterState.selectedSet || null,
   });
 
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, activeFilters]);
-
-  const usedSetIds = useMemo(() => {
-    return Array.from(new Set(cards.map(card => card.set).filter(Boolean)));
-  }, [cards]);
-
-  const usedSets = useMemo(() => {
-    if (!sets || sets.length === 0) return [];
-    
-    const setMap = new Map(sets.map(set => [String(set.id), set]));
-    
-    return usedSetIds
-      .filter(setId => setMap.has(String(setId)))
-      .map(setId => {
-        const set = setMap.get(String(setId));
-        return {
-          id: String(setId),
-          name: set?.name || 'Unknown Set',
-          label: `${setId} - ${set?.name || 'Unknown Set'}`,
-        };
-      });
-  }, [sets, usedSetIds]);
 
   const availableSets = Array.from(new Set(cards.map(card => card.set)));
   const allCards = cards;
@@ -188,10 +165,9 @@ const CardLibrary = () => {
     activeFilters.set !== null ||
     searchQuery.length > 0;
 
-  console.log("Sets dropdown:", {
-    usedSetIds,
-    usedSets,
-    sets
+  console.log("Parallel filters:", {
+    uniqueParallels,
+    activeParallels: activeFilters.parallels,
   });
 
   return (
@@ -212,13 +188,13 @@ const CardLibrary = () => {
             value={activeFilters.set || "all"}
             onValueChange={(value) => handleSetChange(value === "all" ? null : value)}
           >
-            <SelectTrigger className="w-[220px]">
+            <SelectTrigger className="w-[200px]">
               <SelectValue placeholder={t('selectSet')} />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{t('allSets')}</SelectItem>
-              {usedSets.map(set => (
-                <SelectItem key={set.id} value={set.id}>{set.label}</SelectItem>
+              {availableSets.map(set => (
+                <SelectItem key={set} value={set}>{set}</SelectItem>
               ))}
             </SelectContent>
           </Select>
