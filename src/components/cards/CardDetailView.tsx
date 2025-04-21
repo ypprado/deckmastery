@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Card as CardType } from '@/hooks/use-decks';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -191,7 +191,37 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
   
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl p-0 overflow-hidden">
+      <DialogContent
+        aria-describedby="card-dialog-description"
+        className="max-w-4xl p-0 overflow-visible"
+      >
+        {hasPreviousCard && (
+          <Button
+            variant="secondary"
+            size="icon"
+            className="absolute left-0 -translate-x-1/2 top-1/2 -translate-y-1/2 opacity-80 hover:opacity-100 z-20"
+            onClick={(e) => {
+              e.stopPropagation();
+              onPreviousCard?.();
+            }}
+          >
+            <ChevronLeft className="h-6 w-6" />
+          </Button>
+        )}
+      
+        {hasNextCard && (
+          <Button
+            variant="secondary"
+            size="icon"
+            className="absolute right-0 translate-x-1/2 top-1/2 -translate-y-1/2 opacity-80 hover:opacity-100 z-20"
+            onClick={(e) => {
+              e.stopPropagation();
+              onNextCard?.();
+            }}
+          >
+            <ChevronRight className="h-6 w-6" />
+          </Button>
+        )}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
           <div className="p-6 flex items-center justify-center bg-gradient-to-br from-background to-muted/50 relative">
             <div className="relative aspect-[3/4] max-h-[500px] w-auto shadow-xl rounded-lg overflow-hidden">
@@ -201,39 +231,14 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
                 className="w-full h-full object-cover"
               />
             </div>
-            
-            {hasPreviousCard && (
-              <Button
-                variant="secondary"
-                size="icon"
-                className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-6 opacity-80 hover:opacity-100 z-10"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onPreviousCard?.();
-                }}
-              >
-                <ChevronLeft className="h-6 w-6" />
-              </Button>
-            )}
-            
-            {hasNextCard && (
-              <Button
-                variant="secondary"
-                size="icon"
-                className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-6 opacity-80 hover:opacity-100 z-10"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onNextCard?.();
-                }}
-              >
-                <ChevronRight className="h-6 w-6" />
-              </Button>
-            )}
           </div>
           
           <div className="flex flex-col h-full p-6">
             <DialogHeader>
               <DialogTitle className="text-2xl">{displayCard.name}</DialogTitle>
+              <DialogDescription id="card-dialog-description" className="sr-only">
+                {t('cardDetails') ?? 'Card details dialog'}
+              </DialogDescription>
               <div className="flex flex-wrap gap-2 mt-2">
                 {colors.map((color: string) => (
                   <Badge key={color} className={colorMap[color]}>
