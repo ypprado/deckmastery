@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCards } from '@/hooks/use-decks';
@@ -7,6 +8,7 @@ import CardGrid from '@/components/card-library/CardGrid';
 import CardList from '@/components/card-library/CardList';
 import CardLibraryHeader from '@/components/card-library/CardLibraryHeader';
 import CardPagination from '@/components/card-library/CardPagination';
+import { useCardDatabase } from '@/hooks/use-card-database';
 
 const CARDS_PER_PAGE = 20;
 const PARALLEL_TYPES = [
@@ -36,6 +38,7 @@ const colorNames: Record<string, string> = {
 
 const CardLibrary = () => {
   const { cards, loading, searchCards, filterCards, activeGameCategory, saveFilterState, getCurrentFilterState } = useCards();
+  const { sets } = useCardDatabase();
   const { t } = useLanguage();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedCard, setSelectedCard] = useState<any>(null);
@@ -60,16 +63,18 @@ const CardLibrary = () => {
     setCurrentPage(1);
   }, [searchQuery, activeFilters]);
 
-  const uniqueColors = Array.from(new Set(cards.flatMap(card => card.colors)));
-  const uniqueRarities = Array.from(new Set(cards.map(card => card.rarity)));
-  const uniqueParallels = PARALLEL_TYPES;
-
+  // Get unique sets from cards and match with set names
   const availableSets = Array.from(
-    new Set(cards.map(card => card.set))
-  ).filter(Boolean).map(setId => ({
-    id: String(setId),
-    name: setId
-  }));
+    new Set(cards.map(card => card.groupid_tcg))
+  )
+  .filter((setId): setId is number => setId !== null && setId !== undefined)
+  .map(setId => {
+    const setInfo = sets.find(set => set.id === setId);
+    return {
+      id: String(setId),
+      name: setInfo ? setInfo.name : String(setId)
+    };
+  });
 
   const handleSetChange = (value: string | null) => {
     setActiveFilters(prev => ({
@@ -106,7 +111,7 @@ const CardLibrary = () => {
     ? searchCards(searchQuery)
     : cards
   ).filter(card => {
-    if (activeFilters.set && String(card.set) !== activeFilters.set) {
+    if (activeFilters.set && String(card.groupid_tcg) !== activeFilters.set) {
       return false;
     }
     
@@ -175,9 +180,9 @@ const CardLibrary = () => {
         />
 
         <CardFilters
-          uniqueColors={uniqueColors}
-          uniqueRarities={uniqueRarities}
-          uniqueParallels={uniqueParallels}
+          uniqueColors={Array.from(new Set(cards.flatMap(card => card.colors)))}
+          uniqueRarities={Array.from(new Set(cards.map(card => card.rarity)))}
+          uniqueParallels={PARALLEL_TYPES}
           activeFilters={activeFilters}
           toggleFilter={toggleFilter}
           clearFilters={clearFilters}
