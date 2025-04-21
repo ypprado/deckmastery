@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useMemo } from 'react';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -71,21 +70,25 @@ const CardLibrary = () => {
     setCurrentPage(1);
   }, [searchQuery, activeFilters]);
 
-  // Convert all used set ids to string, since sets id is number but Select expects string values
   const usedSetIds = useMemo(() => {
-    return Array.from(new Set(cards.map(card => card.set).filter(Boolean))).map(String);
+    return Array.from(new Set(cards.map(card => card.set).filter(Boolean)));
   }, [cards]);
 
-  // Filter sets to only sets in use and prepare label with string id
   const usedSets = useMemo(() => {
     if (!sets || sets.length === 0) return [];
-    return sets
-      .filter(set => usedSetIds.includes(String(set.id)))
-      .map(set => ({
-        id: String(set.id),  // convert to string for Select value
-        name: set.name,
-        label: `${set.id} - ${set.name}`,
-      }));
+    
+    const setMap = new Map(sets.map(set => [String(set.id), set]));
+    
+    return usedSetIds
+      .filter(setId => setMap.has(String(setId)))
+      .map(setId => {
+        const set = setMap.get(String(setId));
+        return {
+          id: String(setId),
+          name: set?.name || 'Unknown Set',
+          label: `${setId} - ${set?.name || 'Unknown Set'}`,
+        };
+      });
   }, [sets, usedSetIds]);
 
   const availableSets = Array.from(new Set(cards.map(card => card.set)));
@@ -185,9 +188,10 @@ const CardLibrary = () => {
     activeFilters.set !== null ||
     searchQuery.length > 0;
 
-  console.log("Parallel filters:", {
-    uniqueParallels,
-    activeParallels: activeFilters.parallels,
+  console.log("Sets dropdown:", {
+    usedSetIds,
+    usedSets,
+    sets
   });
 
   return (
@@ -359,4 +363,3 @@ const CardLibrary = () => {
 };
 
 export default CardLibrary;
-
