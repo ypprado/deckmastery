@@ -144,11 +144,16 @@ const CardLibrary = () => {
 
   const applyAdvancedFilters = (cardsArr: any[]) => {
     return cardsArr.filter(card => {
-      if (activeFilters.category && card.category) {
-        if (String(card.category) !== activeFilters.category) return false;
-      } else if (activeFilters.category && !card.category) {
-        return false;
+      if (activeFilters.category) {
+        if (!card.category || String(card.category).toLowerCase() !== activeFilters.category.toLowerCase()) {
+          return false;
+        }
       }
+      
+      if (card.name === 'Kouzuki Oden') {
+        console.log('Card category:', card.category);
+      }
+      console.log('🔍 Active category filter:', activeFilters.category);
       
       if (activeFilters.cost !== null && activeFilters.cost !== undefined) {
         const filterCost = Number(activeFilters.cost);
