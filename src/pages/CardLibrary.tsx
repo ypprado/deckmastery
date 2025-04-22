@@ -18,7 +18,7 @@ const PARALLEL_TYPES = [
 
 const colorMap: Record<string, string> = {
   white: 'bg-amber-100 text-amber-800 dark:bg-amber-800 dark:text-amber-100',
-  blue: 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100',
+  blue: 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-800',
   black: 'bg-gray-700 text-white dark:bg-gray-900 dark:text-gray-100',
   red: 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100',
   green: 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100',
@@ -44,7 +44,7 @@ const CardLibrary = () => {
   const [selectedCard, setSelectedCard] = useState<any>(null);
   const [isDetailOpen, setIsDetailOpen] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  
+
   const filterState = getCurrentFilterState();
   const [searchQuery, setSearchQuery] = useState<string>(filterState.searchQuery || '');
   const [activeFilters, setActiveFilters] = useState<{
@@ -52,11 +52,23 @@ const CardLibrary = () => {
     rarities: string[];
     parallels: string[];
     set: string | null;
+    category?: string | null;
+    cost?: string | null;
+    power?: string | null;
+    life?: string | null;
+    counter?: string | null;
+    attribute?: string | null;
   }>({
     colors: filterState.colorFilters || [],
     rarities: filterState.rarityFilters || [],
     parallels: filterState.parallelFilters || [],
     set: filterState.selectedSet || null,
+    category: null,
+    cost: null,
+    power: null,
+    life: null,
+    counter: null,
+    attribute: null,
   });
 
   useEffect(() => {
@@ -70,7 +82,7 @@ const CardLibrary = () => {
   .map(setId => {
     const setIdNumber = parseInt(setId);
     const setInfo = !isNaN(setIdNumber) ? sets.find(set => set.id === setIdNumber) : null;
-    
+
     return {
       id: setId,
       name: setInfo ? setInfo.name : setId
@@ -99,7 +111,13 @@ const CardLibrary = () => {
       colors: [],
       rarities: [],
       parallels: [],
-      set: null
+      set: null,
+      category: null,
+      cost: null,
+      power: null,
+      life: null,
+      counter: null,
+      attribute: null,
     });
     setSearchQuery('');
   };
@@ -124,34 +142,44 @@ const CardLibrary = () => {
     }
   };
 
-  const filteredCards = (searchQuery 
-    ? searchCards(searchQuery)
-    : cards
-  ).filter(card => {
-    if (activeFilters.set && String(card.set) !== activeFilters.set) {
-      return false;
-    }
-    
-    if (activeFilters.colors.length > 0) {
-      if (!card.colors || !activeFilters.colors.some(color => card.colors.includes(color))) {
+  const applyAdvancedFilters = (cardsArr: any[]) => {
+    return cardsArr.filter(card => {
+      if (activeFilters.category && String(card.category) !== activeFilters.category) return false;
+      if (activeFilters.cost && String(card.cost) !== String(activeFilters.cost)) return false;
+      if (activeFilters.power && String(card.power) !== String(activeFilters.power)) return false;
+      if (activeFilters.life && String(card.life) !== String(activeFilters.life)) return false;
+      if (activeFilters.counter && String(card.counter) !== String(activeFilters.counter)) return false;
+      if (activeFilters.attribute && (!Array.isArray(card.attribute) || !card.attribute.includes(activeFilters.attribute))) return false;
+      return true;
+    });
+  };
+
+  const filteredCards = applyAdvancedFilters(
+    (searchQuery 
+      ? searchCards(searchQuery)
+      : cards
+    ).filter(card => {
+      if (activeFilters.set && String(card.set) !== activeFilters.set) {
         return false;
       }
-    }
-    
-    if (activeFilters.rarities.length > 0) {
-      if (!card.rarity || !activeFilters.rarities.includes(card.rarity)) {
-        return false;
+      if (activeFilters.colors.length > 0) {
+        if (!card.colors || !activeFilters.colors.some(color => card.colors.includes(color))) {
+          return false;
+        }
       }
-    }
-    
-    if (activeFilters.parallels.length > 0) {
-      if (!card.parallel || !card.parallel.some(p => activeFilters.parallels.includes(p))) {
-        return false;
+      if (activeFilters.rarities.length > 0) {
+        if (!card.rarity || !activeFilters.rarities.includes(card.rarity)) {
+          return false;
+        }
       }
-    }
-    
-    return true;
-  });
+      if (activeFilters.parallels.length > 0) {
+        if (!card.parallel || !card.parallel.some(p => activeFilters.parallels.includes(p))) {
+          return false;
+        }
+      }
+      return true;
+    })
+  );
 
   const totalPages = Math.ceil(filteredCards.length / CARDS_PER_PAGE);
   const startIndex = (currentPage - 1) * CARDS_PER_PAGE;
@@ -166,7 +194,15 @@ const CardLibrary = () => {
     activeFilters.rarities.length > 0 ||
     activeFilters.parallels.length > 0 ||
     activeFilters.set !== null ||
-    searchQuery.length > 0;
+    searchQuery.length > 0 ||
+    !!(activeFilters.category || activeFilters.cost || activeFilters.power || activeFilters.life || activeFilters.counter || activeFilters.attribute);
+
+  const handleAdvancedChange = (type: string, value: string | null) => {
+    setActiveFilters(prev => ({
+      ...prev,
+      [type]: value
+    }));
+  };
 
   if (loading) {
     return (
@@ -198,6 +234,7 @@ const CardLibrary = () => {
           isAnyFilterActive={isAnyFilterActive}
           colorMap={colorMap}
           colorNames={colorNames}
+          onAdvancedChange={handleAdvancedChange}
         />
   
         <CardGridSkeleton />
@@ -235,6 +272,7 @@ const CardLibrary = () => {
           isAnyFilterActive={isAnyFilterActive}
           colorMap={colorMap}
           colorNames={colorNames}
+          onAdvancedChange={handleAdvancedChange}
         />
 
         <div className="flex justify-between items-center my-4">
