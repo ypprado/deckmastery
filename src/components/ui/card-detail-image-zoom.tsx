@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -9,9 +8,6 @@ interface CardDetailImageZoomProps {
   alt: string;
   className?: string;
 }
-
-// Size for the zoom pop-up
-const ZOOM_SIZE = 320;
 
 const CardDetailImageZoom: React.FC<CardDetailImageZoomProps> = ({
   src,
@@ -29,7 +25,6 @@ const CardDetailImageZoom: React.FC<CardDetailImageZoomProps> = ({
     }
   }, [isMobile, showZoom]);
 
-  // If mobile, show image only without zoom
   if (isMobile) {
     return (
       <div className={className}>
@@ -43,7 +38,6 @@ const CardDetailImageZoom: React.FC<CardDetailImageZoomProps> = ({
     );
   }
 
-  // Find or fallback portal node
   let portalNode: HTMLElement = document.body;
   if (typeof window !== "undefined") {
     const elem = document.getElementById("zoom-portal-root");
@@ -53,7 +47,6 @@ const CardDetailImageZoom: React.FC<CardDetailImageZoomProps> = ({
   function getZoomPosition(e: React.MouseEvent) {
     const rect = imageRef.current?.getBoundingClientRect();
     if (!rect) return { x: 100, y: 100 };
-    // Try to place zoom right of card, else left
     let x = rect.right + 20;
     let y = rect.top + (rect.height - ZOOM_SIZE) / 2;
     const windowWidth = window.innerWidth;
@@ -61,7 +54,6 @@ const CardDetailImageZoom: React.FC<CardDetailImageZoomProps> = ({
       x = rect.left - ZOOM_SIZE - 20;
       if (x < 0) x = windowWidth - ZOOM_SIZE - 20;
     }
-    // Clamp Y if overflowing
     y = Math.max(y, 16);
     if (y + ZOOM_SIZE > window.innerHeight) {
       y = window.innerHeight - ZOOM_SIZE - 16;

@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 import { Database } from '@/integrations/supabase/types';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { CardDetailImageZoom } from '@/components/ui/card-detail-image-zoom';
+import CardDetailImageZoom from '@/components/ui/card-detail-image-zoom';
 
 interface CardDetailViewProps {
   card: CardType | null;
