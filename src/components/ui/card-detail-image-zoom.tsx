@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -8,6 +9,9 @@ interface CardDetailImageZoomProps {
   alt: string;
   className?: string;
 }
+
+// Restore the ZOOM_SIZE constant
+const ZOOM_SIZE = 320;
 
 const CardDetailImageZoom: React.FC<CardDetailImageZoomProps> = ({
   src,
