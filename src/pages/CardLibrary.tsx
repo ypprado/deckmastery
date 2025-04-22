@@ -8,6 +8,7 @@ import CardList from '@/components/card-library/CardList';
 import CardLibraryHeader from '@/components/card-library/CardLibraryHeader';
 import CardPagination from '@/components/card-library/CardPagination';
 import { useCardDatabase } from '@/hooks/use-card-database';
+import CardGridSkeleton from '@/components/card-library/CardGridSkeleton';
 
 const CARDS_PER_PAGE = 20;
 const PARALLEL_TYPES = [
@@ -169,11 +170,8 @@ const CardLibrary = () => {
 
   if (loading) {
     return (
-      <div className="mt-8 flex justify-center">
-        <div className="flex flex-col items-center">
-          <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-          <p className="mt-4 text-sm text-muted-foreground">{t('loading')}</p>
-        </div>
+      <div className="mt-8">
+        <CardGridSkeleton />
       </div>
     );
   }
