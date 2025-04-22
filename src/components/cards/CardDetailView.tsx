@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { Database } from '@/integrations/supabase/types';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { CardDetailImageZoom } from '@/components/ui/card-detail-image-zoom';
 
 interface CardDetailViewProps {
   card: CardType | null;
@@ -189,6 +190,8 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
     return String(attributes);
   };
   
+  const cardImageUrl = getCardImageUrl(displayCard);
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent
@@ -225,10 +228,10 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
           <div className="p-6 flex items-center justify-center bg-gradient-to-br from-background to-muted/50 relative">
             <div className="relative aspect-[3/4] max-h-[500px] w-auto shadow-xl rounded-lg overflow-hidden">
-              <img
-                src={getCardImageUrl(displayCard)}
+              <CardDetailImageZoom
+                src={cardImageUrl}
                 alt={displayCard.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full"
               />
             </div>
           </div>
