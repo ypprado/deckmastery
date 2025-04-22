@@ -104,22 +104,22 @@ const CardLibrary = () => {
   };
 
   const handleCardClick = (card: any) => {
-    const cardIndex = filteredCards.findIndex(c => c.id === card.id);
+    const cardIndex = sortedCards.findIndex(c => c.id === card.id);
     setSelectedCard(card);
     setIsDetailOpen(true);
   };
 
   const handleNextCard = () => {
-    const currentIndex = filteredCards.findIndex(card => card.id === selectedCard?.id);
-    if (currentIndex < filteredCards.length - 1) {
-      setSelectedCard(filteredCards[currentIndex + 1]);
+    const currentIndex = sortedCards.findIndex(card => card.id === selectedCard?.id);
+    if (currentIndex < sortedCards.length - 1) {
+      setSelectedCard(sortedCards[currentIndex + 1]);
     }
   };
 
   const handlePreviousCard = () => {
-    const currentIndex = filteredCards.findIndex(card => card.id === selectedCard?.id);
+    const currentIndex = sortedCards.findIndex(card => card.id === selectedCard?.id);
     if (currentIndex > 0) {
-      setSelectedCard(filteredCards[currentIndex - 1]);
+      setSelectedCard(sortedCards[currentIndex - 1]);
     }
   };
 
@@ -243,8 +243,8 @@ const CardLibrary = () => {
         onOpenChange={setIsDetailOpen}
         onNextCard={handleNextCard}
         onPreviousCard={handlePreviousCard}
-        hasNextCard={selectedCard ? filteredCards.findIndex(card => card.id === selectedCard.id) < filteredCards.length - 1 : false}
-        hasPreviousCard={selectedCard ? filteredCards.findIndex(card => card.id === selectedCard.id) > 0 : false}
+        hasNextCard={selectedCard ? sortedCards.findIndex(card => card.id === selectedCard.id) < sortedCards.length - 1 : false}
+        hasPreviousCard={selectedCard ? sortedCards.findIndex(card => card.id === selectedCard.id) > 0 : false}
       />
     </div>
   );
