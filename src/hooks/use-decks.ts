@@ -213,6 +213,11 @@ export const useCards = () => {
       if (card.name.toLowerCase().includes(lowerQuery)) {
         return true;
       }
+
+      // Check if card number includes query
+      if (card.card_number?.toLowerCase().includes(lowerQuery)) {
+        return true;
+      }
       
       // Check if card type includes query, handling both string and array types
       if (typeof card.type === 'string') {
