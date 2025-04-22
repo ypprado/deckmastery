@@ -219,16 +219,6 @@ export const useCards = () => {
         return true;
       }
       
-      // Check if card type includes query, handling both string and array types
-      if (typeof card.type === 'string') {
-        return card.type.toLowerCase().includes(lowerQuery);
-      } else if (Array.isArray(card.type)) {
-        // For array types, check if any type includes the query
-        return card.type.some(t => 
-          typeof t === 'string' && t.toLowerCase().includes(lowerQuery)
-        );
-      }
-      
       return false;
     });
   };
