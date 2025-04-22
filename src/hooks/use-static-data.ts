@@ -96,7 +96,8 @@ export const useStaticData = (options: StaticDataOptions = {}) => {
           gameCategory: card.game_category,
           card_number_liga: card.card_number_liga,
           attribute: card.attribute as AttributeType[] || [],
-          parallel: card.parallel || [] // Add parallel to the mapped data
+          parallel: card.parallel || [], // Add parallel to the mapped data
+          card_number: card.card_number
         };
       }) || [];
       

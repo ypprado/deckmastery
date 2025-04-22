@@ -74,7 +74,8 @@ const CardLibrary = () => {
       id: setId,
       name: setInfo ? setInfo.name : setId
     };
-  });
+  })
+  .sort((a, b) => a.name.localeCompare(b.name));
 
   const handleSetChange = (value: string | null) => {
     setActiveFilters(prev => ({
@@ -154,7 +155,10 @@ const CardLibrary = () => {
   const totalPages = Math.ceil(filteredCards.length / CARDS_PER_PAGE);
   const startIndex = (currentPage - 1) * CARDS_PER_PAGE;
   const endIndex = startIndex + CARDS_PER_PAGE;
-  const paginatedCards = filteredCards.slice(startIndex, endIndex);
+  const sortedCards = [...filteredCards].sort((a, b) =>
+    (a.card_number || '').localeCompare(b.card_number || '')
+  );
+  const paginatedCards = sortedCards.slice(startIndex, endIndex);
 
   const isAnyFilterActive = 
     activeFilters.colors.length > 0 || 

@@ -20,6 +20,7 @@ export interface Card {
   legality?: string[];
   price?: number;
   parallel?: string[];
+  card_number?: string;
 }
 
 export interface Deck {
@@ -173,7 +174,7 @@ export const useCards = () => {
     yugioh: { searchQuery: '', colorFilters: [], typeFilters: [], rarityFilters: [], parallelFilters: [], selectedSet: null },
     onepiece: { searchQuery: '', colorFilters: [], typeFilters: [], rarityFilters: [], parallelFilters: [], selectedSet: null },
   });
-
+  
   useEffect(() => {
     // Load active game category from localStorage or use default
     const storedCategory = localStorage.getItem('activeGameCategory') as GameCategory;
