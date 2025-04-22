@@ -150,11 +150,6 @@ const CardLibrary = () => {
         }
       }
       
-      if (card.name === 'Kouzuki Oden') {
-        console.log('Card category:', card.category);
-      }
-      console.log('🔍 Active category filter:', activeFilters.category);
-      
       if (activeFilters.cost !== null && activeFilters.cost !== undefined) {
         const filterCost = Number(activeFilters.cost);
         const cardCost = Number(card.cost);
