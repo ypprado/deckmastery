@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { CardDetails } from '@/types/cardDatabase';
 import { useStaticData } from './use-static-data';
@@ -29,10 +28,17 @@ export const useCards = (initialCards: CardDetails[] = []) => {
     setCards(staticCards);
   }, [staticCards]);
 
+  // Modify the searchCards to also search by card_number.
   const searchCards = (term: string) => {
     setSearchTerm(term);
     const lowerTerm = term.toLowerCase();
-    return staticCards.filter(card => card.name.toLowerCase().includes(lowerTerm));
+    return staticCards.filter(card => {
+      const nameMatches = card.name.toLowerCase().includes(lowerTerm);
+      const cardNumberMatches = card.card_number 
+        ? card.card_number.toLowerCase().includes(lowerTerm)
+        : false;
+      return nameMatches || cardNumberMatches;
+    });
   };
 
   const filterCards = (filters: FilterOptions) => {

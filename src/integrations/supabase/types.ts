@@ -150,6 +150,7 @@ export type Database = {
           price_min_liga: number | null
           price_min_tcg: number | null
           recorded_at: string
+          source: string
         }
         Insert: {
           card_id: number
@@ -162,6 +163,7 @@ export type Database = {
           price_min_liga?: number | null
           price_min_tcg?: number | null
           recorded_at?: string
+          source?: string
         }
         Update: {
           card_id?: number
@@ -174,6 +176,7 @@ export type Database = {
           price_min_liga?: number | null
           price_min_tcg?: number | null
           recorded_at?: string
+          source?: string
         }
         Relationships: [
           {
