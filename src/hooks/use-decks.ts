@@ -182,8 +182,14 @@ export const useCards = () => {
       setActiveGameCategory(storedCategory);
       staticChangeGameCategory(storedCategory);
     }
-    setLoading(false);
   }, [staticChangeGameCategory]);
+
+  useEffect(() => {
+    // When staticCards are loaded (non-empty), mark loading as false
+    if (staticCards.length > 0) {
+      setLoading(false);
+    }
+  }, [staticCards]);
 
   // Keep the game categories in sync
   useEffect(() => {

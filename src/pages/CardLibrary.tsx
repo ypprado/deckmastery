@@ -9,8 +9,8 @@ import CardLibraryHeader from '@/components/card-library/CardLibraryHeader';
 import CardPagination from '@/components/card-library/CardPagination';
 import { useCardDatabase } from '@/hooks/use-card-database';
 import CardGridSkeleton from '@/components/card-library/CardGridSkeleton';
+import { CARDS_PER_PAGE } from '../lib/constants';
 
-const CARDS_PER_PAGE = 20;
 const PARALLEL_TYPES = [
   "Alternate Art", "Manga Art", "Parallel Art", "Box Topper", "Wanted Poster",
   "SP", "TR", "Jolly Roger Foil", "Reprint", "Full Art"
@@ -170,7 +170,36 @@ const CardLibrary = () => {
 
   if (loading) {
     return (
-      <div className="mt-8">
+      <div className="space-y-8">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">{t('cardLibrary')}</h1>
+          <p className="text-muted-foreground mt-1">
+            {t('browseSearchCards')}
+          </p>
+        </div>
+  
+        <CardLibraryHeader
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          selectedSet={activeFilters.set}
+          onSetChange={handleSetChange}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
+          availableSets={availableSets}
+        />
+  
+        <CardFilters
+          uniqueColors={Array.from(new Set(cards.flatMap(card => card.colors)))}
+          uniqueRarities={Array.from(new Set(cards.map(card => card.rarity)))}
+          uniqueParallels={PARALLEL_TYPES}
+          activeFilters={activeFilters}
+          toggleFilter={toggleFilter}
+          clearFilters={clearFilters}
+          isAnyFilterActive={isAnyFilterActive}
+          colorMap={colorMap}
+          colorNames={colorNames}
+        />
+  
         <CardGridSkeleton />
       </div>
     );

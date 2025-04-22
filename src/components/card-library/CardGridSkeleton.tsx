@@ -1,7 +1,5 @@
-
 import { Skeleton } from "@/components/ui/skeleton";
-
-const CARD_SKELETON_COUNT = 12; // adjust as needed for first-load
+import { CARDS_PER_PAGE as CARD_SKELETON_COUNT } from '../../lib/constants';
 
 const CardGridSkeleton = () => {
   return (
