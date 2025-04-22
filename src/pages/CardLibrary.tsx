@@ -144,12 +144,42 @@ const CardLibrary = () => {
 
   const applyAdvancedFilters = (cardsArr: any[]) => {
     return cardsArr.filter(card => {
-      if (activeFilters.category && String(card.category) !== activeFilters.category) return false;
-      if (activeFilters.cost && String(card.cost) !== String(activeFilters.cost)) return false;
-      if (activeFilters.power && String(card.power) !== String(activeFilters.power)) return false;
-      if (activeFilters.life && String(card.life) !== String(activeFilters.life)) return false;
-      if (activeFilters.counter && String(card.counter) !== String(activeFilters.counter)) return false;
-      if (activeFilters.attribute && (!Array.isArray(card.attribute) || !card.attribute.includes(activeFilters.attribute))) return false;
+      if (activeFilters.category && card.category) {
+        if (String(card.category) !== activeFilters.category) return false;
+      } else if (activeFilters.category && !card.category) {
+        return false;
+      }
+      
+      if (activeFilters.cost !== null && activeFilters.cost !== undefined) {
+        const filterCost = Number(activeFilters.cost);
+        const cardCost = Number(card.cost);
+        if (isNaN(cardCost) || cardCost !== filterCost) return false;
+      }
+      
+      if (activeFilters.power !== null && activeFilters.power !== undefined) {
+        const filterPower = Number(activeFilters.power);
+        const cardPower = Number(card.power);
+        if (isNaN(cardPower) || cardPower !== filterPower) return false;
+      }
+      
+      if (activeFilters.life !== null && activeFilters.life !== undefined) {
+        const filterLife = Number(activeFilters.life);
+        const cardLife = Number(card.life);
+        if (isNaN(cardLife) || cardLife !== filterLife) return false;
+      }
+      
+      if (activeFilters.counter !== null && activeFilters.counter !== undefined) {
+        const filterCounter = Number(activeFilters.counter);
+        const cardCounter = Number(card.counter);
+        if (isNaN(cardCounter) || cardCounter !== filterCounter) return false;
+      }
+      
+      if (activeFilters.attribute) {
+        if (!Array.isArray(card.attribute) || !card.attribute.includes(activeFilters.attribute)) {
+          return false;
+        }
+      }
+      
       return true;
     });
   };
