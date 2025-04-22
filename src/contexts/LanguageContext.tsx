@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState } from 'react';
 
 export type Language = 'en' | 'fr' | 'es' | 'pt';
@@ -57,6 +56,15 @@ export interface Translations {
   allSets: string;
   loading: string;
   cardDetails: string;
+  // New advanced filter translations
+  category: string;
+  power: string;
+  life: string;
+  counter: string;
+  attribute: string;
+  all: string;
+  any: string;
+  advancedFilters: string;
   // Dashboard translations
   yourDecks: string;
   manageCreateDecks: string;
@@ -166,6 +174,15 @@ const defaultTranslations: Record<string, Translations> = {
     selectSet: 'Select set',
     allSets: 'All Sets',
     cardDetails: 'Card details',
+    // New advanced filter translations
+    category: 'Category',
+    power: 'Power',
+    life: 'Life',
+    counter: 'Counter',
+    attribute: 'Attribute',
+    all: 'All',
+    any: 'Any',
+    advancedFilters: 'Advanced',
     // Dashboard translations
     yourDecks: 'Your Decks',
     manageCreateDecks: 'Manage your existing decks or create new ones.',
@@ -273,6 +290,15 @@ const defaultTranslations: Record<string, Translations> = {
     selectSet: 'Sélectionner une série',
     allSets: 'Toutes les séries',
     cardDetails: 'Détails de la carte',
+    // New advanced filter translations
+    category: 'Catégorie',
+    power: 'Puissance',
+    life: 'Vie',
+    counter: 'Contre',
+    attribute: 'Attribut',
+    all: 'Tous',
+    any: 'N\'importe',
+    advancedFilters: 'Avancé',
     // Dashboard translations
     yourDecks: 'Vos Decks',
     manageCreateDecks: 'Gérez vos decks existants ou créez-en de nouveaux.',
@@ -380,6 +406,15 @@ const defaultTranslations: Record<string, Translations> = {
     selectSet: 'Seleccionar set',
     allSets: 'Todos los sets',
     cardDetails: 'Detalles de la carta',
+    // New advanced filter translations
+    category: 'Categoría',
+    power: 'Poder',
+    life: 'Vida',
+    counter: 'Contador',
+    attribute: 'Atributo',
+    all: 'Todos',
+    any: 'Cualquiera',
+    advancedFilters: 'Avanzado',
     // Dashboard translations
     yourDecks: 'Tus Mazos',
     manageCreateDecks: 'Administra tus mazos existentes o crea nuevos.',
@@ -487,6 +522,15 @@ const defaultTranslations: Record<string, Translations> = {
     selectSet: 'Selecionar conjunto',
     allSets: 'Todos os Conjuntos',
     cardDetails: 'Detalhes da carta',
+    // New advanced filter translations
+    category: 'Categoria',
+    power: 'Poder',
+    life: 'Vida',
+    counter: 'Contador',
+    attribute: 'Atributo',
+    all: 'Todos',
+    any: 'Qualquer',
+    advancedFilters: 'Avançado',
     // Dashboard translations
     yourDecks: 'Seus Decks',
     manageCreateDecks: 'Gerencie seus decks existentes ou crie novos.',
