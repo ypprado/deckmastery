@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { Card as CardType } from '@/hooks/use-decks';
 import { useLanguage } from '@/contexts/LanguageContext';
-import CardImageZoom from './CardImageZoom';
 
 interface CardGridProps {
   cards: CardType[];
@@ -22,7 +21,7 @@ const CardGrid = ({ cards, onCardClick }: CardGridProps) => {
           className="overflow-hidden card-hover relative group transition-all duration-300 cursor-pointer"
           onClick={() => onCardClick(card)}
         >
-          <CardImageZoom
+          <img
             src={card.imageUrl}
             alt={card.name}
             className="aspect-[3/4] overflow-hidden card-tilt"
