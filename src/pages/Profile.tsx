@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +10,7 @@ import { Pencil, Share2, UserPlus, UserMinus } from "lucide-react";
 import { ProfileComments } from "@/components/profile/ProfileComments";
 import { ProfileStats } from "@/components/profile/ProfileStats";
 import { EditProfileDialog } from "@/components/profile/EditProfileDialog";
+import LoadingFallback from "@/components/shared/LoadingFallback";
 
 interface ProfileData {
   id: string;
@@ -26,6 +28,8 @@ export default function Profile() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
   const [followerCount, setFollowerCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -38,22 +42,35 @@ export default function Profile() {
   const fetchProfile = async () => {
     if (!user) return;
     
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', user.id)
-      .single();
-      
-    if (error) {
-      toast({
-        title: "Error fetching profile",
-        description: error.message,
-        variant: "destructive",
-      });
-      return;
-    }
+    setLoading(true);
+    console.log("Fetching profile for user ID:", user.id);
     
-    setProfile(data);
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+        
+      if (error) {
+        console.error("Error fetching profile:", error);
+        setError(error.message);
+        toast({
+          title: "Error fetching profile",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      console.log("Profile data:", data);
+      setProfile(data);
+    } catch (err) {
+      console.error("Exception in profile fetch:", err);
+      setError("An unexpected error occurred");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const checkFollowStatus = async () => {
@@ -109,7 +126,28 @@ export default function Profile() {
     }
   };
 
-  if (!profile) return null;
+  if (loading) {
+    return <LoadingFallback />;
+  }
+
+  if (error || !user) {
+    return (
+      <div className="container py-8 text-center">
+        <h1 className="text-2xl font-bold mb-4">Error Loading Profile</h1>
+        <p className="text-muted-foreground mb-4">{error || "User not found"}</p>
+        <Button onClick={fetchProfile}>Retry</Button>
+      </div>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <div className="container py-8 text-center">
+        <h1 className="text-2xl font-bold mb-4">Profile Not Found</h1>
+        <p className="text-muted-foreground">Unable to load profile information</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container max-w-4xl py-8">

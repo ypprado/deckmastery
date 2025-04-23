@@ -10,12 +10,28 @@ interface ProfileStatsProps {
 export function ProfileStats({ userId }: ProfileStatsProps) {
   const [totalCards, setTotalCards] = useState(0);
   const [totalDecks, setTotalDecks] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // In a real app, fetch actual stats from the database based on userId
-    // For now using placeholder data
-    setTotalCards(150);
-    setTotalDecks(5);
+    const fetchUserStats = async () => {
+      setLoading(true);
+      console.log("Fetching stats for user ID:", userId);
+      
+      try {
+        // In a real app, fetch actual stats from the database based on userId
+        // For now using placeholder data but we're logging the userId for debugging
+        setTotalCards(150);
+        setTotalDecks(5);
+      } catch (error) {
+        console.error("Error fetching user stats:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (userId) {
+      fetchUserStats();
+    }
   }, [userId]);
 
   return (
@@ -28,11 +44,11 @@ export function ProfileStats({ userId }: ProfileStatsProps) {
           <div className="space-y-2">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Total Cards</span>
-              <span className="font-medium">{totalCards}</span>
+              <span className="font-medium">{loading ? "..." : totalCards}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Decks Created</span>
-              <span className="font-medium">{totalDecks}</span>
+              <span className="font-medium">{loading ? "..." : totalDecks}</span>
             </div>
           </div>
         </CardContent>
