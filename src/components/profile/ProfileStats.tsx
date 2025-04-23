@@ -12,7 +12,7 @@ export function ProfileStats({ userId }: ProfileStatsProps) {
   const [totalDecks, setTotalDecks] = useState(0);
 
   useEffect(() => {
-    // In a real app, fetch actual stats from the database
+    // In a real app, fetch actual stats from the database based on userId
     // For now using placeholder data
     setTotalCards(150);
     setTotalDecks(5);

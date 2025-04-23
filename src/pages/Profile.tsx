@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,6 +11,7 @@ import { ProfileStats } from "@/components/profile/ProfileStats";
 import { EditProfileDialog } from "@/components/profile/EditProfileDialog";
 
 interface ProfileData {
+  id: string;
   username: string;
   display_name: string;
   avatar_url: string | null;
@@ -114,7 +114,6 @@ export default function Profile() {
   return (
     <div className="container max-w-4xl py-8">
       <div className="bg-card rounded-lg shadow-sm border p-6">
-        {/* Profile Header */}
         <div className="flex items-start justify-between mb-6">
           <div className="flex items-center gap-4">
             <div className="relative h-20 w-20">
@@ -164,12 +163,10 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Bio */}
         {profile.bio && (
           <p className="text-muted-foreground mb-6">{profile.bio}</p>
         )}
 
-        {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <div className="bg-background rounded-lg p-4 border">
             <div className="text-sm text-muted-foreground">Member since</div>
@@ -190,14 +187,11 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Profile Stats Component */}
         <ProfileStats userId={user.id} />
 
-        {/* Comments Section */}
         <ProfileComments profileId={user.id} />
       </div>
 
-      {/* Edit Profile Dialog */}
       <EditProfileDialog
         open={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}
