@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Language, Currency, Settings, Sun, Moon } from "lucide-react";
+import { Languages, Settings, Sun, Moon } from "lucide-react"; // Changed 'Language' to 'Languages'
 import { Switch } from "@/components/ui/switch";
 
 const currencies = [
@@ -41,7 +41,7 @@ export default function PreferencesSettings() {
           <div className="space-y-4">
             <Label className="text-base">Language</Label>
             <div className="flex items-center space-x-4">
-              <Language className="w-4 h-4 text-muted-foreground" />
+              <Languages className="w-4 h-4 text-muted-foreground" /> {/* Changed from 'Language' */}
               <Select value={language} onValueChange={setLanguage}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Select language" />
@@ -95,3 +95,4 @@ export default function PreferencesSettings() {
     </div>
   );
 }
+
