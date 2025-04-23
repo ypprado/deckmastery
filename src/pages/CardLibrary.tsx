@@ -44,6 +44,7 @@ const CardLibrary = () => {
   const [selectedCard, setSelectedCard] = useState<any>(null);
   const [isDetailOpen, setIsDetailOpen] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [sortBy, setSortBy] = useState<string>('card_number');
 
   const filterState = getCurrentFilterState();
   const [searchQuery, setSearchQuery] = useState<string>(filterState.searchQuery || '');
@@ -214,9 +215,21 @@ const CardLibrary = () => {
   const totalPages = Math.ceil(filteredCards.length / CARDS_PER_PAGE);
   const startIndex = (currentPage - 1) * CARDS_PER_PAGE;
   const endIndex = startIndex + CARDS_PER_PAGE;
-  const sortedCards = [...filteredCards].sort((a, b) =>
-    (a.card_number || '').localeCompare(b.card_number || '')
-  );
+  const sortedCards = [...filteredCards].sort((a, b) => {
+    switch (sortBy) {
+      case 'name':
+        return a.name.localeCompare(b.name);
+      case 'cost':
+        return (a.cost || 0) - (b.cost || 0);
+      case 'power':
+        return (a.power || 0) - (b.power || 0);
+      case 'life':
+        return (a.life || 0) - (b.life || 0);
+      case 'card_number':
+      default:
+        return (a.card_number || '').localeCompare(b.card_number || '');
+    }
+  });
   const paginatedCards = sortedCards.slice(startIndex, endIndex);
 
   const isAnyFilterActive = 
@@ -252,6 +265,8 @@ const CardLibrary = () => {
           viewMode={viewMode}
           onViewModeChange={setViewMode}
           availableSets={availableSets}
+          sortBy={sortBy}
+          onSortChange={setSortBy}
         />
   
         <CardFilters
@@ -290,6 +305,8 @@ const CardLibrary = () => {
           viewMode={viewMode}
           onViewModeChange={setViewMode}
           availableSets={availableSets}
+          sortBy={sortBy}
+          onSortChange={setSortBy}
         />
 
         <CardFilters
