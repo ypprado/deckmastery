@@ -117,6 +117,10 @@ export interface Translations {
   newDeck: string;
   signIn: string;
   version: string;
+  // Card sorting translations
+  cardNumber: string;
+  name: string;
+  sort: string;
 }
 
 const defaultTranslations: Record<string, Translations> = {
@@ -234,7 +238,11 @@ const defaultTranslations: Record<string, Translations> = {
     pleaseSignIn: 'Please sign in to access this feature',
     newDeck: 'New Deck',
     signIn: 'Sign In',
-    version: 'Version'
+    version: 'Version',
+    // Card sorting translations
+    cardNumber: 'Card Number',
+    name: 'Name',
+    sort: 'Sort',
   },
   fr: {
     language: 'Français',
@@ -350,7 +358,11 @@ const defaultTranslations: Record<string, Translations> = {
     pleaseSignIn: 'Veuillez vous connecter pour accéder à cette fonctionnalité',
     newDeck: 'Nouveau Deck',
     signIn: 'Se Connecter',
-    version: 'Version'
+    version: 'Version',
+    // Card sorting translations
+    cardNumber: 'Numéro de Carte',
+    name: 'Nom',
+    sort: 'Trier',
   },
   es: {
     language: 'Español',
@@ -401,7 +413,7 @@ const defaultTranslations: Record<string, Translations> = {
     page: 'Página',
     selected: 'seleccionado',
     selectTypes: 'Seleccionar tipos',
-    searchTypes: 'Buscar tipos...',
+    searchTypes: 'Rechercher des types...',
     noTypesFound: 'No se encontraron tipos',
     selectSet: 'Seleccionar set',
     allSets: 'Todos los sets',
@@ -466,7 +478,11 @@ const defaultTranslations: Record<string, Translations> = {
     pleaseSignIn: 'Por favor inicia sesión para acceder a esta función',
     newDeck: 'Nuevo Mazo',
     signIn: 'Iniciar Sesión',
-    version: 'Versión'
+    version: 'Versión',
+    // Card sorting translations
+    cardNumber: 'Número de Carta',
+    name: 'Nombre',
+    sort: 'Ordenar',
   },
   pt: {
     language: 'Português',
@@ -582,7 +598,11 @@ const defaultTranslations: Record<string, Translations> = {
     pleaseSignIn: 'Por favor, entre para acessar este recurso',
     newDeck: 'Novo Deck',
     signIn: 'Entrar',
-    version: 'Versão'
+    version: 'Versão',
+    // Card sorting translations
+    cardNumber: 'Número do Cartão',
+    name: 'Nome',
+    sort: 'Ordenar',
   },
 };
 
