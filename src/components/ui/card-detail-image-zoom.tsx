@@ -11,7 +11,10 @@ interface CardDetailImageZoomProps {
 }
 
 // Restore the ZOOM_SIZE constant
-const ZOOM_SIZE = 800;
+const getDynamicZoomSize = () => {
+  const maxSize = Math.min(window.innerWidth, window.innerHeight);
+  return Math.floor(maxSize * 0.8); // 80% of screen size
+};
 
 const CardDetailImageZoom: React.FC<CardDetailImageZoomProps> = ({
   src,
@@ -20,7 +23,7 @@ const CardDetailImageZoom: React.FC<CardDetailImageZoomProps> = ({
 }) => {
   const isMobile = useIsMobile();
   const [showZoom, setShowZoom] = useState(false);
-  const [zoomPos, setZoomPos] = useState<{ x: number; y: number } | null>(null);
+  const [zoomPos, setZoomPos] = useState<{ x: number; y: number; size: number } | null>(null);
   const imageRef = useRef<HTMLDivElement | null>(null);
 
   React.useEffect(() => {
@@ -49,21 +52,23 @@ const CardDetailImageZoom: React.FC<CardDetailImageZoomProps> = ({
   }
 
   function getZoomPosition(e: React.MouseEvent) {
+    const zoomSize = getDynamicZoomSize();
     const rect = imageRef.current?.getBoundingClientRect();
-    if (!rect) return { x: 100, y: 100 };
+    if (!rect) return { x: 100, y: 100, size: getDynamicZoomSize() };
     let x = rect.right + 20;
-    let y = rect.top + (rect.height - ZOOM_SIZE) / 2;
+    let y = rect.top + (rect.height - zoomSize) / 2;
     const windowWidth = window.innerWidth;
-    if (x + ZOOM_SIZE > windowWidth) {
-      x = rect.left - ZOOM_SIZE - 20;
-      if (x < 0) x = windowWidth - ZOOM_SIZE - 20;
+    if (x + zoomSize > windowWidth) {
+      x = rect.left - zoomSize - 20;
+      if (x < 0) x = windowWidth - zoomSize - 20;
     }
     y = Math.max(y, 16);
-    if (y + ZOOM_SIZE > window.innerHeight) {
-      y = window.innerHeight - ZOOM_SIZE - 16;
+    if (y + zoomSize > window.innerHeight) {
+      y = window.innerHeight - zoomSize - 16;
     }
-    return { x, y };
+    return { x, y, size: zoomSize };
   }
+  
 
   function handleMouseEnter(e: React.MouseEvent) {
     setZoomPos(getZoomPosition(e));
@@ -106,8 +111,8 @@ const CardDetailImageZoom: React.FC<CardDetailImageZoomProps> = ({
               position: "fixed",
               left: zoomPos.x,
               top: zoomPos.y,
-              width: ZOOM_SIZE,
-              height: ZOOM_SIZE,
+              width: zoomPos.size,
+              height: zoomPos.size,
               zIndex: 1000,
               pointerEvents: "none",
               boxShadow: "none",
