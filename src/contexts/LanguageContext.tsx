@@ -600,7 +600,7 @@ const defaultTranslations: Record<string, Translations> = {
     signIn: 'Entrar',
     version: 'Versão',
     // Card sorting translations
-    cardNumber: 'Número do Cartão',
+    cardNumber: 'Número',
     name: 'Nome',
     sort: 'Ordenar',
   },
