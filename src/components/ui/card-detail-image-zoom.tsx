@@ -11,7 +11,7 @@ interface CardDetailImageZoomProps {
 }
 
 // Restore the ZOOM_SIZE constant
-const ZOOM_SIZE = 320;
+const ZOOM_SIZE = 800;
 
 const CardDetailImageZoom: React.FC<CardDetailImageZoomProps> = ({
   src,
@@ -110,12 +110,12 @@ const CardDetailImageZoom: React.FC<CardDetailImageZoomProps> = ({
               height: ZOOM_SIZE,
               zIndex: 1000,
               pointerEvents: "none",
-              boxShadow: "0 8px 30px 0 rgba(0,0,0,0.32)",
-              borderRadius: "0.75rem",
-              background: "white",
+              boxShadow: "none",
+              borderRadius: "0",
+              background: "transparent",
               overflow: "hidden"
             }}
-            className="animate-fade-in border border-gray-200 dark:border-gray-700 dark:bg-gray-900"
+            className="animate-fade-in"
           >
             <img
               src={src}
