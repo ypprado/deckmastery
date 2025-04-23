@@ -50,7 +50,7 @@ export default function Profile() {
         .from('profiles')
         .select('*')
         .eq('id', user.id)
-        .single();
+        .maybeSingle(); // Use maybeSingle instead of single
         
       if (error) {
         console.error("Error fetching profile:", error);
@@ -63,8 +63,32 @@ export default function Profile() {
         return;
       }
       
-      console.log("Profile data:", data);
-      setProfile(data);
+      // If no profile exists, create a default one
+      if (!data) {
+        const defaultProfile = {
+          id: user.id,
+          username: user.email ? user.email.split('@')[0] : 'user',
+          display_name: user.email ? user.email.split('@')[0] : 'User',
+          avatar_url: null,
+          bio: null,
+          created_at: new Date().toISOString()
+        };
+        
+        const { error: insertError } = await supabase
+          .from('profiles')
+          .insert(defaultProfile);
+        
+        if (insertError) {
+          console.error("Error creating default profile:", insertError);
+          setError(insertError.message);
+          return;
+        }
+        
+        setProfile(defaultProfile);
+      } else {
+        console.log("Profile data:", data);
+        setProfile(data);
+      }
     } catch (err) {
       console.error("Exception in profile fetch:", err);
       setError("An unexpected error occurred");
