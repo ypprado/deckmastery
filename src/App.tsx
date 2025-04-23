@@ -12,6 +12,7 @@ import PrivateRoute from "./components/auth/PrivateRoute";
 import AdminRoute from "./components/auth/AdminRoute";
 import StaticDataManager from "./pages/StaticDataManager";
 import Profile from "./pages/Profile";
+import Settings from "./pages/Settings";
 
 function App() {
   return (
@@ -56,6 +57,11 @@ function App() {
           <Route path="profile" element={
             <PrivateRoute>
               <Profile />
+            </PrivateRoute>
+          } />
+          <Route path="settings" element={
+            <PrivateRoute>
+              <Settings />
             </PrivateRoute>
           } />
           <Route path="*" element={<NotFound />} />
