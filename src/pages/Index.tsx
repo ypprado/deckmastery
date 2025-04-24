@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -17,9 +16,9 @@ const Index = () => {
       
       <div className="flex flex-col sm:flex-row gap-4 mb-10">
         {user ? (
-          <Link to="/dashboard">
+          <Link to="/mydecks">
             <Button size="lg" className="px-8">
-              {t('dashboard')}
+              {t('myDecks')}
             </Button>
           </Link>
         ) : (

@@ -1,7 +1,6 @@
-
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, Book, Settings, PlusCircle, Menu, X, Github, Moon, Sun, LogIn, ChevronDown } from "lucide-react";
+import { LayoutDashboard, Book, Settings, PlusCircle, Menu, X, Github, Moon, Sun, LogIn, ChevronDown, Cards } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
@@ -38,14 +37,12 @@ const Layout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
   useEffect(() => {
-    // Check for user preference
     const isDark = localStorage.getItem('theme') === 'dark' || !localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches;
     setIsDarkMode(isDark);
     document.documentElement.classList.toggle('dark', isDark);
   }, []);
   
   useEffect(() => {
-    // Close mobile sidebar when route changes
     setIsSidebarOpen(false);
   }, [location.pathname]);
   
@@ -73,20 +70,18 @@ const Layout = () => {
   };
   
   const navItems = [{
-    path: "/",
-    icon: <LayoutDashboard className="h-5 w-5" />,
-    label: t('dashboard')
+    path: "/mydecks",
+    icon: <Cards className="h-5 w-5" />,
+    label: t('myDecks')
   }, {
     path: "/cards",
     icon: <Book className="h-5 w-5" />,
     label: t('cardLibrary')
   }];
 
-  // Get the current game category's name
   const currentGameName = gameCategories.find(cat => cat.id === activeGameCategory)?.name || 'Magic: The Gathering';
   
   return <div className="min-h-screen flex flex-col">
-      {/* Top navigation bar */}
       <header className="sticky top-0 z-30 w-full backdrop-blur-md bg-background/80 border-b subtle-border animate-slide-down">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -105,7 +100,6 @@ const Layout = () => {
               <div className="flex items-center">
                 <span className="font-display font-semibold text-lg tracking-tight">DeckMastery</span>
                 
-                {/* Game Category Dropdown */}
                 <DropdownMenu>
                   <DropdownMenuTrigger className="flex items-center ml-1 outline-none">
                     <span className="text-xs text-muted-foreground">{currentGameName}</span>
@@ -136,7 +130,6 @@ const Layout = () => {
               {t('newDeck')}
             </Button>
             
-            {/* Language Selector */}
             <LanguageSelector />
             
             <Button variant="ghost" size="icon" onClick={toggleTheme} className="ml-2" aria-label="Toggle theme">
@@ -158,11 +151,9 @@ const Layout = () => {
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar */}
         <aside className={cn("z-20 shrink-0 border-r subtle-border bg-card/80 backdrop-blur-md w-64 md:relative md:block", isMobile && "fixed inset-y-0 left-0 transform transition-transform duration-300 ease-in-out", isMobile && !isSidebarOpen && "-translate-x-full")}>
           <div className="flex flex-col h-full pt-6 pb-4">
             <div className="flex-1 px-3 space-y-6">
-              {/* Main Nav Items */}
               <div className="space-y-1">
                 {navItems.map(item => <Link key={item.path} to={item.path} className={cn("flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors", location.pathname === item.path ? "bg-primary/10 text-primary" : "text-foreground/70 hover:text-foreground hover:bg-accent")}>
                     {item.icon}
@@ -184,7 +175,6 @@ const Layout = () => {
           </div>
         </aside>
 
-        {/* Main content */}
         <main className="flex-1 overflow-y-auto bg-background">
           <div className="container mx-auto p-4 md:p-6 animate-fade-in">
             <Outlet />
@@ -193,4 +183,5 @@ const Layout = () => {
       </div>
     </div>;
 };
+
 export default Layout;

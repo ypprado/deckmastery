@@ -1,3 +1,4 @@
+
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./components/layout/Layout";
 import Index from "./pages/Index";
@@ -22,7 +23,7 @@ function App() {
           <Route index element={<Index />} />
           <Route path="auth" element={<Auth />} />
           
-          <Route path="dashboard" element={
+          <Route path="mydecks" element={
             <PrivateRoute>
               <Dashboard />
             </PrivateRoute>
