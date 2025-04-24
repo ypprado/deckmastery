@@ -15,8 +15,8 @@ const Collection = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">{t('yourCollection')}</h1>
-        <p className="text-muted-foreground">{t('manageYourCards')}</p>
+        <h1 className="text-2xl font-bold tracking-tight">{t('collection')}</h1>
+        <p className="text-muted-foreground">{t('manageCards')}</p>
       </div>
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -31,7 +31,7 @@ const Collection = () => {
             <Card key={set.id} className="p-6">
               <h3 className="font-semibold">{set.name}</h3>
               <p className="mt-2 text-sm text-muted-foreground">
-                {collectedCards}/{totalCards} {t('cardsCollected')}
+                {collectedCards}/{totalCards} {t('cards')}
               </p>
             </Card>
           );

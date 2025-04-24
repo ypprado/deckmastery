@@ -1,6 +1,6 @@
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, Book, Settings, PlusCircle, Menu, X, Github, Moon, Sun, LogIn, ChevronDown, Library, Collection } from "lucide-react";
+import { LayoutDashboard, Book, Settings, PlusCircle, Menu, X, Github, Moon, Sun, LogIn, ChevronDown, Library, LibraryBig } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
@@ -75,8 +75,8 @@ const Layout = () => {
     label: t('yourDecks')
   }, {
     path: "/collection",
-    icon: <Collection className="h-5 w-5" />,
-    label: t('yourCollection')
+    icon: <LibraryBig className="h-5 w-5" />,
+    label: t('collection')
   }, {
     path: "/cards",
     icon: <Book className="h-5 w-5" />,
