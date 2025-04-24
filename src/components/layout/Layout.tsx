@@ -1,6 +1,6 @@
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, Book, Settings, PlusCircle, Menu, X, Github, Moon, Sun, LogIn, ChevronDown, Cards } from "lucide-react";
+import { LayoutDashboard, Book, Settings, PlusCircle, Menu, X, Github, Moon, Sun, LogIn, ChevronDown, Library } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
@@ -71,8 +71,8 @@ const Layout = () => {
   
   const navItems = [{
     path: "/mydecks",
-    icon: <Cards className="h-5 w-5" />,
-    label: t('myDecks')
+    icon: <Library className="h-5 w-5" />,
+    label: t('yourDecks')
   }, {
     path: "/cards",
     icon: <Book className="h-5 w-5" />,

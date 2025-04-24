@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -18,7 +19,7 @@ const Index = () => {
         {user ? (
           <Link to="/mydecks">
             <Button size="lg" className="px-8">
-              {t('myDecks')}
+              {t('yourDecks')}
             </Button>
           </Link>
         ) : (
