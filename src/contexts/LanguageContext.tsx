@@ -30,6 +30,7 @@ export interface Translations {
   card: string;
   cards: string;
   loadingCards: string;
+  loading: string;
   noCardsFound: string;
   adjustFilters: string;
   clearFilters: string;
@@ -54,8 +55,9 @@ export interface Translations {
   noTypesFound: string;
   selectSet: string;
   allSets: string;
-  loading: string;
   cardDetails: string;
+  collection: string;
+  manageCards: string;
   // New advanced filter translations
   category: string;
   power: string;
@@ -178,6 +180,8 @@ const defaultTranslations: Record<string, Translations> = {
     selectSet: 'Select set',
     allSets: 'All Sets',
     cardDetails: 'Card details',
+    collection: 'Collection',
+    manageCards: 'Manage and track your card collection',
     // New advanced filter translations
     category: 'Category',
     power: 'Power',
@@ -298,6 +302,8 @@ const defaultTranslations: Record<string, Translations> = {
     selectSet: 'Sélectionner une série',
     allSets: 'Toutes les séries',
     cardDetails: 'Détails de la carte',
+    collection: 'Collection',
+    manageCards: 'Gérez et suivez votre collection de cartes',
     // New advanced filter translations
     category: 'Catégorie',
     power: 'Puissance',
@@ -418,6 +424,8 @@ const defaultTranslations: Record<string, Translations> = {
     selectSet: 'Seleccionar set',
     allSets: 'Todos los sets',
     cardDetails: 'Detalles de la carta',
+    collection: 'Colección',
+    manageCards: 'Administra y rastrea tu colección de cartas',
     // New advanced filter translations
     category: 'Categoría',
     power: 'Poder',
@@ -538,6 +546,8 @@ const defaultTranslations: Record<string, Translations> = {
     selectSet: 'Selecionar conjunto',
     allSets: 'Todos os Conjuntos',
     cardDetails: 'Detalhes da carta',
+    collection: 'Coleção',
+    manageCards: 'Gerencie e acompanhe sua coleção de cartas',
     // New advanced filter translations
     category: 'Categoria',
     power: 'Poder',
