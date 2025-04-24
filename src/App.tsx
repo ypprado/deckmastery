@@ -1,4 +1,3 @@
-
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./components/layout/Layout";
 import Index from "./pages/Index";
@@ -14,6 +13,7 @@ import AdminRoute from "./components/auth/AdminRoute";
 import StaticDataManager from "./pages/StaticDataManager";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
+import Collection from "./pages/Collection";
 
 function App() {
   return (
@@ -63,6 +63,11 @@ function App() {
           <Route path="settings" element={
             <PrivateRoute>
               <Settings />
+            </PrivateRoute>
+          } />
+          <Route path="collection" element={
+            <PrivateRoute>
+              <Collection />
             </PrivateRoute>
           } />
           <Route path="*" element={<NotFound />} />
