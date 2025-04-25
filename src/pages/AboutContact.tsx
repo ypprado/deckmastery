@@ -6,9 +6,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { useState } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const AboutContact = () => {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -18,8 +20,8 @@ const AboutContact = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     toast({
-      title: "Message sent!",
-      description: "We'll get back to you soon.",
+      title: t('messageSent'),
+      description: t('messageSentDescription'),
     });
     setFormData({ name: "", email: "", message: "" });
   };
@@ -28,19 +30,17 @@ const AboutContact = () => {
     <div className="container mx-auto px-4 py-8 max-w-4xl space-y-12">
       {/* About Section */}
       <section>
-        <h1 className="text-3xl font-bold mb-6">About DeckMastery</h1>
+        <h1 className="text-3xl font-bold mb-6">{t('aboutTitle')}</h1>
         <Card className="p-6">
           <p className="text-lg text-muted-foreground">
-            DeckMastery is your ultimate companion for building, managing, and mastering your trading card game collections. 
-            Whether you're a casual player or a competitive enthusiast, our platform provides the tools you need to organize 
-            your cards and create winning decks.
+            {t('aboutDescription')}
           </p>
         </Card>
       </section>
 
       {/* Contact Section */}
       <section>
-        <h2 className="text-2xl font-bold mb-6">Contact Us</h2>
+        <h2 className="text-2xl font-bold mb-6">{t('contactUs')}</h2>
         <div className="grid md:grid-cols-2 gap-8">
           {/* Contact Info */}
           <div className="space-y-4">
@@ -48,15 +48,11 @@ const AboutContact = () => {
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <Mail className="h-5 w-5 text-muted-foreground" />
-                  <p>contact@deckmastery.com</p>
+                  <p>{t('contactEmail')}: contact@deckmastery.com</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <Phone className="h-5 w-5 text-muted-foreground" />
-                  <p>+55 (11) 99999-9999</p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <MessageCircle className="h-5 w-5 text-muted-foreground" />
-                  <p>WhatsApp: +55 (11) 99999-9999</p>
+                  <p>{t('contactWhatsApp')}: +55 (11) 99999-9999</p>
                 </div>
               </div>
             </Card>
@@ -66,7 +62,7 @@ const AboutContact = () => {
           <Card className="p-6">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium mb-1">Name</label>
+                <label htmlFor="name" className="block text-sm font-medium mb-1">{t('yourName')}</label>
                 <Input
                   id="name"
                   value={formData.name}
@@ -75,7 +71,7 @@ const AboutContact = () => {
                 />
               </div>
               <div>
-                <label htmlFor="email" className="block text-sm font-medium mb-1">Email</label>
+                <label htmlFor="email" className="block text-sm font-medium mb-1">{t('yourEmail')}</label>
                 <Input
                   id="email"
                   type="email"
@@ -85,7 +81,7 @@ const AboutContact = () => {
                 />
               </div>
               <div>
-                <label htmlFor="message" className="block text-sm font-medium mb-1">Message</label>
+                <label htmlFor="message" className="block text-sm font-medium mb-1">{t('yourMessage')}</label>
                 <Textarea
                   id="message"
                   value={formData.message}
@@ -94,7 +90,7 @@ const AboutContact = () => {
                   rows={4}
                 />
               </div>
-              <Button type="submit" className="w-full">Send Message</Button>
+              <Button type="submit" className="w-full">{t('sendMessage')}</Button>
             </form>
           </Card>
         </div>

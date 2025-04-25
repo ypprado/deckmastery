@@ -2,24 +2,27 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Box, Package, ShoppingCart } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Products = () => {
+  const { t } = useLanguage();
+  
   const products = [
     {
-      title: "Basic Membership",
-      description: "Perfect for casual players. Access to basic deck building tools and card management.",
+      title: t('basicMembership'),
+      description: t('basicMembershipDescription'),
       price: "Free",
       icon: Box,
     },
     {
-      title: "Pro Membership",
-      description: "Advanced deck analysis, unlimited deck storage, and premium features.",
+      title: t('proMembership'),
+      description: t('proMembershipDescription'),
       price: "$9.99/month",
       icon: Package,
     },
     {
-      title: "Team Package",
-      description: "Perfect for gaming groups. Includes team collaboration features and shared deck libraries.",
+      title: t('teamPackage'),
+      description: t('teamPackageDescription'),
       price: "$29.99/month",
       icon: ShoppingCart,
     },
@@ -27,7 +30,7 @@ const Products = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
-      <h1 className="text-3xl font-bold mb-8">Our Products</h1>
+      <h1 className="text-3xl font-bold mb-8">{t('ourProducts')}</h1>
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {products.map((product) => (
           <Card key={product.title} className="flex flex-col">
@@ -42,7 +45,7 @@ const Products = () => {
               <p className="text-2xl font-bold text-primary">{product.price}</p>
             </CardContent>
             <CardFooter>
-              <Button className="w-full">Get Started</Button>
+              <Button className="w-full">{t('getStartedProducts')}</Button>
             </CardFooter>
           </Card>
         ))}
