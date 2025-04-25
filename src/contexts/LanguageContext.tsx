@@ -123,6 +123,44 @@ export interface Translations {
   cardNumber: string;
   name: string;
   sort: string;
+
+  // About & Contact translations
+  aboutTitle: string;
+  aboutDescription: string;
+  contactUs: string;
+  contactEmail: string;
+  contactWhatsApp: string;
+  yourName: string;
+  yourEmail: string;
+  yourMessage: string;
+  sendMessage: string;
+  messageSent: string;
+  messageSentDescription: string;
+
+  // Products translations
+  ourProducts: string;
+  basicMembership: string;
+  basicMembershipDescription: string;
+  proMembership: string;
+  proMembershipDescription: string;
+  teamPackage: string;
+  teamPackageDescription: string;
+  getStartedProducts: string;
+
+  // Legal translations
+  termsOfUse: string;
+  termsDescription: string;
+  privacyPolicy: string;
+  privacyTitle: string;
+  dataCollection: string;
+  dataCollectionList: string;
+  userRights: string;
+  userRightsList: string;
+  dataUsage: string;
+  dataUsageDescription: string;
+  cookiePolicy: string;
+  cookieDescription: string;
+  cookieTypes: string;
 }
 
 const defaultTranslations: Record<string, Translations> = {
@@ -247,128 +285,44 @@ const defaultTranslations: Record<string, Translations> = {
     cardNumber: 'Card Number',
     name: 'Name',
     sort: 'Sort',
-  },
-  fr: {
-    language: 'Français',
-    dashboard: 'Tableau de bord',
-    deckBuilder: 'Constructeur de deck',
-    cardLibrary: 'Bibliothèque de cartes',
-    staticData: 'Données statiques',
-    admin: 'Admin',
-    profile: 'Profil',
-    logout: 'Déconnexion',
-    login: 'Connexion',
-    register: 'Inscription',
-    magicTheGathering: 'Magic: The Gathering',
-    pokemon: 'Pokemon',
-    yugioh: 'Yu-Gi-Oh!',
-    onepiece: 'One Piece',
-    grid: 'Grille',
-    list: 'Liste',
-    searchCards: 'Rechercher des cartes...',
-    filters: 'Filtres',
-    clearAll: 'Tout effacer',
-    colors: 'Couleurs',
-    types: 'Types',
-    rarities: 'Raretés',
-    parallels: 'Parallèles',
-    backToSets: 'Retour aux séries',
-    card: 'Carte',
-    cards: 'Cartes',
-    loadingCards: 'Chargement des cartes...',
-    loading: 'Chargement...',
-    noCardsFound: 'Aucune carte trouvée',
-    adjustFilters: 'Essayez d\'ajuster vos filtres ou votre requête de recherche pour trouver ce que vous cherchez.',
-    clearFilters: 'Effacer les filtres',
-    noSetsFound: 'Aucune série trouvée',
-    noSetsAvailable: 'Il n\'y a pas de séries de cartes disponibles pour cette catégorie de jeu.',
-    viewCards: 'Voir les cartes',
-    type: 'Type',
-    cost: 'Coût',
-    set: 'Série',
-    rarity: 'Rareté',
-    priceHistory: 'Historique des prix',
-    price: 'Prix',
-    days: 'Jours',
-    browseSearchCards: 'Parcourez et recherchez des cartes dans toutes les catégories de jeux prises en charge.',
-    cardSets: 'Séries de cartes',
-    showing: 'Montrant',
-    of: 'de',
-    page: 'Page',
-    selected: 'sélectionné',
-    selectTypes: 'Sélectionner des types',
-    searchTypes: 'Rechercher des types...',
-    noTypesFound: 'Aucun type trouvé',
-    selectSet: 'Sélectionner une série',
-    allSets: 'Toutes les séries',
-    cardDetails: 'Détails de la carte',
-    collection: 'Collection',
-    manageCards: 'Gérez et suivez votre collection de cartes',
-    // New advanced filter translations
-    category: 'Catégorie',
-    power: 'Puissance',
-    life: 'Vie',
-    counter: 'Contre',
-    attribute: 'Attribut',
-    all: 'Tous',
-    any: 'N\'importe',
-    advancedFilters: 'Avancé',
-    // Dashboard translations
-    yourDecks: 'Vos Decks',
-    manageCreateDecks: 'Gérez vos decks existants ou créez-en de nouveaux.',
-    createNewDeck: 'Créer un Nouveau Deck',
-    searchDecks: 'Rechercher des decks...',
-    filter: 'Filtrer',
-    loadingDecks: 'Chargement des decks...',
-    noDecksFound: 'Aucun Deck Trouvé',
-    noResultsMatching: 'Aucun résultat correspondant',
-    noDecksYet: 'Vous n\'avez créé aucun deck pour',
-    startBuildingDeck: 'Commencez à construire votre premier deck maintenant!',
-    createFirstDeck: 'Créer votre premier deck',
-    // DeckBuilder translations
-    deckNameRequired: 'Le nom du deck est requis',
-    deckNeedsCards: 'Le deck a besoin d\'au moins une carte',
-    deckUpdated: 'Deck mis à jour avec succès',
-    deckCreated: 'Deck créé avec succès',
-    standard: 'Standard',
-    modern: 'Modern',
-    commander: 'Commander',
-    legacy: 'Legacy',
-    vintage: 'Vintage',
-    casual: 'Casual',
-    editDeck: 'Modifier le Deck',
-    deckName: 'Nom du Deck',
-    enterDeckName: 'Entrez un nom pour votre deck',
-    format: 'Format',
-    selectFormat: 'Sélectionnez un format',
-    description: 'Description',
-    describeStrategy: 'Décrivez votre stratégie de deck...',
-    updateDeck: 'Mettre à jour le Deck',
-    saveDeck: 'Sauvegarder le Deck',
-    yourDeck: 'Votre Deck',
-    noCardsAddedYet: 'Aucune carte ajoutée',
-    browseAddCards: 'Parcourez et ajoutez des cartes depuis la droite',
-    tryAdjustingFilters: 'Essayez d\'ajuster vos filtres pour trouver ce que vous cherchez',
-    added: 'Ajouté',
-    add: 'Ajouter',
-    // Index translations
-    welcome: 'Bienvenue sur DeckMastery',
-    welcomeDescription: 'Construisez et gérez des decks pour les jeux de cartes populaires en un seul endroit',
-    getStarted: 'Commencer',
-    exploreCardLibrary: 'Explorer la Bibliothèque de Cartes',
-    multipleGameSupport: 'Support Multi-Jeux',
-    trackCollection: 'Suivez Votre Collection',
-    shareDeckStrategies: 'Partagez vos Stratégies de Deck',
-    // Layout translations
-    authRequired: 'Authentification Requise',
-    pleaseSignIn: 'Veuillez vous connecter pour accéder à cette fonctionnalité',
-    newDeck: 'Nouveau Deck',
-    signIn: 'Se Connecter',
-    version: 'Version',
-    // Card sorting translations
-    cardNumber: 'Numéro de Carte',
-    name: 'Nom',
-    sort: 'Trier',
+
+    // About & Contact translations
+    aboutTitle: "About DeckMastery",
+    aboutDescription: "DeckMastery is your ultimate companion for building, managing, and mastering your trading card game collections.",
+    contactUs: "Contact Us",
+    contactEmail: "Email",
+    contactWhatsApp: "WhatsApp",
+    yourName: "Your Name",
+    yourEmail: "Your Email",
+    yourMessage: "Your Message",
+    sendMessage: "Send Message",
+    messageSent: "Message sent!",
+    messageSentDescription: "We'll get back to you soon.",
+
+    // Products translations
+    ourProducts: "Our Products",
+    basicMembership: "Basic Membership",
+    basicMembershipDescription: "Perfect for casual players. Access to basic deck building tools and card management.",
+    proMembership: "Pro Membership",
+    proMembershipDescription: "Advanced deck analysis, unlimited deck storage, and premium features.",
+    teamPackage: "Team Package",
+    teamPackageDescription: "Perfect for gaming groups. Includes team collaboration features and shared deck libraries.",
+    getStartedProducts: "Get Started",
+
+    // Legal translations
+    termsOfUse: "Terms of Use",
+    termsDescription: "By using DeckMastery, you agree to these terms",
+    privacyPolicy: "Privacy Policy (LGPD Compliant)",
+    privacyTitle: "Data Protection",
+    dataCollection: "Data Collection",
+    dataCollectionList: "Account information,Usage data,Device information",
+    userRights: "Your Rights (LGPD)",
+    userRightsList: "Right to access,Right to correct,Right to delete,Right to data portability,Right to withdraw consent",
+    dataUsage: "Data Usage",
+    dataUsageDescription: "We use your data to provide and improve our services. We do not sell your data.",
+    cookiePolicy: "Cookie Policy",
+    cookieDescription: "We use cookies and similar technologies for:",
+    cookieTypes: "Essential functions,Analytics,Performance optimization,Marketing",
   },
   es: {
     language: 'Español',
@@ -491,6 +445,44 @@ const defaultTranslations: Record<string, Translations> = {
     cardNumber: 'Número de Carta',
     name: 'Nombre',
     sort: 'Ordenar',
+
+    // About & Contact translations
+    aboutTitle: "Sobre DeckMastery",
+    aboutDescription: "DeckMastery es tu compañero definitivo para construir, gestionar y dominar tus colecciones de juegos de cartas.",
+    contactUs: "Contáctanos",
+    contactEmail: "Correo",
+    contactWhatsApp: "WhatsApp",
+    yourName: "Tu Nombre",
+    yourEmail: "Tu Correo",
+    yourMessage: "Tu Mensaje",
+    sendMessage: "Enviar Mensaje",
+    messageSent: "¡Mensaje enviado!",
+    messageSentDescription: "Nos pondremos en contacto contigo pronto.",
+
+    // Products translations
+    ourProducts: "Nuestros Productos",
+    basicMembership: "Membresía Básica",
+    basicMembershipDescription: "Perfecto para jugadores casuales. Acceso a herramientas básicas de construcción de mazos y gestión de cartas.",
+    proMembership: "Membresía Pro",
+    proMembershipDescription: "Análisis avanzado de mazos, almacenamiento ilimitado y características premium.",
+    teamPackage: "Paquete de Equipo",
+    teamPackageDescription: "Perfecto para grupos de juego. Incluye funciones de colaboración en equipo y bibliotecas compartidas.",
+    getStartedProducts: "Comenzar",
+
+    // Legal translations
+    termsOfUse: "Términos de Uso",
+    termsDescription: "Al usar DeckMastery, aceptas estos términos",
+    privacyPolicy: "Política de Privacidad (Compatible con LGPD)",
+    privacyTitle: "Protección de Datos",
+    dataCollection: "Recolección de Datos",
+    dataCollectionList: "Información de cuenta,Datos de uso,Información del dispositivo",
+    userRights: "Tus Derechos (LGPD)",
+    userRightsList: "Derecho de acceso,Derecho de corrección,Derecho de eliminación,Derecho de portabilidad,Derecho de retirar consentimiento",
+    dataUsage: "Uso de Datos",
+    dataUsageDescription: "Usamos tus datos para proporcionar y mejorar nuestros servicios. No vendemos tus datos.",
+    cookiePolicy: "Política de Cookies",
+    cookieDescription: "Utilizamos cookies y tecnologías similares para:",
+    cookieTypes: "Funciones esenciales,Analíticas,Optimización de rendimiento,Marketing",
   },
   pt: {
     language: 'Português',
@@ -613,6 +605,44 @@ const defaultTranslations: Record<string, Translations> = {
     cardNumber: 'Número',
     name: 'Nome',
     sort: 'Ordenar',
+
+    // About & Contact translations
+    aboutTitle: "Sobre o DeckMastery",
+    aboutDescription: "DeckMastery é seu companheiro definitivo para construir, gerenciar e dominar suas coleções de jogos de cartas.",
+    contactUs: "Entre em Contato",
+    contactEmail: "E-mail",
+    contactWhatsApp: "WhatsApp",
+    yourName: "Seu Nome",
+    yourEmail: "Seu E-mail",
+    yourMessage: "Sua Mensagem",
+    sendMessage: "Enviar Mensagem",
+    messageSent: "Mensagem enviada!",
+    messageSentDescription: "Entraremos em contato em breve.",
+
+    // Products translations
+    ourProducts: "Nossos Produtos",
+    basicMembership: "Plano Básico",
+    basicMembershipDescription: "Perfeito para jogadores casuais. Acesso a ferramentas básicas de construção de decks e gerenciamento de cartas.",
+    proMembership: "Plano Pro",
+    proMembershipDescription: "Análise avançada de decks, armazenamento ilimitado e recursos premium.",
+    teamPackage: "Plano Time",
+    teamPackageDescription: "Perfeito para grupos de jogadores. Inclui recursos de colaboração em equipe e bibliotecas compartilhadas.",
+    getStartedProducts: "Começar",
+
+    // Legal translations
+    termsOfUse: "Termos de Uso",
+    termsDescription: "Ao usar o DeckMastery, você concorda com estes termos",
+    privacyPolicy: "Política de Privacidade (Em conformidade com a LGPD)",
+    privacyTitle: "Proteção de Dados",
+    dataCollection: "Coleta de Dados",
+    dataCollectionList: "Informações da conta,Dados de uso,Informações do dispositivo",
+    userRights: "Seus Direitos (LGPD)",
+    userRightsList: "Direito de acesso,Direito de correção,Direito de exclusão,Direito de portabilidade,Direito de retirar consentimento",
+    dataUsage: "Uso dos Dados",
+    dataUsageDescription: "Usamos seus dados para fornecer e melhorar nossos serviços. Não vendemos seus dados.",
+    cookiePolicy: "Política de Cookies",
+    cookieDescription: "Utilizamos cookies e tecnologias similares para:",
+    cookieTypes: "Funções essenciais,Análises,Otimização de desempenho,Marketing",
   },
 };
 
