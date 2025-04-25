@@ -37,14 +37,12 @@ export interface Deck {
 }
 
 export const gameCategories = [
-  { id: 'magic', name: 'Magic: The Gathering' },
-  { id: 'pokemon', name: 'Pokémon' },
-  { id: 'yugioh', name: 'Yu-Gi-Oh!' },
-  { id: 'onepiece', name: 'One Piece' }
+  { id: 'magic', name: 'Magic: The Gathering', hidden: true },
+  { id: 'pokemon', name: 'Pokémon', hidden: true },
+  { id: 'yugioh', name: 'Yu-Gi-Oh!', hidden: true },
+  { id: 'onepiece', name: 'One Piece', hidden: false }
 ];
 
-// This is a simplified implementation using localStorage for persistence
-// In a real app, this would use an API or database
 export const useDecks = () => {
   const [decks, setDecks] = useState<Deck[]>([]);
   const [loading, setLoading] = useState(true);
@@ -52,7 +50,6 @@ export const useDecks = () => {
   const { cards: staticCards } = useStaticData({ initialGameCategory: activeGameCategory });
 
   useEffect(() => {
-    // Load decks from localStorage
     const loadDecks = () => {
       const storedDecks = localStorage.getItem('decks');
       console.log("Loading decks from localStorage:", storedDecks ? JSON.parse(storedDecks) : null);
@@ -60,12 +57,10 @@ export const useDecks = () => {
       if (storedDecks) {
         setDecks(JSON.parse(storedDecks));
       } else {
-        // Initialize with empty array instead of static decks
         setDecks([]);
         localStorage.setItem('decks', JSON.stringify([]));
       }
       
-      // Load active game category from localStorage or use default
       const storedCategory = localStorage.getItem('activeGameCategory') as GameCategory;
       if (storedCategory) {
         setActiveGameCategory(storedCategory);
@@ -77,7 +72,6 @@ export const useDecks = () => {
     loadDecks();
   }, []);
 
-  // Filter decks by active game category
   const filteredDecks = decks.filter(deck => deck.gameCategory === activeGameCategory);
 
   const changeGameCategory = (category: GameCategory) => {
@@ -160,7 +154,6 @@ export const useCards = () => {
   const [activeGameCategory, setActiveGameCategory] = useState<GameCategory>('magic');
   const { cards: staticCards, activeGameCategory: staticGameCategory, changeGameCategory: staticChangeGameCategory } = useStaticData({ initialGameCategory: activeGameCategory });
   
-  // Store filter state independently for each game category
   const [filterStates, setFilterStates] = useState<Record<GameCategory, {
     searchQuery: string;
     colorFilters: string[];
@@ -176,7 +169,6 @@ export const useCards = () => {
   });
   
   useEffect(() => {
-    // Load active game category from localStorage or use default
     const storedCategory = localStorage.getItem('activeGameCategory') as GameCategory;
     if (storedCategory) {
       setActiveGameCategory(storedCategory);
@@ -185,13 +177,11 @@ export const useCards = () => {
   }, [staticChangeGameCategory]);
 
   useEffect(() => {
-    // When staticCards are loaded (non-empty), mark loading as false
     if (staticCards.length > 0) {
       setLoading(false);
     }
   }, [staticCards]);
 
-  // Keep the game categories in sync
   useEffect(() => {
     if (activeGameCategory !== staticGameCategory) {
       staticChangeGameCategory(activeGameCategory);
@@ -209,12 +199,10 @@ export const useCards = () => {
     
     const lowerQuery = query.toLowerCase();
     return staticCards.filter(card => {
-      // Check if card name includes query
       if (card.name.toLowerCase().includes(lowerQuery)) {
         return true;
       }
 
-      // Check if card number includes query
       if (card.card_number?.toLowerCase().includes(lowerQuery)) {
         return true;
       }
@@ -239,7 +227,6 @@ export const useCards = () => {
     });
   };
 
-  // Save filter state for current game category with memoization to avoid infinite loops
   const saveFilterState = useCallback((state: Partial<{
     searchQuery: string;
     colorFilters: string[];
@@ -257,7 +244,6 @@ export const useCards = () => {
     }));
   }, [activeGameCategory]);
 
-  // Get current filter state for active game category - memoized to avoid creating new references on each render
   const getCurrentFilterState = useCallback(() => {
     return filterStates[activeGameCategory] || {
       searchQuery: '',

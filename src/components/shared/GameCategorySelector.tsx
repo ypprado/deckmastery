@@ -15,6 +15,9 @@ const GameCategorySelector = ({
   onCategoryChange,
   className
 }: GameCategorySelectorProps) => {
+  // Filter out hidden categories
+  const visibleCategories = gameCategories.filter(category => !category.hidden);
+
   return (
     <Tabs 
       value={activeCategory} 
@@ -22,7 +25,7 @@ const GameCategorySelector = ({
       onValueChange={(value) => onCategoryChange(value as GameCategory)}
     >
       <TabsList className="w-full flex">
-        {gameCategories.map((category) => (
+        {visibleCategories.map((category) => (
           <TabsTrigger
             key={category.id}
             value={category.id}

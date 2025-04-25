@@ -1,4 +1,3 @@
-
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { LayoutDashboard, Book, Settings, PlusCircle, Menu, X, Github, Moon, Sun, LogIn, ChevronDown, Library, LibraryBig, MessageCircle, Package, Box } from "lucide-react";
@@ -37,9 +36,9 @@ const Layout = () => {
   } = useDecks();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [activeGameCategory, setActiveGameCategory] = useState<GameCategory>('onepiece');
   
-  // Define currentGameName variable
-  const currentGameName = gameCategories.find(cat => cat.id === activeGameCategory)?.name || 'Magic: The Gathering';
+  const currentGameName = gameCategories.find(cat => cat.id === activeGameCategory)?.name || 'One Piece';
   
   useEffect(() => {
     const isDark = localStorage.getItem('theme') === 'dark' || !localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches;
