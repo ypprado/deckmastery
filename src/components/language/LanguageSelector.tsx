@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { useLanguage, Language } from '@/contexts/LanguageContext';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { Language } from '@/translations/types'; // Import Language from types
 import { Button } from "@/components/ui/button";
 import { Globe } from "lucide-react";
 import {
@@ -41,3 +42,4 @@ export const LanguageSelector = () => {
     </DropdownMenu>
   );
 };
+
