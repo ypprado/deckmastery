@@ -1,6 +1,6 @@
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, Book, Settings, PlusCircle, Menu, X, Github, Moon, Sun, LogIn, ChevronDown, Library, LibraryBig } from "lucide-react";
+import { LayoutDashboard, Book, Settings, PlusCircle, Menu, X, Github, Moon, Sun, LogIn, ChevronDown, Library, LibraryBig, MessageCircle, Package, Box } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
@@ -81,6 +81,18 @@ const Layout = () => {
     path: "/cards",
     icon: <Book className="h-5 w-5" />,
     label: t('cardLibrary')
+  }, {
+    path: "/about",
+    icon: <MessageCircle className="h-5 w-5" />,
+    label: 'About & Contact'
+  }, {
+    path: "/products",
+    icon: <Package className="h-5 w-5" />,
+    label: 'Products'
+  }, {
+    path: "/legal",
+    icon: <Box className="h-5 w-5" />,
+    label: 'Legal'
   }];
 
   const currentGameName = gameCategories.find(cat => cat.id === activeGameCategory)?.name || 'Magic: The Gathering';

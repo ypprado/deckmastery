@@ -14,6 +14,9 @@ import StaticDataManager from "./pages/StaticDataManager";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import Collection from "./pages/Collection";
+import AboutContact from "./pages/AboutContact";
+import Products from "./pages/Products";
+import Legal from "./pages/Legal";
 
 function App() {
   return (
@@ -22,6 +25,9 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Index />} />
           <Route path="auth" element={<Auth />} />
+          <Route path="about" element={<AboutContact />} />
+          <Route path="products" element={<Products />} />
+          <Route path="legal" element={<Legal />} />
           
           <Route path="mydecks" element={
             <PrivateRoute>
