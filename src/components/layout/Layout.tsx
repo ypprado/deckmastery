@@ -1,3 +1,4 @@
+
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { LayoutDashboard, Book, Settings, PlusCircle, Menu, X, Github, Moon, Sun, LogIn, ChevronDown, Library, LibraryBig, MessageCircle, Package, Box } from "lucide-react";
@@ -36,8 +37,8 @@ const Layout = () => {
   } = useDecks();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [activeGameCategory, setActiveGameCategory] = useState<GameCategory>('onepiece');
   
+  // Using activeGameCategory from useDecks() hook, no need for duplicate state
   const currentGameName = gameCategories.find(cat => cat.id === activeGameCategory)?.name || 'One Piece';
   
   useEffect(() => {
@@ -112,7 +113,7 @@ const Layout = () => {
                     <ChevronDown className="h-3 w-3 ml-0.5 text-muted-foreground" />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start" className="w-48">
-                    {gameCategories.map((category) => (
+                    {gameCategories.filter(category => !category.hidden).map((category) => (
                       <DropdownMenuItem 
                         key={category.id}
                         onClick={() => changeGameCategory(category.id as GameCategory)}
