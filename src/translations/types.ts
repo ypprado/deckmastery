@@ -1,5 +1,4 @@
-
-export type Language = 'en' | 'fr' | 'es' | 'pt';
+export type Language = 'en' | 'es' | 'pt' | 'fr';
 
 export interface Translations {
   language: string;
@@ -148,4 +147,8 @@ export interface Translations {
   cookiePolicy: string;
   cookieDescription: string;
   cookieTypes: string;
+  company: string;
+  legal: string;
+  allRightsReserved: string;
+  onePieceDisclaimer: string;
 }

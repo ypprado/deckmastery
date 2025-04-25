@@ -16,6 +16,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
+import { Footer } from "./Footer";
 
 const Layout = () => {
   const location = useLocation();
@@ -81,22 +82,8 @@ const Layout = () => {
     path: "/cards",
     icon: <Book className="h-5 w-5" />,
     label: t('cardLibrary')
-  }, {
-    path: "/about",
-    icon: <MessageCircle className="h-5 w-5" />,
-    label: 'About & Contact'
-  }, {
-    path: "/products",
-    icon: <Package className="h-5 w-5" />,
-    label: 'Products'
-  }, {
-    path: "/legal",
-    icon: <Box className="h-5 w-5" />,
-    label: 'Legal'
   }];
 
-  const currentGameName = gameCategories.find(cat => cat.id === activeGameCategory)?.name || 'Magic: The Gathering';
-  
   return <div className="min-h-screen flex flex-col">
       <header className="sticky top-0 z-30 w-full backdrop-blur-md bg-background/80 border-b subtle-border animate-slide-down">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
@@ -197,6 +184,8 @@ const Layout = () => {
           </div>
         </main>
       </div>
+
+      <Footer />
     </div>;
 };
 

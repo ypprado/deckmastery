@@ -147,4 +147,8 @@ export const ptTranslations: Translations = {
   cookiePolicy: "Política de Cookies",
   cookieDescription: "Utilizamos cookies e tecnologias similares para:",
   cookieTypes: "Funções essenciais,Análises,Otimização de desempenho,Marketing",
+  company: 'Empresa',
+  legal: 'Legal',
+  allRightsReserved: 'Todos os direitos reservados.',
+  onePieceDisclaimer: 'One Piece Card Game e suas respectivas propriedades são direitos autorais de Akiyoshi Hongo, Toei Animation.',
 };
