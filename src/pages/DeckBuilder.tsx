@@ -338,7 +338,7 @@ const DeckBuilder = () => {
           <Card className="animate-scale-up">
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-2">
-                <h3 className="font-medium">{t('yourDeck')}</h3>
+                <h3 className="font-medium">{t('myDeck')}</h3>
                 <Badge variant="outline">{totalCards} {totalCards === 1 ? t('card') : t('cards')}</Badge>
               </div>
               
