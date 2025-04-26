@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Card as CardType } from '@/hooks/use-decks';
@@ -22,6 +23,7 @@ interface CardDetailViewProps {
   hasPreviousCard?: boolean;
 }
 
+// Update the DisplayCardType to include the properties from both CardType and Supabase Row
 type DisplayCardType = CardType | Database['public']['Tables']['cards']['Row'];
 
 const colorNames: Record<string, string> = {
@@ -189,15 +191,77 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
   
   const cardImageUrl = getCardImageUrl(displayCard);
 
+  // Get the card category safely
+  const getCategory = (card: DisplayCardType): string => {
+    if ('category' in card) {
+      return card.category || '';
+    }
+    return '';
+  };
+
+  // Get card_type safely
+  const getCardTypeValue = (card: DisplayCardType): string | string[] => {
+    if ('card_type' in card) {
+      return card.card_type || [];
+    } else if ('type' in card) {
+      return card.type || [];
+    }
+    return [];
+  };
+
+  // Get attribute safely
+  const getAttribute = (card: DisplayCardType): any[] => {
+    if ('attribute' in card) {
+      return Array.isArray(card.attribute) ? card.attribute : [];
+    }
+    return [];
+  };
+
+  // Get life safely
+  const getLife = (card: DisplayCardType): number => {
+    if ('life' in card) {
+      return card.life || 0;
+    }
+    return 0;
+  };
+
+  // Get power safely
+  const getPower = (card: DisplayCardType): number => {
+    if ('power' in card) {
+      return card.power || 0;
+    }
+    return 0;
+  };
+
+  // Get rarity safely
+  const getRarity = (card: DisplayCardType): string => {
+    return card.rarity || '';
+  };
+
+  // Get cost safely
+  const getCost = (card: DisplayCardType): number => {
+    return card.cost || 0;
+  };
+
+  // Get card text safely
+  const getCardText = (card: DisplayCardType): string => {
+    if ('card_text' in card) {
+      return card.card_text || '';
+    } else if ('flavorText' in card) {
+      return card.flavorText || '';
+    }
+    return '';
+  };
+
   const renderCardDetails = () => {
-    const category = displayCard.category || '';
+    const category = getCategory(displayCard);
 
     const commonDetails = (
       <>
-        {displayCard.category && (
+        {category && (
           <div className="grid grid-cols-2 gap-2">
             <div className="text-muted-foreground">Category</div>
-            <div className="font-medium">{displayCard.category}</div>
+            <div className="font-medium">{category}</div>
           </div>
         )}
       </>
@@ -210,23 +274,23 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
             {commonDetails}
             <div className="grid grid-cols-2 gap-2">
               <div className="text-muted-foreground">Rarity</div>
-              <div className="font-medium">{displayCard.rarity}</div>
+              <div className="font-medium">{getRarity(displayCard)}</div>
 
               <div className="text-muted-foreground">Life</div>
-              <div className="font-medium">{displayCard.life}</div>
+              <div className="font-medium">{getLife(displayCard)}</div>
 
               <div className="text-muted-foreground">Power</div>
-              <div className="font-medium">{displayCard.power}</div>
+              <div className="font-medium">{getPower(displayCard)}</div>
 
-              {displayCard.attribute && displayCard.attribute.length > 0 && (
+              {getAttribute(displayCard).length > 0 && (
                 <>
                   <div className="text-muted-foreground">Attribute</div>
-                  <div className="font-medium">{Array.isArray(displayCard.attribute) ? displayCard.attribute.join(', ') : displayCard.attribute}</div>
+                  <div className="font-medium">{formatAttributes(getAttribute(displayCard))}</div>
                 </>
               )}
 
               <div className="text-muted-foreground">Type</div>
-              <div className="font-medium">{Array.isArray(displayCard.card_type) ? displayCard.card_type.join(', ') : displayCard.card_type}</div>
+              <div className="font-medium">{formatCardType(getCardTypeValue(displayCard))}</div>
             </div>
           </div>
         );
@@ -237,23 +301,23 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
             {commonDetails}
             <div className="grid grid-cols-2 gap-2">
               <div className="text-muted-foreground">Rarity</div>
-              <div className="font-medium">{displayCard.rarity}</div>
+              <div className="font-medium">{getRarity(displayCard)}</div>
 
               <div className="text-muted-foreground">Cost</div>
-              <div className="font-medium">{displayCard.cost}</div>
+              <div className="font-medium">{getCost(displayCard)}</div>
 
               <div className="text-muted-foreground">Power</div>
-              <div className="font-medium">{displayCard.power}</div>
+              <div className="font-medium">{getPower(displayCard)}</div>
 
-              {displayCard.attribute && displayCard.attribute.length > 0 && (
+              {getAttribute(displayCard).length > 0 && (
                 <>
                   <div className="text-muted-foreground">Attribute</div>
-                  <div className="font-medium">{Array.isArray(displayCard.attribute) ? displayCard.attribute.join(', ') : displayCard.attribute}</div>
+                  <div className="font-medium">{formatAttributes(getAttribute(displayCard))}</div>
                 </>
               )}
 
               <div className="text-muted-foreground">Type</div>
-              <div className="font-medium">{Array.isArray(displayCard.card_type) ? displayCard.card_type.join(', ') : displayCard.card_type}</div>
+              <div className="font-medium">{formatCardType(getCardTypeValue(displayCard))}</div>
             </div>
           </div>
         );
@@ -264,13 +328,13 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
             {commonDetails}
             <div className="grid grid-cols-2 gap-2">
               <div className="text-muted-foreground">Rarity</div>
-              <div className="font-medium">{displayCard.rarity}</div>
+              <div className="font-medium">{getRarity(displayCard)}</div>
 
               <div className="text-muted-foreground">Cost</div>
-              <div className="font-medium">{displayCard.cost}</div>
+              <div className="font-medium">{getCost(displayCard)}</div>
 
               <div className="text-muted-foreground">Type</div>
-              <div className="font-medium">{Array.isArray(displayCard.card_type) ? displayCard.card_type.join(', ') : displayCard.card_type}</div>
+              <div className="font-medium">{formatCardType(getCardTypeValue(displayCard))}</div>
             </div>
           </div>
         );
@@ -288,7 +352,7 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
             {commonDetails}
             <div className="grid grid-cols-2 gap-2">
               <div className="text-muted-foreground">Type</div>
-              <div className="font-medium">{Array.isArray(displayCard.card_type) ? displayCard.card_type.join(', ') : displayCard.card_type}</div>
+              <div className="font-medium">{formatCardType(getCardTypeValue(displayCard))}</div>
             </div>
           </div>
         );
@@ -368,13 +432,13 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
               {renderCardDetails()}
             </div>
             
-            {displayCard.card_text && (
+            {getCardText(displayCard) && (
               <>
                 <Separator className="my-4" />
                 <div className="space-y-2">
                   <h3 className="text-sm font-medium">Card Text</h3>
                   <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                    {displayCard.card_text}
+                    {getCardText(displayCard)}
                   </p>
                 </div>
               </>

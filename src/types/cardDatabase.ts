@@ -33,6 +33,11 @@ export interface CardDetails {
   groupid_tcg?: number; // Added new field
   attribute?: AttributeType[]; // Use the proper enum type here
   parallel?: string[]; // Added parallel property
+  category?: string; // Added category property
+  life?: number; // Added life property
+  power?: number; // Added power property
+  card_type?: string | string[]; // Added card_type property
+  card_text?: string; // Added card_text property
 }
 
 export interface CardDatabaseFormValues {
