@@ -1,8 +1,7 @@
-
 -- Create config table for storing key-value pairs
 create table if not exists public.config (
   key text primary key,
-  value jsonb,
+  value numeric,
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
