@@ -64,7 +64,7 @@ export interface Translations {
   all: string;
   any: string;
   advancedFilters: string;
-  yourDecks: string;
+  myDecks: string;
   manageCreateDecks: string;
   createNewDeck: string;
   searchDecks: string;
@@ -94,7 +94,7 @@ export interface Translations {
   describeStrategy: string;
   updateDeck: string;
   saveDeck: string;
-  yourDeck: string;
+  myDeck: string;
   noCardsAddedYet: string;
   browseAddCards: string;
   tryAdjustingFilters: string;

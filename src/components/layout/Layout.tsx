@@ -76,7 +76,7 @@ const Layout = () => {
   const navItems = [{
     path: "/mydecks",
     icon: <Library className="h-5 w-5" />,
-    label: t('yourDecks')
+    label: t('myDecks')
   }, {
     path: "/collection",
     icon: <LibraryBig className="h-5 w-5" />,

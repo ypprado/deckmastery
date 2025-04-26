@@ -19,7 +19,7 @@ const Index = () => {
         {user ? (
           <Link to="/mydecks">
             <Button size="lg" className="px-8">
-              {t('yourDecks')}
+              {t('myDecks')}
             </Button>
           </Link>
         ) : (
