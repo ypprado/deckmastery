@@ -1,6 +1,6 @@
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, Book, Settings, PlusCircle, Menu, X, Github, Moon, Sun, LogIn, ChevronDown, Library, LibraryBig, MessageCircle, Package, Box } from "lucide-react";
+import { LayoutDashboard, Book, Settings, Menu, X, Github, Moon, Sun, LogIn, ChevronDown, Library, LibraryBig, MessageCircle, Package, Box } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
@@ -21,20 +21,12 @@ import { ExchangeRate } from "@/components/exchange-rate/ExchangeRate";
 
 const Layout = () => {
   const location = useLocation();
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { t } = useLanguage();
-  const {
-    user,
-    loading
-  } = useAuth();
-  const {
-    activeGameCategory,
-    changeGameCategory
-  } = useDecks();
+  const { user, loading } = useAuth();
+  const { activeGameCategory, changeGameCategory } = useDecks();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
@@ -55,22 +47,6 @@ const Layout = () => {
     setIsDarkMode(newTheme);
     document.documentElement.classList.toggle('dark', newTheme);
     localStorage.setItem('theme', newTheme ? 'dark' : 'light');
-  };
-  
-  const handleCreateDeck = () => {
-    if (!user) {
-      toast({
-        title: t('authRequired'),
-        description: t('pleaseSignIn')
-      });
-      navigate('/auth');
-      return;
-    }
-    navigate('/deck/new');
-    toast({
-      title: t('createNewDeck'),
-      description: t('startBuildingDeck')
-    });
   };
   
   const navItems = [{
@@ -131,11 +107,6 @@ const Layout = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="hidden md:flex" onClick={handleCreateDeck}>
-              <PlusCircle className="h-4 w-4 mr-2" />
-              {t('newDeck')}
-            </Button>
-            
             <ExchangeRate />
             
             <LanguageSelector />
@@ -171,11 +142,6 @@ const Layout = () => {
             </div>
             
             <div className="mt-auto px-3">
-              <Button onClick={handleCreateDeck} className="w-full justify-start">
-                <PlusCircle className="h-4 w-4 mr-2" />
-                {t('newDeck')}
-              </Button>
-              
               <div className="mt-4 px-3 py-2 text-xs text-muted-foreground">
                 <p>DeckMastery {t('version')} 1.0</p>
               </div>
