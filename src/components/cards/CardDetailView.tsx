@@ -195,12 +195,29 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
 
   const formatPriceData = (data: typeof priceHistory) => {
     if (!data) return [];
-    
-    return data.map(entry => ({
-      date: format(new Date(entry.recorded_at), 'MMM dd'),
-      BR: entry.price_min_liga || 0,
-      US: entry.price_market_tcg || 0,
-    }));
+
+    const groupedData: Record<string, { date: string; BR?: number; US?: number }> = {};
+
+    data.forEach(entry => {
+      const date = format(new Date(entry.recorded_at), 'MMM dd');
+
+      if (!groupedData[date]) {
+        groupedData[date] = { date };
+      }
+
+      if (entry.price_min_liga !== null) {
+        groupedData[date].BR = entry.price_min_liga;
+      }
+      if (entry.price_market_tcg !== null) {
+        groupedData[date].US = entry.price_market_tcg;
+      }
+    });
+
+    return Object.values(groupedData).sort((a, b) => {
+      const dateA = new Date(a.date);
+      const dateB = new Date(b.date);
+      return dateA.getTime() - dateB.getTime();
+    });
   };
 
   const chartConfig = {
@@ -534,7 +551,7 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
                       />
                       <ChartTooltip
                         content={<ChartTooltipContent 
-                          formatter={(value, name) => [`$${value}`, name === 'BR' ? 'Brazil Price' : 'US Price']} 
+                          formatter={(value, name) => [`$${value}`, name === 'BR' ? ' Brazil' : ' US']} 
                         />}
                       />
                       <Area
