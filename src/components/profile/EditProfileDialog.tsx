@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { profileSchema, sanitizeUserInput } from "@/utils/validation";
 
 interface Profile {
   username: string;
@@ -42,35 +42,42 @@ export function EditProfileDialog({
   });
 
   const handleSubmit = async () => {
-    setLoading(true);
-    
-    const { error } = await supabase
-      .from('profiles')
-      .update({
+    try {
+      const validatedData = profileSchema.parse({
         username: formData.username,
         display_name: formData.display_name,
-        bio: formData.bio || null,
-      })
-      .eq('username', profile.username);
+        bio: formData.bio,
+      });
 
-    setLoading(false);
+      setLoading(true);
+      
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          username: validatedData.username,
+          display_name: validatedData.display_name,
+          bio: validatedData.bio,
+        })
+        .eq('username', profile.username);
 
-    if (error) {
+      if (error) throw error;
+
+      toast({
+        title: "Profile updated",
+        description: "Your profile has been updated successfully.",
+      });
+
+      onProfileUpdate();
+      onOpenChange(false);
+    } catch (error) {
       toast({
         title: "Error updating profile",
-        description: error.message,
+        description: error instanceof Error ? error.message : "An error occurred",
         variant: "destructive",
       });
-      return;
+    } finally {
+      setLoading(false);
     }
-
-    toast({
-      title: "Profile updated",
-      description: "Your profile has been updated successfully.",
-    });
-
-    onProfileUpdate();
-    onOpenChange(false);
   };
 
   return (
@@ -90,6 +97,7 @@ export function EditProfileDialog({
                 ...prev,
                 username: e.target.value
               }))}
+              maxLength={30}
             />
           </div>
           
@@ -102,6 +110,7 @@ export function EditProfileDialog({
                 ...prev,
                 display_name: e.target.value
               }))}
+              maxLength={50}
             />
           </div>
           
@@ -115,6 +124,7 @@ export function EditProfileDialog({
                 bio: e.target.value
               }))}
               placeholder="Tell us about yourself..."
+              maxLength={500}
             />
           </div>
         </div>
@@ -130,7 +140,7 @@ export function EditProfileDialog({
             onClick={handleSubmit}
             disabled={loading}
           >
-            Save Changes
+            {loading ? "Saving..." : "Save Changes"}
           </Button>
         </div>
       </DialogContent>

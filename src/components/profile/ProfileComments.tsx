@@ -1,11 +1,11 @@
-
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
+import { commentSchema, sanitizeUserInput } from "@/utils/validation";
 
 interface Comment {
   id: string;
@@ -27,6 +27,7 @@ export function ProfileComments({ profileId }: ProfileCommentsProps) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchComments();
@@ -52,31 +53,61 @@ export function ProfileComments({ profileId }: ProfileCommentsProps) {
     }
   };
 
+  const validateAndSanitizeComment = (content: string) => {
+    try {
+      const result = commentSchema.parse(content);
+      return { isValid: true, sanitized: result };
+    } catch (error) {
+      if (error instanceof Error) {
+        return { isValid: false, error: error.message };
+      }
+      return { isValid: false, error: "Invalid comment" };
+    }
+  };
+
   const handleSubmitComment = async () => {
     if (!user || !newComment.trim()) return;
 
-    setIsSubmitting(true);
-    const { error } = await supabase
-      .from('profile_comments')
-      .insert({
-        profile_id: profileId,
-        author_id: user.id,
-        content: newComment.trim()
-      });
-
-    setIsSubmitting(false);
-    
-    if (error) {
+    const validation = validateAndSanitizeComment(newComment);
+    if (!validation.isValid) {
       toast({
-        title: "Error posting comment",
-        description: error.message,
+        title: "Invalid comment",
+        description: validation.error,
         variant: "destructive"
       });
       return;
     }
 
-    setNewComment("");
-    fetchComments();
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const { error: submitError } = await supabase
+        .from('profile_comments')
+        .insert({
+          profile_id: profileId,
+          author_id: user.id,
+          content: validation.sanitized
+        });
+
+      if (submitError) throw submitError;
+
+      setNewComment("");
+      fetchComments();
+      toast({
+        title: "Success",
+        description: "Comment posted successfully",
+      });
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Failed to post comment");
+      toast({
+        title: "Error posting comment",
+        description: error instanceof Error ? error.message : "An error occurred",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -88,13 +119,19 @@ export function ProfileComments({ profileId }: ProfileCommentsProps) {
           <Textarea
             placeholder="Leave a comment..."
             value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
+            onChange={(e) => {
+              setNewComment(e.target.value);
+              setError(null);
+            }}
+            maxLength={1000}
+            className={error ? "border-red-500" : ""}
           />
+          {error && <p className="text-sm text-red-500">{error}</p>}
           <Button 
             onClick={handleSubmitComment} 
             disabled={!newComment.trim() || isSubmitting}
           >
-            Post Comment
+            {isSubmitting ? "Posting..." : "Post Comment"}
           </Button>
         </div>
       )}
@@ -107,13 +144,17 @@ export function ProfileComments({ profileId }: ProfileCommentsProps) {
                 {comment.author.username[0].toUpperCase()}
               </div>
               <div>
-                <div className="font-medium">@{comment.author.username}</div>
+                <div className="font-medium">
+                  {sanitizeUserInput(comment.author.username)}
+                </div>
                 <div className="text-xs text-muted-foreground">
                   {format(new Date(comment.created_at), 'MMM d, yyyy')}
                 </div>
               </div>
             </div>
-            <p className="text-sm text-muted-foreground">{comment.content}</p>
+            <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+              {sanitizeUserInput(comment.content)}
+            </p>
           </div>
         ))}
 
