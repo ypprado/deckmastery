@@ -25,9 +25,9 @@ export interface CardDetails {
   artist?: string;
   legality?: string[];
   price?: number;
-  url_tcg?: string; // Added new field
-  url_liga?: string; // Added new field
-  subTypeName?: string; // Added new field
+  url_tcg?: string; // This field is needed
+  url_liga?: string; // This field is needed
+  subTypeName?: string;
   card_number?: string; // Added field, now text type
   card_number_liga?: string; // Added the new field
   groupid_tcg?: number; // Added new field
@@ -53,9 +53,9 @@ export interface CardDatabaseFormValues {
   artist?: string;
   legality?: string;
   price?: number;
-  url_tcg?: string; // Added new field
-  url_liga?: string; // Added new field 
-  subTypeName?: string; // Added new field
+  url_tcg?: string; // Adding this field
+  url_liga?: string; // Adding this field
+  subTypeName?: string;
   card_number?: string; // Added field
   card_number_liga?: string; // Added the new field
   groupid_tcg?: number; // Added new field

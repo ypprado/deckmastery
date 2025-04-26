@@ -13,8 +13,20 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CardDetailImageZoom from '@/components/ui/card-detail-image-zoom';
 
+// Update the CardType interface to include the missing properties from the error messages
+interface ExtendedCardType extends CardType {
+  url_tcg?: string;
+  url_liga?: string;
+  category?: string;
+  life?: number;
+  power?: number;
+  card_type?: string | string[];
+  attribute?: string[];
+  card_text?: string;
+}
+
 interface CardDetailViewProps {
-  card: CardType | null;
+  card: ExtendedCardType | null;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   onNextCard?: () => void;
@@ -24,7 +36,7 @@ interface CardDetailViewProps {
 }
 
 // Update the DisplayCardType to include the properties from both CardType and Supabase Row
-type DisplayCardType = CardType | Database['public']['Tables']['cards']['Row'];
+type DisplayCardType = ExtendedCardType | Database['public']['Tables']['cards']['Row'];
 
 const colorNames: Record<string, string> = {
   Red: 'Red',
@@ -119,6 +131,22 @@ const getCardColors = (card: DisplayCardType): string[] => {
   return [];
 };
 
+// Helper function to safely get url_tcg
+const getCardUrlTcg = (card: DisplayCardType): string | undefined => {
+  if ('url_tcg' in card) {
+    return card.url_tcg;
+  }
+  return undefined;
+};
+
+// Helper function to safely get url_liga
+const getCardUrlLiga = (card: DisplayCardType): string | undefined => {
+  if ('url_liga' in card) {
+    return card.url_liga;
+  }
+  return undefined;
+};
+
 const CardDetailView: React.FC<CardDetailViewProps> = ({ 
   card, 
   isOpen, 
@@ -179,7 +207,7 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
   
   if (!card) return null;
   
-  const displayCard = supabaseCard || card;
+  const displayCard = supabaseCard || card as DisplayCardType;
   
   const colors = getCardColors(displayCard);
   
@@ -444,13 +472,13 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
               </>
             )}
 
-            {(displayCard.url_tcg || displayCard.url_liga) && (
+            {(getCardUrlTcg(displayCard) || getCardUrlLiga(displayCard)) && (
               <>
                 <Separator className="my-4" />
                 <div className="flex gap-2">
-                  {displayCard.url_tcg && (
+                  {getCardUrlTcg(displayCard) && (
                     <a
-                      href={displayCard.url_tcg}
+                      href={getCardUrlTcg(displayCard)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-primary hover:underline"
@@ -458,9 +486,9 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
                       TCG
                     </a>
                   )}
-                  {displayCard.url_liga && (
+                  {getCardUrlLiga(displayCard) && (
                     <a
-                      href={displayCard.url_liga}
+                      href={getCardUrlLiga(displayCard)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-primary hover:underline"
