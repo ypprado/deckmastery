@@ -7,9 +7,6 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from 'recharts';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
-import { Switch } from '@/components/ui/switch';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { toast } from 'sonner';
 import { Database } from '@/integrations/supabase/types';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -192,6 +189,112 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
   
   const cardImageUrl = getCardImageUrl(displayCard);
 
+  const renderCardDetails = () => {
+    const category = displayCard.category || '';
+
+    const commonDetails = (
+      <>
+        {displayCard.category && (
+          <div className="grid grid-cols-2 gap-2">
+            <div className="text-muted-foreground">Category</div>
+            <div className="font-medium">{displayCard.category}</div>
+          </div>
+        )}
+      </>
+    );
+
+    switch (category.toLowerCase()) {
+      case 'leader':
+        return (
+          <div className="space-y-3">
+            {commonDetails}
+            <div className="grid grid-cols-2 gap-2">
+              <div className="text-muted-foreground">Rarity</div>
+              <div className="font-medium">{displayCard.rarity}</div>
+
+              <div className="text-muted-foreground">Life</div>
+              <div className="font-medium">{displayCard.life}</div>
+
+              <div className="text-muted-foreground">Power</div>
+              <div className="font-medium">{displayCard.power}</div>
+
+              {displayCard.attribute && displayCard.attribute.length > 0 && (
+                <>
+                  <div className="text-muted-foreground">Attribute</div>
+                  <div className="font-medium">{Array.isArray(displayCard.attribute) ? displayCard.attribute.join(', ') : displayCard.attribute}</div>
+                </>
+              )}
+
+              <div className="text-muted-foreground">Type</div>
+              <div className="font-medium">{Array.isArray(displayCard.card_type) ? displayCard.card_type.join(', ') : displayCard.card_type}</div>
+            </div>
+          </div>
+        );
+
+      case 'character':
+        return (
+          <div className="space-y-3">
+            {commonDetails}
+            <div className="grid grid-cols-2 gap-2">
+              <div className="text-muted-foreground">Rarity</div>
+              <div className="font-medium">{displayCard.rarity}</div>
+
+              <div className="text-muted-foreground">Cost</div>
+              <div className="font-medium">{displayCard.cost}</div>
+
+              <div className="text-muted-foreground">Power</div>
+              <div className="font-medium">{displayCard.power}</div>
+
+              {displayCard.attribute && displayCard.attribute.length > 0 && (
+                <>
+                  <div className="text-muted-foreground">Attribute</div>
+                  <div className="font-medium">{Array.isArray(displayCard.attribute) ? displayCard.attribute.join(', ') : displayCard.attribute}</div>
+                </>
+              )}
+
+              <div className="text-muted-foreground">Type</div>
+              <div className="font-medium">{Array.isArray(displayCard.card_type) ? displayCard.card_type.join(', ') : displayCard.card_type}</div>
+            </div>
+          </div>
+        );
+
+      case 'event':
+        return (
+          <div className="space-y-3">
+            {commonDetails}
+            <div className="grid grid-cols-2 gap-2">
+              <div className="text-muted-foreground">Rarity</div>
+              <div className="font-medium">{displayCard.rarity}</div>
+
+              <div className="text-muted-foreground">Cost</div>
+              <div className="font-medium">{displayCard.cost}</div>
+
+              <div className="text-muted-foreground">Type</div>
+              <div className="font-medium">{Array.isArray(displayCard.card_type) ? displayCard.card_type.join(', ') : displayCard.card_type}</div>
+            </div>
+          </div>
+        );
+
+      case 'don!!':
+        return (
+          <div className="space-y-3">
+            {commonDetails}
+          </div>
+        );
+
+      default:
+        return (
+          <div className="space-y-3">
+            {commonDetails}
+            <div className="grid grid-cols-2 gap-2">
+              <div className="text-muted-foreground">Type</div>
+              <div className="font-medium">{Array.isArray(displayCard.card_type) ? displayCard.card_type.join(', ') : displayCard.card_type}</div>
+            </div>
+          </div>
+        );
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent
@@ -262,72 +365,48 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
             </DialogHeader>
             
             <div className="space-y-3 mt-4">
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <div className="text-muted-foreground">{t('type')}</div>
-                <div className="font-medium">{formatCardType(getCardType(displayCard))}</div>
-                
-                <div className="text-muted-foreground">{t('cost')}</div>
-                <div className="font-medium">{displayCard.cost}</div>
-                
-                <div className="text-muted-foreground">{t('rarity')}</div>
-                <div className="font-medium">
-                  {'rarity' in displayCard ? displayCard.rarity : ''}
-                </div>
-                
-                {supabaseCard && (
-                  <>
-                    {supabaseCard.attribute && supabaseCard.attribute.length > 0 && (
-                      <>
-                        <div className="text-muted-foreground">Attributes</div>
-                        <div className="font-medium">{formatAttributes(supabaseCard.attribute)}</div>
-                      </>
-                    )}
-                    
-                    {supabaseCard.subTypeName && (
-                      <>
-                        <div className="text-muted-foreground">Sub Type</div>
-                        <div className="font-medium">{supabaseCard.subTypeName}</div>
-                      </>
-                    )}
-                    
-                    {(supabaseCard.url_tcg || supabaseCard.url_liga) && (
-                      <>
-                        <div className="text-muted-foreground">URL</div>
-                        <div className="font-medium space-x-2">
-                          {supabaseCard.url_tcg && (
-                            <a
-                              href={supabaseCard.url_tcg}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-primary hover:underline"
-                            >
-                              TCG
-                            </a>
-                          )}
-                          {supabaseCard.url_liga && (
-                            <a
-                              href={supabaseCard.url_liga}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-primary hover:underline"
-                            >
-                              Liga
-                            </a>
-                          )}
-                        </div>
-                      </>
-                    )}
-                    
-                    {supabaseCard.category && (
-                      <>
-                        <div className="text-muted-foreground">Category</div>
-                        <div className="font-medium">{supabaseCard.category}</div>
-                      </>
-                    )}
-                  </>
-                )}
-              </div>
+              {renderCardDetails()}
             </div>
+            
+            {displayCard.card_text && (
+              <>
+                <Separator className="my-4" />
+                <div className="space-y-2">
+                  <h3 className="text-sm font-medium">Card Text</h3>
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                    {displayCard.card_text}
+                  </p>
+                </div>
+              </>
+            )}
+
+            {(displayCard.url_tcg || displayCard.url_liga) && (
+              <>
+                <Separator className="my-4" />
+                <div className="flex gap-2">
+                  {displayCard.url_tcg && (
+                    <a
+                      href={displayCard.url_tcg}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline"
+                    >
+                      TCG
+                    </a>
+                  )}
+                  {displayCard.url_liga && (
+                    <a
+                      href={displayCard.url_liga}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline"
+                    >
+                      Liga
+                    </a>
+                  )}
+                </div>
+              </>
+            )}
             
             <Separator className="my-4" />
             
