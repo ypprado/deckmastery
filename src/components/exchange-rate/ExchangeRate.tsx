@@ -11,7 +11,11 @@ export const ExchangeRate = () => {
     queryKey: ['exchangeRate'],
     queryFn: async () => {
       const { data, error } = await supabase.functions.invoke('get-exchange-rate');
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching exchange rate:', error);
+        throw error;
+      }
+      console.log('Exchange rate data:', data);
       return data;
     },
     refetchInterval: 1000 * 60 * 60 * 8, // Refetch every 8 hours
