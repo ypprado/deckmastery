@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Card as CardType } from '@/hooks/use-decks';
@@ -12,6 +11,9 @@ import { Database } from '@/integrations/supabase/types';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CardDetailImageZoom from '@/components/ui/card-detail-image-zoom';
+import { usePriceHistory } from '@/hooks/use-price-history';
+import { format } from 'date-fns';
+import { Skeleton } from "@/components/ui/skeleton";
 
 // Update the CardType interface to include the missing properties from the error messages
 interface ExtendedCardType extends CardType {
@@ -68,21 +70,6 @@ const colorMap: Record<string, string> = {
   green: 'bg-green-100 text-green-800',
   yellow: 'bg-yellow-100 text-yellow-800',
   purple: 'bg-purple-100 text-purple-800',
-};
-
-const generatePriceData = () => {
-  const data = [];
-  const startPrice = Math.random() * 20 + 5;
-  
-  for (let i = 0; i < 30; i++) {
-    const dayPrice = startPrice + (Math.random() * 10 - 5) * (i / 15);
-    data.push({
-      day: i + 1,
-      price: Math.max(0.5, parseFloat(dayPrice.toFixed(2))),
-    });
-  }
-  
-  return data;
 };
 
 const getCardImageUrl = (card: DisplayCardType): string => {
@@ -156,7 +143,6 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
   hasNextCard = false,
   hasPreviousCard = false
 }) => {
-  const [priceData] = useState(generatePriceData());
   const { t } = useLanguage();
   const [supabaseCard, setSupabaseCard] = useState<Database['public']['Tables']['cards']['Row'] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -204,6 +190,33 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
       fetchCardDetails();
     }
   }, [card, isOpen]);
+
+  const { data: priceHistory, isLoading: isPriceLoading } = usePriceHistory(card?.id || 0);
+
+  const formatPriceData = (data: typeof priceHistory) => {
+    if (!data) return [];
+    
+    return data.map(entry => ({
+      date: format(new Date(entry.recorded_at), 'MMM dd'),
+      BR: entry.price_min_liga || 0,
+      US: entry.price_market_tcg || 0,
+    }));
+  };
+
+  const chartConfig = {
+    BR: {
+      theme: {
+        light: "#dc2626",
+        dark: "#ef4444",
+      },
+    },
+    US: {
+      theme: {
+        light: "#2563eb",
+        dark: "#3b82f6",
+      },
+    },
+  };
   
   if (!card) return null;
   
@@ -503,44 +516,49 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
             
             <div className="flex-1 mt-2">
               <h3 className="text-sm font-medium mb-2">{t('priceHistory')}</h3>
-              <div className="h-[200px] w-full">
-                <ChartContainer
-                  config={{
-                    price: {
-                      label: t('price'),
-                      theme: {
-                        light: "#2563eb",
-                        dark: "#3b82f6",
-                      },
-                    },
-                  }}
-                >
-                  <AreaChart data={priceData}>
-                    <defs>
-                      <linearGradient id="priceGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="day" label={{ value: t('days'), position: 'insideBottom', offset: -5 }} />
-                    <YAxis 
-                      domain={['dataMin - 1', 'dataMax + 1']}
-                      label={{ value: t('price'), angle: -90, position: 'insideLeft' }}
-                    />
-                    <ChartTooltip
-                      content={<ChartTooltipContent formatter={(value) => [`$${value}`, t('price')]} />}
-                    />
-                    <Area
-                      type="monotone" 
-                      dataKey="price" 
-                      stroke="#3b82f6" 
-                      fillOpacity={1}
-                      fill="url(#priceGradient)"
-                    />
-                  </AreaChart>
-                </ChartContainer>
-              </div>
+              {isPriceLoading ? (
+                <div className="h-[200px] w-full">
+                  <Skeleton className="h-full w-full" />
+                </div>
+              ) : priceHistory && priceHistory.length > 0 ? (
+                <div className="h-[200px] w-full">
+                  <ChartContainer config={chartConfig}>
+                    <AreaChart data={formatPriceData(priceHistory)}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis 
+                        dataKey="date" 
+                        label={{ value: t('days'), position: 'insideBottom', offset: -5 }} 
+                      />
+                      <YAxis 
+                        label={{ value: t('price'), angle: -90, position: 'insideLeft' }}
+                      />
+                      <ChartTooltip
+                        content={<ChartTooltipContent 
+                          formatter={(value, name) => [`$${value}`, name === 'BR' ? 'Brazil Price' : 'US Price']} 
+                        />}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="BR"
+                        stroke="var(--color-BR)"
+                        fill="var(--color-BR)"
+                        fillOpacity={0.1}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="US"
+                        stroke="var(--color-US)"
+                        fill="var(--color-US)"
+                        fillOpacity={0.1}
+                      />
+                    </AreaChart>
+                  </ChartContainer>
+                </div>
+              ) : (
+                <div className="h-[200px] w-full flex items-center justify-center border rounded-lg bg-muted/10">
+                  <p className="text-muted-foreground">No price data available</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
