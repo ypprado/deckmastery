@@ -4,7 +4,7 @@ import { Card as CardType } from '@/hooks/use-decks';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Legend } from 'recharts';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Database } from '@/integrations/supabase/types';
@@ -541,6 +541,12 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
                 <div className="h-[200px] w-full">
                   <ChartContainer config={chartConfig}>
                     <AreaChart data={formatPriceData(priceHistory)}>
+                      <Legend 
+                        verticalAlign="top"
+                        align="right"
+                        layout="horizontal"
+                        wrapperStyle={{ top: 0, right: 20 }}
+                      />
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis 
                         dataKey="date" 
