@@ -1,4 +1,3 @@
-
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { LayoutDashboard, Book, Settings, PlusCircle, Menu, X, Github, Moon, Sun, LogIn, ChevronDown, Library, LibraryBig, MessageCircle, Package, Box } from "lucide-react";
@@ -18,6 +17,7 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { Footer } from "./Footer";
+import { ExchangeRate } from "@/components/exchange-rate/ExchangeRate";
 
 const Layout = () => {
   const location = useLocation();
@@ -38,7 +38,6 @@ const Layout = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
-  // Using activeGameCategory from useDecks() hook, no need for duplicate state
   const currentGameName = gameCategories.find(cat => cat.id === activeGameCategory)?.name || 'One Piece';
   
   useEffect(() => {
@@ -136,6 +135,8 @@ const Layout = () => {
               <PlusCircle className="h-4 w-4 mr-2" />
               {t('newDeck')}
             </Button>
+            
+            <ExchangeRate />
             
             <LanguageSelector />
             
