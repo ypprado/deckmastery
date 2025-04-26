@@ -27,7 +27,6 @@ export const usePriceHistory = (cardId: string | number, days: number = 30) => {
         .order("recorded_at", { ascending: true });
 
       if (error) throw error;
-      console.log('Fetched price history:', data);
 
       return data as PriceHistoryEntry[];
     },

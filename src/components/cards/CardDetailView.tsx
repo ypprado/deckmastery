@@ -14,6 +14,7 @@ import CardDetailImageZoom from '@/components/ui/card-detail-image-zoom';
 import { usePriceHistory } from '@/hooks/use-price-history';
 import { format } from 'date-fns';
 import { Skeleton } from "@/components/ui/skeleton";
+import { useExchangeRate } from "@/hooks/use-exchange-rate";
 
 // Update the CardType interface to include the missing properties from the error messages
 interface ExtendedCardType extends CardType {
@@ -192,7 +193,7 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
   }, [card, isOpen]);
 
   const { data: priceHistory, isLoading: isPriceLoading } = usePriceHistory(card?.id || 0);
-
+  const { data: exchangeRateData } = useExchangeRate();
   const formatPriceData = (data: typeof priceHistory) => {
     if (!data) return [];
 
@@ -209,7 +210,7 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
         groupedData[date].BR = entry.price_min_liga;
       }
       if (entry.price_market_tcg !== null) {
-        groupedData[date].US = entry.price_market_tcg;
+        groupedData[date].US = parseFloat((entry.price_market_tcg * (exchangeRateData?.rate || 1)).toFixed(2));
       }
     });
 
@@ -557,7 +558,10 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
                       />
                       <ChartTooltip
                         content={<ChartTooltipContent 
-                          formatter={(value, name) => [`$${value}`, name === 'BR' ? ' Brazil' : ' US']} 
+                          formatter={(value, name) => [
+                            Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+                            name === 'BR' ? ' - BR' : ' - US (converted)'
+                          ]}
                         />}
                       />
                       <Area
