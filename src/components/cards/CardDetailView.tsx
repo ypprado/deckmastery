@@ -284,23 +284,14 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
   const renderCardDetails = () => {
     const category = getCategory(displayCard);
 
-    const commonDetails = (
-      <>
-        {category && (
-          <div className="grid grid-cols-2 gap-2">
-            <div className="text-muted-foreground">Category</div>
-            <div className="font-medium">{category}</div>
-          </div>
-        )}
-      </>
-    );
-
     switch (category.toLowerCase()) {
       case 'leader':
         return (
           <div className="space-y-3">
-            {commonDetails}
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-[auto,1fr] gap-x-[20px] gap-y-2">
+              <div className="text-muted-foreground">Category</div>
+              <div className="font-medium">{category}</div>
+
               <div className="text-muted-foreground">Rarity</div>
               <div className="font-medium">{getRarity(displayCard)}</div>
 
@@ -326,8 +317,10 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
       case 'character':
         return (
           <div className="space-y-3">
-            {commonDetails}
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-[auto,1fr] gap-x-[20px] gap-y-2">
+              <div className="text-muted-foreground">Category</div>
+              <div className="font-medium">{category}</div>
+
               <div className="text-muted-foreground">Rarity</div>
               <div className="font-medium">{getRarity(displayCard)}</div>
 
@@ -353,8 +346,10 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
       case 'event':
         return (
           <div className="space-y-3">
-            {commonDetails}
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-[auto,1fr] gap-x-[20px] gap-y-2">
+              <div className="text-muted-foreground">Category</div>
+              <div className="font-medium">{category}</div>
+
               <div className="text-muted-foreground">Rarity</div>
               <div className="font-medium">{getRarity(displayCard)}</div>
 
@@ -370,15 +365,20 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
       case 'don!!':
         return (
           <div className="space-y-3">
-            {commonDetails}
+            <div className="grid grid-cols-[auto,1fr] gap-x-[20px] gap-y-2">
+              <div className="text-muted-foreground">Category</div>
+              <div className="font-medium">{category}</div>
+            </div>
           </div>
         );
 
       default:
         return (
           <div className="space-y-3">
-            {commonDetails}
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-[auto,1fr] gap-x-[20px] gap-y-2">
+              <div className="text-muted-foreground">Category</div>
+              <div className="font-medium">{category}</div>
+
               <div className="text-muted-foreground">Type</div>
               <div className="font-medium">{formatCardType(getCardTypeValue(displayCard))}</div>
             </div>
@@ -420,7 +420,7 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
             <ChevronRight className="h-6 w-6" />
           </Button>
         )}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full min-h-[600px]">
           <div className="p-6 flex items-center justify-center bg-gradient-to-br from-background to-muted/50 relative">
             {supabaseCard?.card_number && (
               <div className="absolute top-4 center-4 text-xl font-bold">
@@ -464,7 +464,6 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
               <>
                 <Separator className="my-4" />
                 <div className="space-y-2">
-                  <h3 className="text-sm font-medium">Card Text</h3>
                   <p className="text-sm text-muted-foreground whitespace-pre-wrap">
                     {getCardText(displayCard)}
                   </p>
