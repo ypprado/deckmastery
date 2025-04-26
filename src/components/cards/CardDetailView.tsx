@@ -318,13 +318,6 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
                       </>
                     )}
                     
-                    {supabaseCard.language && (
-                      <>
-                        <div className="text-muted-foreground">Language</div>
-                        <div className="font-medium">{supabaseCard.language}</div>
-                      </>
-                    )}
-                    
                     {supabaseCard.category && (
                       <>
                         <div className="text-muted-foreground">Category</div>
