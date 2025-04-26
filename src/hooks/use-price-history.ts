@@ -15,10 +15,13 @@ export const usePriceHistory = (cardId: string | number, days: number = 30) => {
   return useQuery({
     queryKey: ["price-history", cardId],
     queryFn: async () => {
+      // Convert cardId to number if it's a string
+      const numericCardId = typeof cardId === 'string' ? parseInt(cardId, 10) : cardId;
+      
       const { data, error } = await supabase
         .from("price_history")
         .select("recorded_at, price_min_liga, price_market_tcg")
-        .eq("card_id", cardId)
+        .eq("card_id", numericCardId)
         .gte("recorded_at", thirtyDaysAgo.toISOString())
         .order("recorded_at", { ascending: true });
 
