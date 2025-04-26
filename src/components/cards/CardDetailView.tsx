@@ -227,6 +227,16 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
         )}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
           <div className="p-6 flex items-center justify-center bg-gradient-to-br from-background to-muted/50 relative">
+            {supabaseCard?.card_number && (
+              <div className="absolute top-4 center-4 text-xl font-bold">
+                {supabaseCard.card_number}
+                {supabaseCard.groupid_liga && (
+                  <span className="text-xl font-bold ml-2">
+                    ({supabaseCard.groupid_liga})
+                  </span>
+                )}
+              </div>
+            )}
             <div className="relative aspect-[3/4] max-h-[500px] w-auto shadow-xl rounded-lg overflow-hidden">
               <CardDetailImageZoom
                 src={cardImageUrl}
@@ -264,25 +274,8 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
                   {'rarity' in displayCard ? displayCard.rarity : ''}
                 </div>
                 
-                <div className="text-muted-foreground">{t('set')}</div>
-                <div className="font-medium">{getCardSet(displayCard)}</div>
-                
                 {supabaseCard && (
                   <>
-                    {supabaseCard.card_number && (
-                      <>
-                        <div className="text-muted-foreground">Card Number</div>
-                        <div className="font-medium">{supabaseCard.card_number}</div>
-                      </>
-                    )}
-                    
-                    {supabaseCard.card_number_liga && (
-                      <>
-                        <div className="text-muted-foreground">Liga Card Number</div>
-                        <div className="font-medium">{supabaseCard.card_number_liga}</div>
-                      </>
-                    )}
-                    
                     {supabaseCard.attribute && supabaseCard.attribute.length > 0 && (
                       <>
                         <div className="text-muted-foreground">Attributes</div>
@@ -297,24 +290,30 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
                       </>
                     )}
                     
-                    {supabaseCard.url_tcg && (
+                    {(supabaseCard.url_tcg || supabaseCard.url_liga) && (
                       <>
-                        <div className="text-muted-foreground">TCG URL</div>
-                        <div className="font-medium">
-                          <a href={supabaseCard.url_tcg} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                            View on TCG
-                          </a>
-                        </div>
-                      </>
-                    )}
-                    
-                    {supabaseCard.url_liga && (
-                      <>
-                        <div className="text-muted-foreground">Liga URL</div>
-                        <div className="font-medium">
-                          <a href={supabaseCard.url_liga} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                            View on Liga
-                          </a>
+                        <div className="text-muted-foreground">URL</div>
+                        <div className="font-medium space-x-2">
+                          {supabaseCard.url_tcg && (
+                            <a
+                              href={supabaseCard.url_tcg}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-primary hover:underline"
+                            >
+                              TCG
+                            </a>
+                          )}
+                          {supabaseCard.url_liga && (
+                            <a
+                              href={supabaseCard.url_liga}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-primary hover:underline"
+                            >
+                              Liga
+                            </a>
+                          )}
                         </div>
                       </>
                     )}
