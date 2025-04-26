@@ -8,13 +8,78 @@ const corsHeaders = {
 }
 
 const CACHE_KEY = 'CURRENT_USD_BRL_RATE';
+const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute window
+const MAX_REQUESTS = 30; // 30 requests per minute
+
+interface RateLimitInfo {
+  count: number;
+  timestamp: number;
+}
+
+const rateLimitStore = new Map<string, RateLimitInfo>();
+
+function isRateLimited(clientId: string): boolean {
+  const now = Date.now();
+  const clientInfo = rateLimitStore.get(clientId);
+
+  if (!clientInfo) {
+    rateLimitStore.set(clientId, { count: 1, timestamp: now });
+    return false;
+  }
+
+  if (now - clientInfo.timestamp > RATE_LIMIT_WINDOW) {
+    // Reset if window has expired
+    rateLimitStore.set(clientId, { count: 1, timestamp: now });
+    return false;
+  }
+
+  if (clientInfo.count >= MAX_REQUESTS) {
+    return true;
+  }
+
+  // Increment counter
+  clientInfo.count++;
+  rateLimitStore.set(clientId, clientInfo);
+  return false;
+}
+
+// Clean up old rate limit entries every 5 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, value] of rateLimitStore.entries()) {
+    if (now - value.timestamp > RATE_LIMIT_WINDOW) {
+      rateLimitStore.delete(key);
+    }
+  }
+}, 5 * 60 * 1000);
 
 serve(async (req) => {
+  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // Get client identifier (IP or API key)
+    const clientId = req.headers.get('x-client-info') || req.headers.get('x-forwarded-for') || 'unknown';
+
+    // Check rate limit
+    if (isRateLimited(clientId)) {
+      return new Response(
+        JSON.stringify({
+          error: 'Too many requests',
+          details: 'Rate limit exceeded. Please try again later.'
+        }), {
+          status: 429,
+          headers: { 
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+            'Retry-After': '60'
+          }
+        }
+      );
+    }
+
     const client = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -25,28 +90,56 @@ serve(async (req) => {
 
     if (isUpdate) {
       console.log('Updating exchange rate from cron job');
-      const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
-      const data = await response.json();
-      const rate = data.rates.BRL;
+      try {
+        const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+        if (!response.ok) {
+          throw new Error(`Exchange rate API error: ${response.status}`);
+        }
+        const data = await response.json();
+        const rate = data.rates.BRL;
 
-      // Store in KV storage
-      await client.from('config').upsert({
-        key: CACHE_KEY,
-        value: rate,
-        updated_at: new Date().toISOString()
-      });
+        // Store in KV storage
+        await client.from('config').upsert({
+          key: CACHE_KEY,
+          value: rate,
+          updated_at: new Date().toISOString()
+        });
 
-      return new Response(JSON.stringify({ success: true }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
-      });
+        return new Response(JSON.stringify({ 
+          success: true,
+          message: 'Exchange rate updated successfully'
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        });
+      } catch (error) {
+        console.error('Error updating exchange rate:', error);
+        return new Response(JSON.stringify({ 
+          error: 'Failed to update exchange rate',
+          details: 'External API or database error'
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 503,
+        });
+      }
     }
 
     // Regular request - return cached rate
-    const { data: config } = await client.from('config')
+    const { data: config, error: dbError } = await client.from('config')
       .select('value, updated_at')
       .eq('key', CACHE_KEY)
       .single();
+
+    if (dbError) {
+      console.error('Database error:', dbError);
+      return new Response(JSON.stringify({ 
+        error: 'Service unavailable',
+        details: 'Unable to retrieve exchange rate data'
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 503,
+      });
+    }
 
     return new Response(JSON.stringify({
       rate: config?.value ?? null,
@@ -55,9 +148,13 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
     });
+
   } catch (error) {
-    console.error('Error:', error);
-    return new Response(JSON.stringify({ error: 'Internal Server Error' }), {
+    console.error('Unexpected error:', error);
+    return new Response(JSON.stringify({ 
+      error: 'Internal server error',
+      details: 'An unexpected error occurred'
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 500,
     });
