@@ -340,7 +340,7 @@ const DeckView = () => {
             {error || "The deck you're looking for doesn't exist."}
           </AlertDescription>
         </Alert>
-        <Button onClick={() => navigate("/")}>
+        <Button onClick={() => navigate("/mydecks")}>
           Return to Dashboard
         </Button>
       </div>
@@ -401,7 +401,7 @@ const DeckView = () => {
   const handleDeleteDeck = () => {
     if (window.confirm("Are you sure you want to delete this deck? This action cannot be undone.")) {
       deleteDeck(deck.id);
-      navigate("/dashboard");
+      navigate("/mydecks");
     }
   };
 
@@ -423,7 +423,7 @@ const DeckView = () => {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/mydecks")}
             className="mr-2"
           >
             <ArrowLeft className="h-4 w-4" />
