@@ -80,7 +80,12 @@ const CardLibraryHeader = ({
         <SelectContent>
           <SelectItem value="all-sets">{t('allSets')}</SelectItem>
           {availableSets.map(({ id, name }) => (
-            <SelectItem key={id} value={id}>{`${id} - ${name}`}</SelectItem>
+            <SelectItem 
+              key={id} 
+              value={id || "unknown-set"}
+            >
+              {`${id} - ${name}`}
+            </SelectItem>
           ))}
         </SelectContent>
       </Select>
