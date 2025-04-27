@@ -393,8 +393,13 @@ const DeckView = () => {
     count
   }));
 
+  // Fixed manaCurve calculation to ensure cost is treated as a number
   const manaCurve = deck.cards.reduce((acc, { card, quantity }) => {
-    acc[card.cost] = (acc[card.cost] || 0) + quantity;
+    // Convert cost to a number and use it as a key
+    const costKey = Number(card.cost);
+    if (!isNaN(costKey)) {
+      acc[costKey] = (acc[costKey] || 0) + quantity;
+    }
     return acc;
   }, {} as Record<number, number>);
 
