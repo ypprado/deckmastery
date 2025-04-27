@@ -151,4 +151,5 @@ export const ptTranslations: Translations = {
   legal: 'Legal',
   allRightsReserved: 'Todos os direitos reservados.',
   onePieceDisclaimer: 'One Piece Card Game e suas respectivas propriedades são direitos autorais de Akiyoshi Hongo, Toei Animation.',
+  errorSavingDeck: 'Erro ao salvar o deck. Por favor, tente novamente.',
 };

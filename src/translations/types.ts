@@ -151,4 +151,5 @@ export interface Translations {
   legal: string;
   allRightsReserved: string;
   onePieceDisclaimer: string;
+  errorSavingDeck: string;
 }
