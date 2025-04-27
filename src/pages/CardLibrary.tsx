@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCards } from '@/hooks/use-decks';
@@ -82,10 +83,11 @@ const CardLibrary = () => {
     console.log('Available sets from useCardDatabase:', sets);
   }, [activeGameCategory, cards, sets]);
 
+  // Get unique set IDs from cards and map them to available set info
   const availableSets = Array.from(
-    new Set(cards.map(card => card.set))
+    new Set(cards.map(card => card.set).filter(setId => setId && setId.trim() !== ''))
   )
-  .filter((setId): setId is string => setId !== null && setId !== undefined)
+  .filter((setId): setId is string => setId !== null && setId !== undefined && setId.trim() !== '')
   .map(setId => {
     const setIdNumber = parseInt(setId);
     const setInfo = !isNaN(setIdNumber) ? sets.find(set => set.id === setIdNumber) : null;

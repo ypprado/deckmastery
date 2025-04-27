@@ -51,6 +51,9 @@ const CardLibraryHeader = ({
     console.log('Available sets in CardLibraryHeader:', availableSets);
   }, [availableSets]);
 
+  const hasValidSets = availableSets && availableSets.length > 0 && 
+    availableSets.some(set => set.id && set.id.trim() !== '');
+
   return (
     <div className="flex flex-col gap-4 sm:flex-row">
       <div className="flex-1">
@@ -85,15 +88,17 @@ const CardLibraryHeader = ({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all-sets">{t('allSets')}</SelectItem>
-          {availableSets && availableSets.length > 0 ? (
-            availableSets.map(({ id, name }) => (
-              <SelectItem 
-                key={id} 
-                value={id || "unknown-set"}
-              >
-                {`${id} - ${name}`}
-              </SelectItem>
-            ))
+          {hasValidSets ? (
+            availableSets
+              .filter(set => set.id && set.id.trim() !== '')
+              .map(({ id, name }) => (
+                <SelectItem 
+                  key={id} 
+                  value={id}
+                >
+                  {name || id}
+                </SelectItem>
+              ))
           ) : (
             <SelectItem value="no-sets-found">{t('noSetsFound')}</SelectItem>
           )}
