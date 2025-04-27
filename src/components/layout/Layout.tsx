@@ -71,14 +71,11 @@ const Layout = () => {
                 {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </Button>}
             <Link to="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-md bg-primary/90 flex items-center justify-center text-primary-foreground">
-                <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M6 3L18 3C19.1046 3 20 3.89543 20 5L20 19C20 20.1046 19.1046 21 18 21L6 21C4.89543 21 4 20.1046 4 19L4 5C4 3.89543 4.89543 3 6 3Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
-                  <path d="M9 10L15 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M12 7L12 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M8 17H16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </div>
+              <img 
+                src="/lovable-uploads/9a9a4f13-0ac7-4d75-bf24-d6423c640abe.png" 
+                alt="DeckMastery Logo" 
+                className="w-8 h-8 object-contain"
+              />
               <div className="flex items-center">
                 <span className="font-display font-semibold text-lg tracking-tight">DeckMastery</span>
                 

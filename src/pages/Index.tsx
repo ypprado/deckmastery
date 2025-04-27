@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -10,6 +9,11 @@ const Index = () => {
   
   return (
     <div className="flex flex-col items-center justify-center min-h-[80vh] px-4 text-center">
+      <img 
+        src="/lovable-uploads/9a9a4f13-0ac7-4d75-bf24-d6423c640abe.png" 
+        alt="DeckMastery Logo" 
+        className="w-24 h-24 object-contain mb-6"
+      />
       <h1 className="text-4xl font-bold mb-4">{t('welcome')}</h1>
       <p className="text-xl text-muted-foreground max-w-md mb-8">
         {t('welcomeDescription')}
