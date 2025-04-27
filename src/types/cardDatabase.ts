@@ -11,12 +11,12 @@ export interface CardSet {
 }
 
 export interface CardDetails {
-  id: string; // Keeping as string for compatibility
+  id: string;
   name: string;
-  set: string; // This now refers to groupid_liga
+  set: string; // This now refers to groupid_market_br
   setName?: string;
   imageUrl: string;
-  type: string | string[]; // Changed to support both single string and array of strings
+  type: string | string[];
   cost: number;
   rarity: string;
   colors: string[];
@@ -25,26 +25,26 @@ export interface CardDetails {
   artist?: string;
   legality?: string[];
   price?: number;
-  url_tcg?: string; // This field is needed
-  url_liga?: string; // This field is needed
+  url_tcg?: string;
+  url_market_br?: string;
   subTypeName?: string;
-  card_number?: string; // Added field, now text type
-  card_number_liga?: string; // Added the new field
-  groupid_tcg?: number; // Added new field
-  attribute?: AttributeType[]; // Use the proper enum type here
-  parallel?: string[]; // Added parallel property
-  category?: string; // Added category property
-  life?: number; // Added life property
-  power?: number; // Added power property
-  card_type?: string | string[]; // Added card_type property
-  card_text?: string; // Added card_text property
+  card_number?: string;
+  card_number_market_br?: string;
+  groupid_tcg?: number;
+  attribute?: AttributeType[];
+  parallel?: string[];
+  category?: string;
+  life?: number;
+  power?: number;
+  card_type?: string | string[];
+  card_text?: string;
 }
 
 export interface CardDatabaseFormValues {
   gameCategory: GameCategory;
-  setId: string; // This now refers to groupid_liga
+  setId: string; // This now refers to groupid_market_br
   name: string;
-  type: string | string[]; // Changed to support both single string and array of strings
+  type: string | string[];
   cost: number;
   rarity: string;
   colors: string[];
@@ -53,11 +53,11 @@ export interface CardDatabaseFormValues {
   artist?: string;
   legality?: string;
   price?: number;
-  url_tcg?: string; // Adding this field
-  url_liga?: string; // Adding this field
+  url_tcg?: string;
+  url_market_br?: string;
   subTypeName?: string;
-  card_number?: string; // Added field
-  card_number_liga?: string; // Added the new field
-  groupid_tcg?: number; // Added new field
-  attribute?: AttributeType[]; // Use the proper enum type here
+  card_number?: string;
+  card_number_market_br?: string;
+  groupid_tcg?: number;
+  attribute?: AttributeType[];
 }

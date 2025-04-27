@@ -44,7 +44,7 @@ export type Database = {
           artwork_url: string
           attribute: Database["public"]["Enums"]["attribute_type"][] | null
           card_number: string | null
-          card_number_liga: string | null
+          card_number_market_br: string | null
           card_text: string | null
           card_type: Database["public"]["Enums"]["card_type"][]
           category: Database["public"]["Enums"]["category_type"] | null
@@ -53,7 +53,7 @@ export type Database = {
           counter: number | null
           created_at: string
           game_category: Database["public"]["Enums"]["game_category"]
-          groupid_liga: string | null
+          groupid_market_br: string | null
           groupid_tcg: number | null
           id: number
           language: Database["public"]["Enums"]["language_type"] | null
@@ -64,14 +64,14 @@ export type Database = {
           rarity: Database["public"]["Enums"]["rarity_type"] | null
           subTypeName: Database["public"]["Enums"]["sub_type"] | null
           updated_at: string
-          url_liga: string | null
+          url_market_br: string | null
           url_tcg: string | null
         }
         Insert: {
           artwork_url: string
           attribute?: Database["public"]["Enums"]["attribute_type"][] | null
           card_number?: string | null
-          card_number_liga?: string | null
+          card_number_market_br?: string | null
           card_text?: string | null
           card_type: Database["public"]["Enums"]["card_type"][]
           category?: Database["public"]["Enums"]["category_type"] | null
@@ -80,7 +80,7 @@ export type Database = {
           counter?: number | null
           created_at?: string
           game_category: Database["public"]["Enums"]["game_category"]
-          groupid_liga?: string | null
+          groupid_market_br?: string | null
           groupid_tcg?: number | null
           id: number
           language?: Database["public"]["Enums"]["language_type"] | null
@@ -91,14 +91,14 @@ export type Database = {
           rarity?: Database["public"]["Enums"]["rarity_type"] | null
           subTypeName?: Database["public"]["Enums"]["sub_type"] | null
           updated_at?: string
-          url_liga?: string | null
+          url_market_br?: string | null
           url_tcg?: string | null
         }
         Update: {
           artwork_url?: string
           attribute?: Database["public"]["Enums"]["attribute_type"][] | null
           card_number?: string | null
-          card_number_liga?: string | null
+          card_number_market_br?: string | null
           card_text?: string | null
           card_type?: Database["public"]["Enums"]["card_type"][]
           category?: Database["public"]["Enums"]["category_type"] | null
@@ -107,7 +107,7 @@ export type Database = {
           counter?: number | null
           created_at?: string
           game_category?: Database["public"]["Enums"]["game_category"]
-          groupid_liga?: string | null
+          groupid_market_br?: string | null
           groupid_tcg?: number | null
           id?: number
           language?: Database["public"]["Enums"]["language_type"] | null
@@ -118,13 +118,13 @@ export type Database = {
           rarity?: Database["public"]["Enums"]["rarity_type"] | null
           subTypeName?: Database["public"]["Enums"]["sub_type"] | null
           updated_at?: string
-          url_liga?: string | null
+          url_market_br?: string | null
           url_tcg?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "cards_groupid_liga_fkey"
-            columns: ["groupid_liga"]
+            foreignKeyName: "cards_groupid_market_br_fkey"
+            columns: ["groupid_market_br"]
             isOneToOne: false
             referencedRelation: "card_sets"
             referencedColumns: ["id"]
@@ -196,12 +196,12 @@ export type Database = {
         Row: {
           card_id: number
           id: number
-          price_avg_liga: number | null
+          price_avg_market_br: number | null
           price_avg_tcg: number | null
           price_market_tcg: number | null
-          price_max_liga: number | null
+          price_max_market_br: number | null
           price_max_tcg: number | null
-          price_min_liga: number | null
+          price_min_market_br: number | null
           price_min_tcg: number | null
           recorded_at: string
           source: string
@@ -209,12 +209,12 @@ export type Database = {
         Insert: {
           card_id: number
           id?: number
-          price_avg_liga?: number | null
+          price_avg_market_br?: number | null
           price_avg_tcg?: number | null
           price_market_tcg?: number | null
-          price_max_liga?: number | null
+          price_max_market_br?: number | null
           price_max_tcg?: number | null
-          price_min_liga?: number | null
+          price_min_market_br?: number | null
           price_min_tcg?: number | null
           recorded_at?: string
           source?: string
@@ -222,12 +222,12 @@ export type Database = {
         Update: {
           card_id?: number
           id?: number
-          price_avg_liga?: number | null
+          price_avg_market_br?: number | null
           price_avg_tcg?: number | null
           price_market_tcg?: number | null
-          price_max_liga?: number | null
+          price_max_market_br?: number | null
           price_max_tcg?: number | null
-          price_min_liga?: number | null
+          price_min_market_br?: number | null
           price_min_tcg?: number | null
           recorded_at?: string
           source?: string

@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { CardDetails } from '@/types/cardDatabase';
@@ -93,6 +92,9 @@ export const useCards = (initialCards: CardDetails[] = []) => {
         card_number: newCard.card_number || null,
         card_number_liga: newCard.card_number_liga || null,
         groupid_tcg: newCard.groupid_tcg || null,
+        groupid_market_br: newCard.set,
+        url_market_br: newCard.url_market_br || null,
+        card_number_market_br: newCard.card_number_market_br || null,
         attribute: attributes, // Now properly typed as AttributeType[] or null
       };
       
@@ -221,6 +223,9 @@ export const useCards = (initialCards: CardDetails[] = []) => {
         card_number: cardData.card_number,
         card_number_liga: cardData.card_number_liga, // Added new field
         groupid_tcg: cardData.groupid_tcg,
+        groupid_market_br: cardData.set,
+        url_market_br: cardData.url_market_br,
+        card_number_market_br: cardData.card_number_market_br,
         attribute: attributes, // Added attribute support
       };
       

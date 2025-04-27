@@ -19,7 +19,7 @@ import { useExchangeRate } from "@/hooks/use-exchange-rate";
 // Update the CardType interface to include the missing properties from the error messages
 interface ExtendedCardType extends CardType {
   url_tcg?: string;
-  url_liga?: string;
+  url_market_br?: string;
   category?: string;
   life?: number;
   power?: number;
@@ -106,8 +106,8 @@ const formatCardType = (type: string | string[]): string => {
 const getCardSet = (card: DisplayCardType): string => {
   if ('set' in card) {
     return card.set;
-  } else if ('groupid_liga' in card) {
-    return card.groupid_liga || '';
+  } else if ('groupid_market_br' in card) {
+    return card.groupid_market_br || '';
   }
   return '';
 };
@@ -127,10 +127,10 @@ const getCardUrlTcg = (card: DisplayCardType): string | undefined => {
   return undefined;
 };
 
-// Helper function to safely get url_liga
-const getCardUrlLiga = (card: DisplayCardType): string | undefined => {
-  if ('url_liga' in card) {
-    return card.url_liga;
+// Helper function to safely get url_market_br
+const getCardUrlMarketBR = (card: DisplayCardType): string | undefined => {
+  if ('url_market_br' in card) {
+    return card.url_market_br;
   }
   return undefined;
 };
@@ -206,8 +206,8 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
         groupedData[date] = { date };
       }
 
-      if (entry.price_min_liga !== null) {
-        groupedData[date].BR = entry.price_min_liga;
+      if (entry.price_min_market_br !== null) {
+        groupedData[date].BR = entry.price_min_market_br;
       }
       if (entry.price_market_tcg !== null) {
         groupedData[date].US = parseFloat((entry.price_market_tcg * (exchangeRateData?.rate || 1)).toFixed(2));
@@ -456,9 +456,9 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
             {supabaseCard?.card_number && (
               <div className="absolute top-4 center-4 text-xl font-bold">
                 {supabaseCard.card_number}
-                {supabaseCard.groupid_liga && (
+                {supabaseCard.groupid_market_br && (
                   <span className="text-xl font-bold ml-2">
-                    ({supabaseCard.groupid_liga})
+                    ({supabaseCard.groupid_market_br})
                   </span>
                 )}
               </div>
@@ -502,7 +502,7 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
               </>
             )}
 
-            {(getCardUrlTcg(displayCard) || getCardUrlLiga(displayCard)) && (
+            {(getCardUrlTcg(displayCard) || getCardUrlMarketBR(displayCard)) && (
               <>
                 <Separator className="my-4" />
                 <div className="flex gap-2">
@@ -516,14 +516,14 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
                       TCG
                     </a>
                   )}
-                  {getCardUrlLiga(displayCard) && (
+                  {getCardUrlMarketBR(displayCard) && (
                     <a
-                      href={getCardUrlLiga(displayCard)}
+                      href={getCardUrlMarketBR(displayCard)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-primary hover:underline"
                     >
-                      Liga
+                      Market BR
                     </a>
                   )}
                 </div>
