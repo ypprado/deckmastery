@@ -90,10 +90,10 @@ export const useStaticData = (options: StaticDataOptions = {}) => {
           type: card.card_type || [],
           cost: card.cost || 0,
           rarity: card.rarity || '',
-          set: card.groupid_liga || '',
+          set: card.groupid_market_br || '',
           colors: card.colors as string[] || [],
           gameCategory: card.game_category,
-          card_number_liga: card.card_number_liga,
+          card_number_market_br: card.card_number_market_br,
           attribute: card.attribute as AttributeType[] || [],
           parallel: card.parallel || [], // Add parallel to the mapped data
           card_number: card.card_number,
