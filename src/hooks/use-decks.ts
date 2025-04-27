@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from "sonner";
 import { useStaticData } from './use-static-data';
@@ -52,62 +51,64 @@ export const useDecks = () => {
   const { cards: staticCards } = useStaticData({ initialGameCategory: activeGameCategory });
   const { user } = useAuth();
 
-  useEffect(() => {
-    const loadDecks = async () => {
-      if (!user) {
+  const fetchDecks = useCallback(async () => {
+    if (!user) {
+      setDecks([]);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('decks')
+        .select('*')
+        .eq('user_id', user.id);
+
+      if (error) {
+        throw error;
+      }
+
+      if (!data) {
         setDecks([]);
-        setLoading(false);
         return;
       }
 
-      try {
-        const { data, error } = await supabase
-          .from('decks')
-          .select('*')
-          .eq('user_id', user.id);
+      const formattedDecks: Deck[] = data.map(deck => ({
+        id: deck.id,
+        name: deck.name,
+        format: deck.format,
+        colors: deck.colors || [],
+        // Parse JSON data from database
+        cards: Array.isArray(deck.cards) ? deck.cards : JSON.parse(deck.cards as unknown as string),
+        createdAt: deck.created_at,
+        updatedAt: deck.updated_at,
+        description: deck.description,
+        // Parse coverCard if it exists
+        coverCard: deck.cover_card ? (typeof deck.cover_card === 'string' 
+          ? JSON.parse(deck.cover_card)
+          : deck.cover_card) : undefined,
+        gameCategory: deck.game_category as GameCategory
+      }));
 
-        if (error) {
-          throw error;
-        }
+      console.log("Fetched decks:", formattedDecks);
+      setDecks(formattedDecks);
+    } catch (error) {
+      console.error('Error loading decks:', error);
+      toast.error('Failed to load decks');
+    } finally {
+      setLoading(false);
+    }
+  }, [user]);
 
-        if (!data) {
-          setDecks([]);
-          return;
-        }
-
-        const formattedDecks: Deck[] = data.map(deck => ({
-          id: deck.id,
-          name: deck.name,
-          format: deck.format,
-          colors: deck.colors || [],
-          // Parse JSON data from database
-          cards: Array.isArray(deck.cards) ? deck.cards : JSON.parse(deck.cards as unknown as string),
-          createdAt: deck.created_at,
-          updatedAt: deck.updated_at,
-          description: deck.description,
-          // Parse coverCard if it exists
-          coverCard: deck.cover_card ? (typeof deck.cover_card === 'string' 
-            ? JSON.parse(deck.cover_card)
-            : deck.cover_card) : undefined,
-          gameCategory: deck.game_category as GameCategory
-        }));
-
-        setDecks(formattedDecks);
-      } catch (error) {
-        console.error('Error loading decks:', error);
-        toast.error('Failed to load decks');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadDecks();
+  useEffect(() => {
+    fetchDecks();
 
     const storedCategory = localStorage.getItem('activeGameCategory') as GameCategory;
     if (storedCategory) {
       setActiveGameCategory(storedCategory);
     }
-  }, [user]);
+  }, [user, fetchDecks]);
 
   const filteredDecks = decks.filter(deck => deck.gameCategory === activeGameCategory);
 
@@ -168,7 +169,7 @@ export const useDecks = () => {
         gameCategory: insertedDeck.game_category as GameCategory
       };
 
-      setDecks(prevDecks => [...prevDecks, newDeck]);
+      await fetchDecks(); // Refresh decks after saving
       toast.success("Deck saved successfully");
       return newDeck;
     } catch (error) {
@@ -203,20 +204,7 @@ export const useDecks = () => {
 
       if (error) throw error;
 
-      setDecks(prevDecks => {
-        const deckIndex = prevDecks.findIndex(d => d.id === id);
-        if (deckIndex === -1) return prevDecks;
-
-        const updatedDecks = [...prevDecks];
-        updatedDecks[deckIndex] = {
-          ...updatedDecks[deckIndex],
-          ...deckData,
-          updatedAt: new Date().toISOString()
-        };
-
-        return updatedDecks;
-      });
-
+      await fetchDecks(); // Refresh decks after updating
       toast.success("Deck updated successfully");
     } catch (error) {
       console.error('Error updating deck:', error);
@@ -239,7 +227,7 @@ export const useDecks = () => {
 
       if (error) throw error;
 
-      setDecks(prevDecks => prevDecks.filter(deck => deck.id !== id));
+      await fetchDecks(); // Refresh decks after deleting
       toast.success("Deck deleted successfully");
     } catch (error) {
       console.error('Error deleting deck:', error);
@@ -248,7 +236,10 @@ export const useDecks = () => {
   };
 
   const getDeck = useCallback((id: string) => {
-    return decks.find(deck => deck.id === id);
+    console.log("All available decks:", decks);
+    const foundDeck = decks.find(deck => deck.id === id);
+    console.log("Retrieved deck data:", foundDeck);
+    return foundDeck;
   }, [decks]);
 
   return {
@@ -259,6 +250,7 @@ export const useDecks = () => {
     updateDeck,
     deleteDeck,
     getDeck,
+    fetchDecks,
     activeGameCategory,
     changeGameCategory
   };

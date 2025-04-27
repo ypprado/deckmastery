@@ -290,7 +290,7 @@ const CardList = ({
 
 const DeckView = () => {
   const { id } = useParams<{ id: string }>();
-  const { getDeck, deleteDeck, allDecks } = useDecks();
+  const { getDeck, deleteDeck, allDecks, fetchDecks } = useDecks();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [deck, setDeck] = useState<ReturnType<typeof getDeck>>(undefined);
@@ -299,28 +299,36 @@ const DeckView = () => {
   const [cardGrouping, setCardGrouping] = useState<"type" | "cost" | "rarity">("type");
   
   useEffect(() => {
-    if (id) {
+    async function loadDeck() {
+      if (!id) return;
+      
       setLoading(true);
       setError(null);
       
-      console.log(`Attempting to load deck with ID: ${id}`);
-      console.log("All available decks:", allDecks);
-      
-      setTimeout(() => {
-        const deckData = getDeck(id);
-        console.log("Retrieved deck data:", deckData);
+      try {
+        await fetchDecks();
         
-        if (deckData) {
-          setDeck(deckData);
+        setTimeout(() => {
+          const deckData = getDeck(id);
+          
+          if (deckData) {
+            console.log("Found deck:", deckData);
+            setDeck(deckData);
+          } else {
+            console.error(`Deck with ID ${id} not found`);
+            setError("The deck you're looking for doesn't exist or couldn't be loaded.");
+          }
           setLoading(false);
-        } else {
-          console.error(`Deck with ID ${id} not found`);
-          setError("The deck you're looking for doesn't exist or couldn't be loaded.");
-          setLoading(false);
-        }
-      }, 500);
+        }, 300);
+      } catch (err) {
+        console.error("Error loading deck:", err);
+        setError("An error occurred while loading the deck.");
+        setLoading(false);
+      }
     }
-  }, [id, getDeck, allDecks]);
+    
+    loadDeck();
+  }, [id, getDeck, fetchDecks]);
 
   if (loading) {
     return (
