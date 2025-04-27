@@ -7,7 +7,7 @@ export interface CardSet {
   name: string;
   releaseYear: number; // Changed from releaseDate string to releaseYear number
   gameCategory: GameCategory;
-  groupid_tcg?: number; // Added new field
+  groupid_market_us?: number; // Added new field
 }
 
 export interface CardDetails {
@@ -25,12 +25,12 @@ export interface CardDetails {
   artist?: string;
   legality?: string[];
   price?: number;
-  url_tcg?: string;
+  url_market_us?: string;
   url_market_br?: string;
   subTypeName?: string;
   card_number?: string;
   card_number_market_br?: string;
-  groupid_tcg?: number;
+  groupid_market_us?: number;
   attribute?: AttributeType[];
   parallel?: string[];
   category?: string;
@@ -53,11 +53,11 @@ export interface CardDatabaseFormValues {
   artist?: string;
   legality?: string;
   price?: number;
-  url_tcg?: string;
+  url_market_us?: string;
   url_market_br?: string;
   subTypeName?: string;
   card_number?: string;
   card_number_market_br?: string;
-  groupid_tcg?: number;
+  groupid_market_us?: number;
   attribute?: AttributeType[];
 }

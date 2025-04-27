@@ -20,7 +20,7 @@ export const convertSetFromSupabase = (set: any): CardSet => {
     name: set.name,
     releaseYear: set.release_year || new Date().getFullYear(),
     gameCategory: set.game_category,
-    groupid_tcg: set.groupid_tcg || undefined,
+    groupid_market_us: set.groupid_market_us || undefined,
   };
 };
 
@@ -29,7 +29,7 @@ export const convertCardFromSupabase = (
   sets: CardSet[]
 ): CardDetails => {
   // Find the set name for this card
-  const cardSet = sets.find(set => set.id === Number(card.groupid_tcg));
+  const cardSet = sets.find(set => set.id === Number(card.groupid_market_us));
   
   return {
     id: String(card.id),
@@ -43,12 +43,12 @@ export const convertCardFromSupabase = (
     colors: card.colors || [],
     gameCategory: card.game_category,
     flavorText: card.card_text || '',
-    url_tcg: card.url_tcg || '',
+    url_market_us: card.url_market_us || '',
     url_market_br: card.url_market_br || '',
     subTypeName: card.subTypeName || '',
     card_number: card.card_number || '',
     card_number_market_br: card.card_number_market_br || '', // Added new field
-    groupid_tcg: card.groupid_tcg,
+    groupid_market_us: card.groupid_market_us,
     attribute: card.attribute || [], // Added attribute as array
     artist: '',
     legality: [],

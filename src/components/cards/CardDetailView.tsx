@@ -18,7 +18,7 @@ import { useExchangeRate } from "@/hooks/use-exchange-rate";
 
 // Update the CardType interface to include the missing properties from the error messages
 interface ExtendedCardType extends CardType {
-  url_tcg?: string;
+  url_market_us?: string;
   url_market_br?: string;
   category?: string;
   life?: number;
@@ -119,10 +119,10 @@ const getCardColors = (card: DisplayCardType): string[] => {
   return [];
 };
 
-// Helper function to safely get url_tcg
-const getCardUrlTcg = (card: DisplayCardType): string | undefined => {
-  if ('url_tcg' in card) {
-    return card.url_tcg;
+// Helper function to safely get url_market_us
+const getCardUrlmarket_us = (card: DisplayCardType): string | undefined => {
+  if ('url_market_us' in card) {
+    return card.url_market_us;
   }
   return undefined;
 };
@@ -209,8 +209,8 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
       if (entry.price_min_market_br !== null) {
         groupedData[date].BR = entry.price_min_market_br;
       }
-      if (entry.price_market_tcg !== null) {
-        groupedData[date].US = parseFloat((entry.price_market_tcg * (exchangeRateData?.rate || 1)).toFixed(2));
+      if (entry.price_market_market_us !== null) {
+        groupedData[date].US = parseFloat((entry.price_market_market_us * (exchangeRateData?.rate || 1)).toFixed(2));
       }
     });
 
@@ -502,18 +502,18 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
               </>
             )}
 
-            {(getCardUrlTcg(displayCard) || getCardUrlMarketBR(displayCard)) && (
+            {(getCardUrlmarket_us(displayCard) || getCardUrlMarketBR(displayCard)) && (
               <>
                 <Separator className="my-4" />
                 <div className="flex gap-2">
-                  {getCardUrlTcg(displayCard) && (
+                  {getCardUrlmarket_us(displayCard) && (
                     <a
-                      href={getCardUrlTcg(displayCard)}
+                      href={getCardUrlmarket_us(displayCard)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-primary hover:underline"
                     >
-                      TCG
+                      Market US
                     </a>
                   )}
                   {getCardUrlMarketBR(displayCard) && (

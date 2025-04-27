@@ -86,12 +86,12 @@ export const useCards = (initialCards: CardDetails[] = []) => {
         colors: validColors.length > 0 ? validColors : null,
         artwork_url: artworkUrl,
         card_text: newCard.flavorText,
-        url_tcg: newCard.url_tcg || null,
+        url_market_us: newCard.url_market_us || null,
         url_market_br: newCard.url_market_br || null,
         subTypeName: validSubTypeName,
         card_number: newCard.card_number || null,
         card_number_market_br: newCard.card_number_market_br || null,
-        groupid_tcg: newCard.groupid_tcg || null,
+        groupid_market_us: newCard.groupid_market_us || null,
         attribute: attributes, // Now properly typed as AttributeType[] or null
       };
       
@@ -214,12 +214,12 @@ export const useCards = (initialCards: CardDetails[] = []) => {
         colors: validColors,
         artwork_url: artworkUrl,
         card_text: cardData.flavorText,
-        url_tcg: cardData.url_tcg,
+        url_market_us: cardData.url_market_us,
         url_market_br: cardData.url_market_br,
         subTypeName: validSubTypeName,
         card_number: cardData.card_number,
         card_number_market_br: cardData.card_number_market_br, // Added new field
-        groupid_tcg: cardData.groupid_tcg,
+        groupid_market_us: cardData.groupid_market_us,
         attribute: attributes, // Added attribute support
       };
       

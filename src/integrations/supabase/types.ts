@@ -13,7 +13,7 @@ export type Database = {
         Row: {
           created_at: string
           game_category: Database["public"]["Enums"]["game_category"]
-          groupid_tcg: number | null
+          groupid_market_us: number | null
           id: string
           name: string
           release_year: number | null
@@ -22,7 +22,7 @@ export type Database = {
         Insert: {
           created_at?: string
           game_category: Database["public"]["Enums"]["game_category"]
-          groupid_tcg?: number | null
+          groupid_market_us?: number | null
           id: string
           name: string
           release_year?: number | null
@@ -31,7 +31,7 @@ export type Database = {
         Update: {
           created_at?: string
           game_category?: Database["public"]["Enums"]["game_category"]
-          groupid_tcg?: number | null
+          groupid_market_us?: number | null
           id?: string
           name?: string
           release_year?: number | null
@@ -54,7 +54,7 @@ export type Database = {
           created_at: string
           game_category: Database["public"]["Enums"]["game_category"]
           groupid_market_br: string | null
-          groupid_tcg: number | null
+          groupid_market_us: number | null
           id: number
           language: Database["public"]["Enums"]["language_type"] | null
           life: number | null
@@ -65,7 +65,7 @@ export type Database = {
           subTypeName: Database["public"]["Enums"]["sub_type"] | null
           updated_at: string
           url_market_br: string | null
-          url_tcg: string | null
+          url_market_us: string | null
         }
         Insert: {
           artwork_url: string
@@ -81,7 +81,7 @@ export type Database = {
           created_at?: string
           game_category: Database["public"]["Enums"]["game_category"]
           groupid_market_br?: string | null
-          groupid_tcg?: number | null
+          groupid_market_us?: number | null
           id: number
           language?: Database["public"]["Enums"]["language_type"] | null
           life?: number | null
@@ -92,7 +92,7 @@ export type Database = {
           subTypeName?: Database["public"]["Enums"]["sub_type"] | null
           updated_at?: string
           url_market_br?: string | null
-          url_tcg?: string | null
+          url_market_us?: string | null
         }
         Update: {
           artwork_url?: string
@@ -108,7 +108,7 @@ export type Database = {
           created_at?: string
           game_category?: Database["public"]["Enums"]["game_category"]
           groupid_market_br?: string | null
-          groupid_tcg?: number | null
+          groupid_market_us?: number | null
           id?: number
           language?: Database["public"]["Enums"]["language_type"] | null
           life?: number | null
@@ -119,7 +119,7 @@ export type Database = {
           subTypeName?: Database["public"]["Enums"]["sub_type"] | null
           updated_at?: string
           url_market_br?: string | null
-          url_tcg?: string | null
+          url_market_us?: string | null
         }
         Relationships: [
           {
@@ -130,11 +130,11 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "cards_groupid_tcg_fkey"
-            columns: ["groupid_tcg"]
+            foreignKeyName: "cards_groupid_market_us_fkey"
+            columns: ["groupid_market_us"]
             isOneToOne: false
             referencedRelation: "card_sets"
-            referencedColumns: ["groupid_tcg"]
+            referencedColumns: ["groupid_market_us"]
           },
         ]
       }
@@ -197,12 +197,12 @@ export type Database = {
           card_id: number
           id: number
           price_avg_market_br: number | null
-          price_avg_tcg: number | null
-          price_market_tcg: number | null
+          price_avg_market_us: number | null
+          price_market_market_us: number | null
           price_max_market_br: number | null
-          price_max_tcg: number | null
+          price_max_market_us: number | null
           price_min_market_br: number | null
-          price_min_tcg: number | null
+          price_min_market_us: number | null
           recorded_at: string
           source: string
         }
@@ -210,12 +210,12 @@ export type Database = {
           card_id: number
           id?: number
           price_avg_market_br?: number | null
-          price_avg_tcg?: number | null
-          price_market_tcg?: number | null
+          price_avg_market_us?: number | null
+          price_market_market_us?: number | null
           price_max_market_br?: number | null
-          price_max_tcg?: number | null
+          price_max_market_us?: number | null
           price_min_market_br?: number | null
-          price_min_tcg?: number | null
+          price_min_market_us?: number | null
           recorded_at?: string
           source?: string
         }
@@ -223,12 +223,12 @@ export type Database = {
           card_id?: number
           id?: number
           price_avg_market_br?: number | null
-          price_avg_tcg?: number | null
-          price_market_tcg?: number | null
+          price_avg_market_us?: number | null
+          price_market_market_us?: number | null
           price_max_market_br?: number | null
-          price_max_tcg?: number | null
+          price_max_market_us?: number | null
           price_min_market_br?: number | null
-          price_min_tcg?: number | null
+          price_min_market_us?: number | null
           recorded_at?: string
           source?: string
         }
