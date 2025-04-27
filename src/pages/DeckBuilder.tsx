@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { 
@@ -58,6 +59,35 @@ const DeckBuilder = () => {
     attribute: null,
   });
 
+  const colorMap: Record<string, string> = {
+    white: 'bg-amber-100 text-amber-800 dark:bg-amber-800 dark:text-amber-100',
+    blue: 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100',
+    black: 'bg-gray-700 text-white dark:bg-gray-900 dark:text-gray-100',
+    red: 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100',
+    green: 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100',
+    yellow: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100',
+    purple: 'bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-100',
+  };
+
+  // Define isAnyFilterActive and clearFilters here, before they're used
+  const isAnyFilterActive = activeColor !== null || 
+    searchQuery.length > 0 ||
+    Object.values(activeFilters).some(value => value !== null);
+
+  // Add clearFilters function
+  const clearFilters = () => {
+    setSearchQuery('');
+    setActiveColor(null);
+    setActiveFilters({
+      category: null,
+      cost: null,
+      power: null,
+      life: null,
+      counter: null,
+      attribute: null,
+    });
+  };
+
   useEffect(() => {
     if (id) {
       console.log("Edit mode detected. Loading deck with ID:", id);
@@ -93,16 +123,6 @@ const DeckBuilder = () => {
   if (activeGameCategory !== cardGameCategory) {
     changeCardCategory(activeGameCategory);
   }
-
-  const colorMap: Record<string, string> = {
-    white: 'bg-amber-100 text-amber-800 dark:bg-amber-800 dark:text-amber-100',
-    blue: 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100',
-    black: 'bg-gray-700 text-white dark:bg-gray-900 dark:text-gray-100',
-    red: 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100',
-    green: 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100',
-    yellow: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100',
-    purple: 'bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-100',
-  };
 
   const toggleColor = (color: string) => {
     setActiveColor(activeColor === color ? null : color);
@@ -410,7 +430,7 @@ const DeckBuilder = () => {
             <Label className="text-sm">{t('colors')}</Label>
           </div>
           <div className="flex flex-wrap gap-1">
-            {Array.from(new Set(cards.flatMap(card => card.colors))).map(color => (
+            {Array.from(new Set(allCards.flatMap(card => card.colors))).map(color => (
               <Badge
                 key={color}
                 variant={activeColor === color ? "default" : "outline"}
@@ -420,7 +440,7 @@ const DeckBuilder = () => {
                 )}
                 onClick={() => setActiveColor(activeColor === color ? null : color)}
               >
-                {color.charAt(0).toUpperCase() + color.slice(1)}
+                {typeof color === 'string' ? color.charAt(0).toUpperCase() + color.slice(1) : color}
               </Badge>
             ))}
           </div>
@@ -430,25 +450,6 @@ const DeckBuilder = () => {
       </CardContent>
     </Card>
   );
-
-  // Update the isAnyFilterActive check
-  const isAnyFilterActive = activeColor !== null || 
-    searchQuery.length > 0 ||
-    Object.values(activeFilters).some(value => value !== null);
-
-  // Add clearFilters function
-  const clearFilters = () => {
-    setSearchQuery('');
-    setActiveColor(null);
-    setActiveFilters({
-      category: null,
-      cost: null,
-      power: null,
-      life: null,
-      counter: null,
-      attribute: null,
-    });
-  };
 
   const totalCards = selectedCards.reduce((acc, { quantity }) => acc + quantity, 0);
 
