@@ -391,9 +391,12 @@ const DeckView = () => {
   }));
 
   const manaCurve = deck.cards.reduce((acc, { card, quantity }) => {
-    const costKey = Number(card.cost);
+    const costValue = card.cost;
+    const costKey = typeof costValue === 'number' ? costValue : Number(costValue);
+    
     if (!isNaN(costKey)) {
-      acc[costKey] = (acc[costKey] || 0) + Number(quantity);
+      const numQuantity = Number(quantity);
+      acc[costKey] = (acc[costKey] || 0) + numQuantity;
     }
     return acc;
   }, {} as Record<number, number>);
