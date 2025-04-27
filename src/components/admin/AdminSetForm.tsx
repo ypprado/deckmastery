@@ -51,7 +51,7 @@ const AdminSetForm: React.FC<AdminSetFormProps> = ({ gameCategory }) => {
     setIsSubmitting(true);
     try {
       const newSet: CardSet = {
-        id: Date.now(), // Using timestamp as a temporary ID, will be replaced by the database
+        id: Date.now().toString(), // Changed to string type
         name: values.name,
         releaseYear: values.releaseYear,
         gameCategory,

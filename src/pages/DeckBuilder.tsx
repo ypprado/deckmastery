@@ -163,7 +163,7 @@ const DeckBuilder = () => {
     return Array.from(colors);
   };
 
-  const handleSaveDeck = () => {
+  const handleSaveDeck = async () => {
     if (!deckName) {
       toast.error(t('deckNameRequired'));
       return;
@@ -196,18 +196,25 @@ const DeckBuilder = () => {
       toast.success(t('deckUpdated'));
       navigate(`/deck/${id}`);
     } else {
-      const newDeck = saveDeck({
-        name: deckName,
-        format: deckFormat || "Standard",
-        description: deckDescription,
-        cards: deckCards,
-        colors,
-        coverCard,
-        gameCategory: activeGameCategory
-      });
+      try {
+        const newDeck = await saveDeck({
+          name: deckName,
+          format: deckFormat || "Standard",
+          description: deckDescription,
+          cards: deckCards,
+          colors,
+          coverCard,
+          gameCategory: activeGameCategory
+        });
 
-      toast.success(t('deckCreated'));
-      navigate(`/deck/${newDeck.id}`);
+        if (newDeck && newDeck.id) {
+          toast.success(t('deckCreated'));
+          navigate(`/deck/${newDeck.id}`);
+        }
+      } catch (error) {
+        console.error("Error saving deck:", error);
+        toast.error(t('errorSavingDeck'));
+      }
     }
   };
 

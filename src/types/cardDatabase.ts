@@ -3,11 +3,11 @@ import { GameCategory } from '@/hooks/use-decks';
 import { AttributeType } from '@/hooks/card-database/useSupabaseCardData';
 
 export interface CardSet {
-  id: string; // Changed from string to number to match int8
+  id: string; // Changed to string to match the Supabase database
   name: string;
-  releaseYear: number; // Changed from releaseDate string to releaseYear number
+  releaseYear: number;
   gameCategory: GameCategory;
-  groupid_market_us?: number; // Added new field
+  groupid_market_us?: number;
 }
 
 export interface CardDetails {

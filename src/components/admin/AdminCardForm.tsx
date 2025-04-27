@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -50,7 +51,8 @@ const AdminCardForm: React.FC<AdminCardFormProps> = ({ gameCategory }) => {
   const onSubmit = async (values: CardFormValues) => {
     setIsSubmitting(true);
     try {
-      const setId = Number(values.setId);
+      // Convert setId to string
+      const setId = values.setId;
       const set = getSetById(setId);
       if (!set) {
         toast.error("Selected set not found.");
@@ -72,7 +74,7 @@ const AdminCardForm: React.FC<AdminCardFormProps> = ({ gameCategory }) => {
         artist: values.artist,
         legality: values.legality ? [values.legality] : undefined,
         price: values.price,
-        groupid_market_us: setId,
+        groupid_market_us: set.groupid_market_us,
       };
       
       await addCard(newCard);

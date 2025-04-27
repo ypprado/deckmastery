@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from "sonner";
 import { useStaticData } from './use-static-data';
@@ -10,7 +11,7 @@ export interface Card {
   id: string;
   name: string;
   imageUrl: string;
-  type: string | string[]; // Updated to support both string and string array
+  type: string | string[]; 
   cost: number;
   rarity: string;
   set: string;
@@ -69,16 +70,25 @@ export const useDecks = () => {
           throw error;
         }
 
-        const formattedDecks = data.map(deck => ({
+        if (!data) {
+          setDecks([]);
+          return;
+        }
+
+        const formattedDecks: Deck[] = data.map(deck => ({
           id: deck.id,
           name: deck.name,
           format: deck.format,
           colors: deck.colors || [],
-          cards: deck.cards,
+          // Parse JSON data from database
+          cards: Array.isArray(deck.cards) ? deck.cards : JSON.parse(deck.cards as unknown as string),
           createdAt: deck.created_at,
           updatedAt: deck.updated_at,
           description: deck.description,
-          coverCard: deck.cover_card,
+          // Parse coverCard if it exists
+          coverCard: deck.cover_card ? (typeof deck.cover_card === 'string' 
+            ? JSON.parse(deck.cover_card)
+            : deck.cover_card) : undefined,
           gameCategory: deck.game_category as GameCategory
         }));
 
@@ -120,27 +130,42 @@ export const useDecks = () => {
           name: deck.name,
           format: deck.format,
           description: deck.description,
-          cards: deck.cards,
+          // Convert cards array to JSON compatible format
+          cards: JSON.stringify(deck.cards),
           colors: deck.colors,
-          cover_card: deck.coverCard,
+          // Convert coverCard to JSON compatible format
+          cover_card: deck.coverCard ? JSON.stringify(deck.coverCard) : null,
           game_category: deck.gameCategory
         }])
-        .select()
-        .single();
+        .select();
 
       if (error) throw error;
 
+      if (!data || data.length === 0) {
+        throw new Error("No data returned from insert");
+      }
+
+      const insertedDeck = data[0];
+      
       const newDeck: Deck = {
-        id: data.id,
-        name: data.name,
-        format: data.format,
-        colors: data.colors || [],
-        cards: data.cards,
-        createdAt: data.created_at,
-        updatedAt: data.updated_at,
-        description: data.description,
-        coverCard: data.cover_card,
-        gameCategory: data.game_category
+        id: insertedDeck.id,
+        name: insertedDeck.name,
+        format: insertedDeck.format,
+        colors: insertedDeck.colors || [],
+        // Parse the JSON data
+        cards: Array.isArray(insertedDeck.cards) 
+          ? insertedDeck.cards 
+          : JSON.parse(insertedDeck.cards as unknown as string),
+        createdAt: insertedDeck.created_at,
+        updatedAt: insertedDeck.updated_at,
+        description: insertedDeck.description,
+        // Parse cover_card if it exists
+        coverCard: insertedDeck.cover_card 
+          ? (typeof insertedDeck.cover_card === 'string'
+            ? JSON.parse(insertedDeck.cover_card)
+            : insertedDeck.cover_card)
+          : undefined,
+        gameCategory: insertedDeck.game_category as GameCategory
       };
 
       setDecks(prevDecks => [...prevDecks, newDeck]);
@@ -160,17 +185,19 @@ export const useDecks = () => {
     }
 
     try {
+      const updateData: Record<string, any> = {};
+      
+      if (deckData.name) updateData.name = deckData.name;
+      if (deckData.format) updateData.format = deckData.format;
+      if (deckData.description !== undefined) updateData.description = deckData.description;
+      if (deckData.cards) updateData.cards = JSON.stringify(deckData.cards);
+      if (deckData.colors) updateData.colors = deckData.colors;
+      if (deckData.coverCard) updateData.cover_card = JSON.stringify(deckData.coverCard);
+      if (deckData.gameCategory) updateData.game_category = deckData.gameCategory;
+
       const { error } = await supabase
         .from('decks')
-        .update({
-          name: deckData.name,
-          format: deckData.format,
-          description: deckData.description,
-          cards: deckData.cards,
-          colors: deckData.colors,
-          cover_card: deckData.coverCard,
-          game_category: deckData.gameCategory
-        })
+        .update(updateData)
         .eq('id', id)
         .eq('user_id', user.id);
 
