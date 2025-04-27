@@ -2,37 +2,30 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-
 const Index = () => {
-  const { user } = useAuth();
-  const { t } = useLanguage();
-  
-  return (
-    <div className="flex flex-col items-center justify-center min-h-[80vh] px-4 text-center">
-      <img 
-        src="/lovable-uploads/9a9a4f13-0ac7-4d75-bf24-d6423c640abe.png" 
-        alt="DeckMastery Logo" 
-        className="w-24 h-24 object-contain mb-6"
-      />
+  const {
+    user
+  } = useAuth();
+  const {
+    t
+  } = useLanguage();
+  return <div className="flex flex-col items-center justify-center min-h-[80vh] px-4 text-center">
+      <img src="/lovable-uploads/9a9a4f13-0ac7-4d75-bf24-d6423c640abe.png" alt="DeckMastery Logo" className="w-72 h-72 object-contain mb-6" />
       <h1 className="text-4xl font-bold mb-4">{t('welcome')}</h1>
       <p className="text-xl text-muted-foreground max-w-md mb-8">
         {t('welcomeDescription')}
       </p>
       
       <div className="flex flex-col sm:flex-row gap-4 mb-10">
-        {user ? (
-          <Link to="/mydecks">
+        {user ? <Link to="/mydecks">
             <Button size="lg" className="px-8">
               {t('myDecks')}
             </Button>
-          </Link>
-        ) : (
-          <Link to="/auth">
+          </Link> : <Link to="/auth">
             <Button size="lg" className="px-8">
               {t('getStarted')}
             </Button>
-          </Link>
-        )}
+          </Link>}
         
         <Link to="/cards">
           <Button variant="outline" size="lg" className="px-8">
@@ -71,8 +64,6 @@ const Index = () => {
           </Button>
         </Link>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
