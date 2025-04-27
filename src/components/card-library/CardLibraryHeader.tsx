@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { ArrowDownAZ } from "lucide-react"
+import { useEffect } from 'react';
 
 interface CardLibraryHeaderProps {
   searchQuery: string;
@@ -44,6 +45,11 @@ const CardLibraryHeader = ({
     { value: 'power', label: t('power') },
     { value: 'life', label: t('life') },
   ];
+
+  // Debug logging to check if sets are loaded
+  useEffect(() => {
+    console.log('Available sets in CardLibraryHeader:', availableSets);
+  }, [availableSets]);
 
   return (
     <div className="flex flex-col gap-4 sm:flex-row">
@@ -79,14 +85,18 @@ const CardLibraryHeader = ({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all-sets">{t('allSets')}</SelectItem>
-          {availableSets.map(({ id, name }) => (
-            <SelectItem 
-              key={id} 
-              value={id || "unknown-set"}
-            >
-              {`${id} - ${name}`}
-            </SelectItem>
-          ))}
+          {availableSets && availableSets.length > 0 ? (
+            availableSets.map(({ id, name }) => (
+              <SelectItem 
+                key={id} 
+                value={id || "unknown-set"}
+              >
+                {`${id} - ${name}`}
+              </SelectItem>
+            ))
+          ) : (
+            <SelectItem value="no-sets-found">{t('noSetsFound')}</SelectItem>
+          )}
         </SelectContent>
       </Select>
       
