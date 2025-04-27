@@ -1,384 +1,141 @@
 
-import { useState, useEffect, useCallback } from 'react';
-import { toast } from "sonner";
-import { useStaticData } from './use-static-data';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
+import { useState, useEffect } from 'react';
+import { v4 as uuidv4 } from 'uuid';
+import { toast } from 'sonner';
+import { useLocalStorage } from '@/hooks/use-local-storage';
+import { AttributeType } from './card-database/useSupabaseCardData';
 
-export type GameCategory = 'magic' | 'pokemon' | 'yugioh' | 'onepiece';
+export type GameCategory = 'magic' | 'pokemon' | 'yugioh' | 'onepiece' | 'digimon' | 'dragonball' | 'lorcana' | 'metazoo';
+
+export const gameCategories: GameCategory[] = ['magic', 'pokemon', 'yugioh', 'onepiece', 'digimon', 'dragonball', 'lorcana', 'metazoo'];
 
 export interface Card {
   id: string;
   name: string;
   imageUrl: string;
-  type: string | string[]; 
+  type: string | string[];
   cost: number;
   rarity: string;
-  set: string;
   colors: string[];
+  set: string;
   gameCategory: GameCategory;
-  flavorText?: string;
-  artist?: string;
-  legality?: string[];
-  price?: number;
-  parallel?: string[];
+  // Add the missing properties that are used in DeckBuilder
+  attribute?: AttributeType[];
+  category?: string;
+  power?: number;
+  life?: number;
+  counter?: number;
   card_number?: string;
+  card_number_market_br?: string;
+  parallel?: string[];
 }
 
 export interface Deck {
   id: string;
   name: string;
   format: string;
-  colors: string[];
-  cards: { card: Card; quantity: number }[];
-  createdAt: string;
-  updatedAt: string;
   description?: string;
+  cards: { card: Card; quantity: number }[];
+  colors: string[];
   coverCard?: Card;
+  createdAt: number;
+  updatedAt: number;
   gameCategory: GameCategory;
 }
 
-export const gameCategories = [
-  { id: 'magic', name: 'Magic: The Gathering', hidden: true },
-  { id: 'pokemon', name: 'Pokémon', hidden: true },
-  { id: 'yugioh', name: 'Yu-Gi-Oh!', hidden: true },
-  { id: 'onepiece', name: 'One Piece', hidden: false }
-];
+interface UseDecksOptions {
+  initialGameCategory?: GameCategory;
+}
 
-export const useDecks = () => {
-  const [decks, setDecks] = useState<Deck[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [activeGameCategory, setActiveGameCategory] = useState<GameCategory>('magic');
-  const { cards: staticCards } = useStaticData({ initialGameCategory: activeGameCategory });
-  const { user } = useAuth();
-
-  useEffect(() => {
-    const loadDecks = async () => {
-      if (!user) {
-        setDecks([]);
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const { data, error } = await supabase
-          .from('decks')
-          .select('*')
-          .eq('user_id', user.id);
-
-        if (error) {
-          throw error;
-        }
-
-        if (!data) {
-          setDecks([]);
-          return;
-        }
-
-        const formattedDecks: Deck[] = data.map(deck => ({
-          id: deck.id,
-          name: deck.name,
-          format: deck.format,
-          colors: deck.colors || [],
-          // Parse JSON data from database
-          cards: Array.isArray(deck.cards) ? deck.cards : JSON.parse(deck.cards as unknown as string),
-          createdAt: deck.created_at,
-          updatedAt: deck.updated_at,
-          description: deck.description,
-          // Parse coverCard if it exists
-          coverCard: deck.cover_card ? (typeof deck.cover_card === 'string' 
-            ? JSON.parse(deck.cover_card)
-            : deck.cover_card) : undefined,
-          gameCategory: deck.game_category as GameCategory
-        }));
-
-        setDecks(formattedDecks);
-      } catch (error) {
-        console.error('Error loading decks:', error);
-        toast.error('Failed to load decks');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadDecks();
-
-    const storedCategory = localStorage.getItem('activeGameCategory') as GameCategory;
-    if (storedCategory) {
-      setActiveGameCategory(storedCategory);
-    }
-  }, [user]);
-
-  const filteredDecks = decks.filter(deck => deck.gameCategory === activeGameCategory);
-
-  const changeGameCategory = (category: GameCategory) => {
-    setActiveGameCategory(category);
-    localStorage.setItem('activeGameCategory', category);
-  };
-
-  const saveDeck = async (deck: Omit<Deck, 'id' | 'createdAt' | 'updatedAt'>) => {
-    if (!user) {
-      toast.error('You must be logged in to save a deck');
-      return null;
-    }
-
-    try {
-      const { data, error } = await supabase
-        .from('decks')
-        .insert([{
-          user_id: user.id,
-          name: deck.name,
-          format: deck.format,
-          description: deck.description,
-          // Convert cards array to JSON compatible format
-          cards: JSON.stringify(deck.cards),
-          colors: deck.colors,
-          // Convert coverCard to JSON compatible format
-          cover_card: deck.coverCard ? JSON.stringify(deck.coverCard) : null,
-          game_category: deck.gameCategory
-        }])
-        .select();
-
-      if (error) throw error;
-
-      if (!data || data.length === 0) {
-        throw new Error("No data returned from insert");
-      }
-
-      const insertedDeck = data[0];
-      
-      const newDeck: Deck = {
-        id: insertedDeck.id,
-        name: insertedDeck.name,
-        format: insertedDeck.format,
-        colors: insertedDeck.colors || [],
-        // Parse the JSON data
-        cards: Array.isArray(insertedDeck.cards) 
-          ? insertedDeck.cards 
-          : JSON.parse(insertedDeck.cards as unknown as string),
-        createdAt: insertedDeck.created_at,
-        updatedAt: insertedDeck.updated_at,
-        description: insertedDeck.description,
-        // Parse cover_card if it exists
-        coverCard: insertedDeck.cover_card 
-          ? (typeof insertedDeck.cover_card === 'string'
-            ? JSON.parse(insertedDeck.cover_card)
-            : insertedDeck.cover_card)
-          : undefined,
-        gameCategory: insertedDeck.game_category as GameCategory
-      };
-
-      setDecks(prevDecks => [...prevDecks, newDeck]);
-      toast.success("Deck saved successfully");
-      return newDeck;
-    } catch (error) {
-      console.error('Error saving deck:', error);
-      toast.error('Failed to save deck');
-      return null;
-    }
-  };
-
-  const updateDeck = async (id: string, deckData: Partial<Deck>) => {
-    if (!user) {
-      toast.error('You must be logged in to update a deck');
-      return;
-    }
-
-    try {
-      const updateData: Record<string, any> = {};
-      
-      if (deckData.name) updateData.name = deckData.name;
-      if (deckData.format) updateData.format = deckData.format;
-      if (deckData.description !== undefined) updateData.description = deckData.description;
-      if (deckData.cards) updateData.cards = JSON.stringify(deckData.cards);
-      if (deckData.colors) updateData.colors = deckData.colors;
-      if (deckData.coverCard) updateData.cover_card = JSON.stringify(deckData.coverCard);
-      if (deckData.gameCategory) updateData.game_category = deckData.gameCategory;
-
-      const { error } = await supabase
-        .from('decks')
-        .update(updateData)
-        .eq('id', id)
-        .eq('user_id', user.id);
-
-      if (error) throw error;
-
-      setDecks(prevDecks => {
-        const deckIndex = prevDecks.findIndex(d => d.id === id);
-        if (deckIndex === -1) return prevDecks;
-
-        const updatedDecks = [...prevDecks];
-        updatedDecks[deckIndex] = {
-          ...updatedDecks[deckIndex],
-          ...deckData,
-          updatedAt: new Date().toISOString()
-        };
-
-        return updatedDecks;
-      });
-
-      toast.success("Deck updated successfully");
-    } catch (error) {
-      console.error('Error updating deck:', error);
-      toast.error('Failed to update deck');
-    }
-  };
-
-  const deleteDeck = async (id: string) => {
-    if (!user) {
-      toast.error('You must be logged in to delete a deck');
-      return;
-    }
-
-    try {
-      const { error } = await supabase
-        .from('decks')
-        .delete()
-        .eq('id', id)
-        .eq('user_id', user.id);
-
-      if (error) throw error;
-
-      setDecks(prevDecks => prevDecks.filter(deck => deck.id !== id));
-      toast.success("Deck deleted successfully");
-    } catch (error) {
-      console.error('Error deleting deck:', error);
-      toast.error('Failed to delete deck');
-    }
-  };
-
-  const getDeck = useCallback((id: string) => {
+export const useDecks = (options: UseDecksOptions = {}) => {
+  const { initialGameCategory = 'magic' } = options;
+  
+  const [activeGameCategory, setActiveGameCategory] = useState<GameCategory>(initialGameCategory);
+  const [decks, setDecks] = useLocalStorage<Deck[]>('decks', []);
+  
+  const getDeck = (id: string) => {
     return decks.find(deck => deck.id === id);
-  }, [decks]);
-
+  };
+  
+  const saveDeck = async (deckData: Omit<Deck, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const timestamp = Date.now();
+    const newDeck: Deck = {
+      ...deckData,
+      id: uuidv4(),
+      createdAt: timestamp,
+      updatedAt: timestamp
+    };
+    
+    setDecks(prev => [...prev, newDeck]);
+    toast.success('Deck saved successfully');
+    return newDeck;
+  };
+  
+  const updateDeck = (id: string, deckData: Partial<Omit<Deck, 'id' | 'createdAt' | 'updatedAt'>>) => {
+    setDecks(prev => 
+      prev.map(deck => 
+        deck.id === id 
+          ? { ...deck, ...deckData, updatedAt: Date.now() } 
+          : deck
+      )
+    );
+    toast.success('Deck updated successfully');
+    return getDeck(id);
+  };
+  
+  const deleteDeck = (id: string) => {
+    setDecks(prev => prev.filter(deck => deck.id !== id));
+    toast.success('Deck deleted successfully');
+  };
+  
+  const getDecksByGameCategory = (gameCategory: GameCategory) => {
+    return decks.filter(deck => deck.gameCategory === gameCategory);
+  };
+  
+  const changeGameCategory = (newCategory: GameCategory) => {
+    setActiveGameCategory(newCategory);
+  };
+  
   return {
-    decks: filteredDecks,
-    allDecks: decks,
-    loading,
+    decks,
     saveDeck,
     updateDeck,
     deleteDeck,
     getDeck,
+    getDecksByGameCategory,
     activeGameCategory,
     changeGameCategory
   };
 };
 
-export const useCards = () => {
-  const [loading, setLoading] = useState(true);
-  const [activeGameCategory, setActiveGameCategory] = useState<GameCategory>('magic');
-  const { cards: staticCards, activeGameCategory: staticGameCategory, changeGameCategory: staticChangeGameCategory } = useStaticData({ initialGameCategory: activeGameCategory });
-  
-  const [filterStates, setFilterStates] = useState<Record<GameCategory, {
-    searchQuery: string;
-    colorFilters: string[];
-    typeFilters: string[];
-    rarityFilters: string[];
-    parallelFilters: string[];
-    selectedSet: string | null;
-  }>>({
-    magic: { searchQuery: '', colorFilters: [], typeFilters: [], rarityFilters: [], parallelFilters: [], selectedSet: null },
-    pokemon: { searchQuery: '', colorFilters: [], typeFilters: [], rarityFilters: [], parallelFilters: [], selectedSet: null },
-    yugioh: { searchQuery: '', colorFilters: [], typeFilters: [], rarityFilters: [], parallelFilters: [], selectedSet: null },
-    onepiece: { searchQuery: '', colorFilters: [], typeFilters: [], rarityFilters: [], parallelFilters: [], selectedSet: null },
+// Custom hook for using Local Storage
+function useLocalStorage<T>(key: string, initialValue: T) {
+  const [storedValue, setStoredValue] = useState<T>(() => {
+    if (typeof window === 'undefined') {
+      return initialValue;
+    }
+    try {
+      const item = window.localStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
+    } catch (error) {
+      console.error(error);
+      return initialValue;
+    }
   });
+
+  const setValue = (value: T | ((val: T) => T)) => {
+    try {
+      const valueToStore =
+        value instanceof Function ? value(storedValue) : value;
+      setStoredValue(valueToStore);
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(key, JSON.stringify(valueToStore));
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
   
-  useEffect(() => {
-    const storedCategory = localStorage.getItem('activeGameCategory') as GameCategory;
-    if (storedCategory) {
-      setActiveGameCategory(storedCategory);
-      staticChangeGameCategory(storedCategory);
-    }
-  }, [staticChangeGameCategory]);
+  return [storedValue, setValue] as const;
+}
 
-  useEffect(() => {
-    if (staticCards.length > 0) {
-      setLoading(false);
-    }
-  }, [staticCards]);
-
-  useEffect(() => {
-    if (activeGameCategory !== staticGameCategory) {
-      staticChangeGameCategory(activeGameCategory);
-    }
-  }, [activeGameCategory, staticGameCategory, staticChangeGameCategory]);
-
-  const changeGameCategory = (category: GameCategory) => {
-    setActiveGameCategory(category);
-    localStorage.setItem('activeGameCategory', category);
-    staticChangeGameCategory(category);
-  };
-
-  const searchCards = (query: string) => {
-    if (!query) return staticCards;
-    
-    const lowerQuery = query.toLowerCase();
-    return staticCards.filter(card => {
-      if (card.name.toLowerCase().includes(lowerQuery)) {
-        return true;
-      }
-
-      if (card.card_number?.toLowerCase().includes(lowerQuery)) {
-        return true;
-      }
-      
-      return false;
-    });
-  };
-
-  const filterCards = (filters: Partial<Record<keyof Card, any>>) => {
-    return staticCards.filter(card => {
-      return Object.entries(filters).every(([key, value]) => {
-        if (!value) return true;
-        
-        const cardKey = key as keyof Card;
-        
-        if (cardKey === 'colors' && Array.isArray(value)) {
-          return value.some(color => card.colors.includes(color));
-        }
-        
-        return card[cardKey] === value;
-      });
-    });
-  };
-
-  const saveFilterState = useCallback((state: Partial<{
-    searchQuery: string;
-    colorFilters: string[];
-    typeFilters: string[];
-    rarityFilters: string[];
-    parallelFilters: string[];
-    selectedSet: string | null;
-  }>) => {
-    setFilterStates(prev => ({
-      ...prev,
-      [activeGameCategory]: {
-        ...prev[activeGameCategory],
-        ...state
-      }
-    }));
-  }, [activeGameCategory]);
-
-  const getCurrentFilterState = useCallback(() => {
-    return filterStates[activeGameCategory] || {
-      searchQuery: '',
-      colorFilters: [],
-      typeFilters: [],
-      rarityFilters: [],
-      parallelFilters: [],
-      selectedSet: null
-    };
-  }, [filterStates, activeGameCategory]);
-
-  return {
-    cards: staticCards,
-    allCards: staticCards,
-    loading,
-    searchCards,
-    filterCards,
-    activeGameCategory,
-    changeGameCategory,
-    saveFilterState,
-    getCurrentFilterState
-  };
-};
