@@ -36,7 +36,6 @@ export interface CardDetails {
   category?: string;
   life?: number;
   power?: number;
-  counter?: number;
   card_type?: string | string[];
   card_text?: string;
 }
@@ -61,8 +60,4 @@ export interface CardDatabaseFormValues {
   card_number_market_br?: string;
   groupid_market_us?: number;
   attribute?: AttributeType[];
-  category?: string;
-  power?: number;
-  life?: number;
-  counter?: number;
 }

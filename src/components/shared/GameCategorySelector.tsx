@@ -1,11 +1,12 @@
 
-import { GameCategory, GameCategoryId } from '@/hooks/use-decks';
+import { useState } from 'react';
+import { GameCategory, gameCategories } from '@/hooks/use-decks';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 
 interface GameCategorySelectorProps {
-  activeCategory: GameCategoryId;
-  onCategoryChange: (category: GameCategoryId) => void;
+  activeCategory: GameCategory;
+  onCategoryChange: (category: GameCategory) => void;
   className?: string;
 }
 
@@ -14,14 +15,17 @@ const GameCategorySelector = ({
   onCategoryChange,
   className
 }: GameCategorySelectorProps) => {
+  // Filter out hidden categories
+  const visibleCategories = gameCategories.filter(category => !category.hidden);
+
   return (
     <Tabs 
       value={activeCategory} 
       className={cn("w-full", className)}
-      onValueChange={(value) => onCategoryChange(value as GameCategoryId)}
+      onValueChange={(value) => onCategoryChange(value as GameCategory)}
     >
       <TabsList className="w-full flex">
-        {gameCategories.filter(category => !category.hidden).map((category) => (
+        {visibleCategories.map((category) => (
           <TabsTrigger
             key={category.id}
             value={category.id}

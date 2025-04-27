@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
-import { Card, GameCategoryId, Deck } from '@/hooks/use-decks';
+import { Card, GameCategory, Deck } from '@/hooks/use-decks';
 import { supabase } from '@/integrations/supabase/client';
 import { Database } from '@/integrations/supabase/types';
 import { AttributeType } from './card-database/useSupabaseCardData';
 
 interface StaticDataOptions {
-  initialGameCategory?: GameCategoryId;
+  initialGameCategory?: GameCategory;
 }
 
 export const useStaticData = (options: StaticDataOptions = {}) => {
@@ -18,14 +18,14 @@ export const useStaticData = (options: StaticDataOptions = {}) => {
   const [decks, setDecks] = useState<Deck[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
-  const [activeGameCategory, setActiveGameCategory] = useState<GameCategoryId>(initialGameCategory);
+  const [activeGameCategory, setActiveGameCategory] = useState<GameCategory>(initialGameCategory);
 
   // Load data whenever the active game category changes
   useEffect(() => {
     loadStaticData(activeGameCategory);
   }, [activeGameCategory]);
 
-  const loadStaticData = async (gameCategory: GameCategoryId) => {
+  const loadStaticData = async (gameCategory: GameCategory) => {
     setLoading(true);
     setError(null);
     
@@ -120,7 +120,7 @@ export const useStaticData = (options: StaticDataOptions = {}) => {
     }
   };
 
-  const changeGameCategory = (gameCategory: GameCategoryId) => {
+  const changeGameCategory = (gameCategory: GameCategory) => {
     setActiveGameCategory(gameCategory);
     // Data will be loaded by the useEffect that watches activeGameCategory
   };

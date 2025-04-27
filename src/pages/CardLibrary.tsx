@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useCards } from '@/hooks/use-decks';
 import CardDetailView from '@/components/cards/CardDetailView';
 import CardFilters from '@/components/card-library/CardFilters';
 import CardGrid from '@/components/card-library/CardGrid';
@@ -36,7 +37,8 @@ const colorNames: Record<string, string> = {
 };
 
 const CardLibrary = () => {
-  const { cards, sets, loading, searchCards, activeGameCategory } = useCardDatabase();
+  const { cards, loading, searchCards, filterCards, activeGameCategory, saveFilterState, getCurrentFilterState } = useCards();
+  const { sets } = useCardDatabase();
   const { t } = useLanguage();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedCard, setSelectedCard] = useState<any>(null);
@@ -44,7 +46,8 @@ const CardLibrary = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [sortBy, setSortBy] = useState<string>('card_number');
 
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  const filterState = getCurrentFilterState();
+  const [searchQuery, setSearchQuery] = useState<string>(filterState.searchQuery || '');
   const [activeFilters, setActiveFilters] = useState<{
     colors: string[];
     rarities: string[];
@@ -57,10 +60,10 @@ const CardLibrary = () => {
     counter?: string | null;
     attribute?: string | null;
   }>({
-    colors: [],
-    rarities: [],
-    parallels: [],
-    set: null,
+    colors: filterState.colorFilters || [],
+    rarities: filterState.rarityFilters || [],
+    parallels: filterState.parallelFilters || [],
+    set: filterState.selectedSet || null,
     category: null,
     cost: null,
     power: null,
@@ -81,15 +84,17 @@ const CardLibrary = () => {
     )
   )
   .map(setId => {
+    // Find matching set by normalizing both the set.id and the card's setId
     const setInfo = sets.find(set => 
       typeof set.id === 'string' && set.id.trim().toUpperCase() === setId
     );
-    return {
+    const availableSet = {
       id: setId,
       name: setInfo ? setInfo.name : setId
     };
+    return availableSet;
   })
-  .sort((a, b) => String(a.id).localeCompare(String(b.id)));
+  .sort((a, b) => a.id.localeCompare(b.id));
   
   const handleSetChange = (value: string | null) => {
     setActiveFilters(prev => ({
@@ -227,7 +232,7 @@ const CardLibrary = () => {
         return (a.life || 0) - (b.life || 0);
       case 'card_number':
       default:
-        return String(a.card_number || '').localeCompare(String(b.card_number || ''));
+        return (a.card_number || '').localeCompare(b.card_number || '');
     }
   });
   const paginatedCards = sortedCards.slice(startIndex, endIndex);

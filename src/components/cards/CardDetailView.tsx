@@ -1,5 +1,3 @@
-
-// Fix only the problematic part while preserving the rest of the file
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Card as CardType } from '@/hooks/use-decks';
@@ -17,17 +15,16 @@ import { usePriceHistory } from '@/hooks/use-price-history';
 import { format } from 'date-fns';
 import { Skeleton } from "@/components/ui/skeleton";
 import { useExchangeRate } from "@/hooks/use-exchange-rate";
-import { AttributeType } from '@/hooks/card-database/useSupabaseCardData';
 
-// Update the ExtendedCardType to use the correct attribute type
-interface ExtendedCardType extends Omit<CardType, 'attribute'> {
-  attribute?: AttributeType[];
+// Update the CardType interface to include the missing properties from the error messages
+interface ExtendedCardType extends CardType {
   url_market_us?: string;
   url_market_br?: string;
   category?: string;
   life?: number;
   power?: number;
   card_type?: string | string[];
+  attribute?: string[];
   card_text?: string;
 }
 
