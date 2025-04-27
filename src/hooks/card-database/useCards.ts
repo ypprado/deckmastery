@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { CardDetails } from '@/types/cardDatabase';
-import { GameCategory } from '@/hooks/use-decks';
+import { GameCategoryId } from '@/hooks/use-decks';
 import { supabase } from '@/integrations/supabase/client';
 import { CardInsert, RarityType, ColorType, SubTypeNameEnum, AttributeType } from './useSupabaseCardData';
 
 export const useCards = (initialCards: CardDetails[] = []) => {
   const [cards, setCards] = useState<CardDetails[]>(initialCards);
+  const [activeGameCategory, setActiveGameCategory] = useState<GameCategoryId>('magic');
 
   const addCard = async (newCard: CardDetails) => {
     // Check if a card with the same name already exists in the set
@@ -310,12 +311,29 @@ export const useCards = (initialCards: CardDetails[] = []) => {
     }
   };
   
-  const getCardsByGameCategory = (gameCategory: GameCategory) => {
+  const getCardsByGameCategory = (gameCategory: GameCategoryId) => {
     return cards.filter(card => card.gameCategory === gameCategory);
   };
   
   const getCardsBySet = (setId: string) => {
     return cards.filter(card => card.set === setId);
+  };
+
+  // Add search functionality
+  const searchCards = (query: string) => {
+    if (!query.trim()) return cards;
+    
+    const lowerQuery = query.toLowerCase();
+    return cards.filter(card => 
+      card.name.toLowerCase().includes(lowerQuery) ||
+      (typeof card.type === 'string' && card.type.toLowerCase().includes(lowerQuery)) ||
+      (Array.isArray(card.type) && card.type.some(t => t.toLowerCase().includes(lowerQuery)))
+    );
+  };
+
+  // Add ability to change game category
+  const changeGameCategory = (gameCategory: GameCategoryId) => {
+    setActiveGameCategory(gameCategory);
   };
 
   return {
@@ -324,6 +342,9 @@ export const useCards = (initialCards: CardDetails[] = []) => {
     updateCard,
     deleteCard,
     getCardsByGameCategory,
-    getCardsBySet
+    getCardsBySet,
+    searchCards,
+    activeGameCategory,
+    changeGameCategory
   };
 };

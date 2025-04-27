@@ -1,3 +1,4 @@
+
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { LayoutDashboard, Book, Settings, Menu, X, Moon, Sun, LogIn, ChevronDown, Library, LibraryBig, MessageCircle, Package, Box } from "lucide-react";
@@ -7,7 +8,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { UserProfile } from "@/components/user/UserProfile";
 import { useAuth } from "@/contexts/AuthContext";
-import { useDecks, GameCategory, gameCategories } from "@/hooks/use-decks";
+import { useDecks, GameCategoryId, gameCategories } from "@/hooks/use-decks";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSelector } from "@/components/language/LanguageSelector";
 import { 
