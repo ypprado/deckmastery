@@ -1,6 +1,6 @@
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, Book, Settings, Menu, X, Github, Moon, Sun, LogIn, ChevronDown, Library, LibraryBig, MessageCircle, Package, Box } from "lucide-react";
+import { LayoutDashboard, Book, Settings, Menu, X, Moon, Sun, LogIn, ChevronDown, Library, LibraryBig, MessageCircle, Package, Box } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
@@ -114,12 +114,6 @@ const Layout = () => {
             <Button variant="ghost" size="icon" onClick={toggleTheme} className="ml-2" aria-label="Toggle theme">
               {isDarkMode ? <Sun className="h-[1.2rem] w-[1.2rem]" /> : <Moon className="h-[1.2rem] w-[1.2rem]" />}
             </Button>
-            
-            <a href="https://github.com" target="_blank" rel="noopener noreferrer">
-              <Button variant="ghost" size="icon" aria-label="GitHub repository">
-                <Github className="h-[1.2rem] w-[1.2rem]" />
-              </Button>
-            </a>
             
             {!loading && (user ? <UserProfile /> : <Button size="sm" onClick={() => navigate('/auth')} className="ml-2">
                   <LogIn className="h-4 w-4 mr-2" />
