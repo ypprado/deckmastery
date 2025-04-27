@@ -34,7 +34,7 @@ export const convertCardFromSupabase = (
   return {
     id: String(card.id),
     name: card.name,
-    set: card.groupid_liga || '',
+    set: card.groupid_market_br || '',
     setName: cardSet?.name,
     imageUrl: card.artwork_url,
     type: card.card_type || '',
@@ -44,10 +44,10 @@ export const convertCardFromSupabase = (
     gameCategory: card.game_category,
     flavorText: card.card_text || '',
     url_tcg: card.url_tcg || '',
-    url_liga: card.url_liga || '',
+    url_market_br: card.url_market_br || '',
     subTypeName: card.subTypeName || '',
     card_number: card.card_number || '',
-    card_number_liga: card.card_number_liga || '', // Added new field
+    card_number_market_br: card.card_number_market_br || '',
     groupid_tcg: card.groupid_tcg,
     attribute: card.attribute || [], // Added attribute as array
     artist: '',

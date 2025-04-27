@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { CardDetails } from '@/types/cardDatabase';
@@ -78,7 +79,7 @@ export const useCards = (initialCards: CardDetails[] = []) => {
       const cardData: CardInsert = {
         id: Number(newCard.id), // Use number ID for insertion
         name: newCard.name,
-        groupid_liga: newCard.set, // Use groupid_liga instead of set_id
+        groupid_market_br: newCard.set, // Use groupid_market_br instead of groupid_liga
         game_category: newCard.gameCategory,
         card_type: cardTypes, // Now using the array format
         cost: newCard.cost,
@@ -87,14 +88,11 @@ export const useCards = (initialCards: CardDetails[] = []) => {
         artwork_url: artworkUrl,
         card_text: newCard.flavorText,
         url_tcg: newCard.url_tcg || null,
-        url_liga: newCard.url_liga || null,
+        url_market_br: newCard.url_market_br || null,
         subTypeName: validSubTypeName,
         card_number: newCard.card_number || null,
-        card_number_liga: newCard.card_number_liga || null,
-        groupid_tcg: newCard.groupid_tcg || null,
-        groupid_market_br: newCard.set,
-        url_market_br: newCard.url_market_br || null,
         card_number_market_br: newCard.card_number_market_br || null,
+        groupid_tcg: newCard.groupid_tcg || null,
         attribute: attributes, // Now properly typed as AttributeType[] or null
       };
       
@@ -210,7 +208,7 @@ export const useCards = (initialCards: CardDetails[] = []) => {
       // Prepare data for Supabase update
       const updateData: Partial<CardInsert> = {
         name: cardData.name,
-        groupid_liga: cardData.set, // Use groupid_liga instead of set_id
+        groupid_market_br: cardData.set, // Use groupid_market_br instead
         card_type: cardTypes, // Now using the array format
         cost: cardData.cost,
         rarity: validRarity,
@@ -218,14 +216,11 @@ export const useCards = (initialCards: CardDetails[] = []) => {
         artwork_url: artworkUrl,
         card_text: cardData.flavorText,
         url_tcg: cardData.url_tcg,
-        url_liga: cardData.url_liga,
+        url_market_br: cardData.url_market_br,
         subTypeName: validSubTypeName,
         card_number: cardData.card_number,
-        card_number_liga: cardData.card_number_liga, // Added new field
-        groupid_tcg: cardData.groupid_tcg,
-        groupid_market_br: cardData.set,
-        url_market_br: cardData.url_market_br,
         card_number_market_br: cardData.card_number_market_br,
+        groupid_tcg: cardData.groupid_tcg,
         attribute: attributes, // Added attribute support
       };
       
