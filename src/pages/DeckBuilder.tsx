@@ -29,6 +29,8 @@ import { cn } from "@/lib/utils";
 import GameCategorySelector from "@/components/shared/GameCategorySelector";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { CARDS_PER_PAGE } from "@/lib/constants";
+import CardPagination from "@/components/card-library/CardPagination";
 
 const DeckBuilder = () => {
   const navigate = useNavigate();
@@ -42,10 +44,19 @@ const DeckBuilder = () => {
   const [deckDescription, setDeckDescription] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCards, setSelectedCards] = useState<{ card: CardType; quantity: number }[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
   const [activeColor, setActiveColor] = useState<string | null>(null);
-  const [activeType, setActiveType] = useState<string | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [activeFilters, setActiveFilters] = useState({
+    category: null,
+    cost: null,
+    power: null,
+    life: null,
+    counter: null,
+    attribute: null,
+  });
 
   useEffect(() => {
     if (id) {
@@ -83,32 +94,6 @@ const DeckBuilder = () => {
     changeCardCategory(activeGameCategory);
   }
 
-  const filteredCards = searchQuery
-    ? searchCards(searchQuery)
-    : allCards.filter(card => {
-        if (activeColor && !card.colors.includes(activeColor)) return false;
-        if (activeType) {
-          if (typeof card.type === 'string') {
-            if (card.type !== activeType) return false;
-          } else if (Array.isArray(card.type)) {
-            if (!card.type.includes(activeType)) return false;
-          }
-        }
-        return card.gameCategory === activeGameCategory;
-      });
-
-  const cardTypes = Array.from(new Set(
-    allCards
-      .filter(card => card.gameCategory === activeGameCategory)
-      .flatMap(card => Array.isArray(card.type) ? card.type : [card.type])
-  ));
-  
-  const availableColors = Array.from(new Set(
-    allCards
-      .filter(card => card.gameCategory === activeGameCategory)
-      .flatMap(card => card.colors)
-  ));
-
   const colorMap: Record<string, string> = {
     white: 'bg-amber-100 text-amber-800 dark:bg-amber-800 dark:text-amber-100',
     blue: 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100',
@@ -121,10 +106,6 @@ const DeckBuilder = () => {
 
   const toggleColor = (color: string) => {
     setActiveColor(activeColor === color ? null : color);
-  };
-
-  const toggleType = (type: string) => {
-    setActiveType(activeType === type ? null : type);
   };
 
   const addCard = (card: CardType) => {
@@ -218,24 +199,6 @@ const DeckBuilder = () => {
     }
   };
 
-  const clearFilters = () => {
-    setActiveColor(null);
-    setActiveType(null);
-    setSearchQuery("");
-  };
-
-  const isAnyFilterActive = activeColor !== null || activeType !== null || searchQuery.length > 0;
-
-  const totalCards = selectedCards.reduce((acc, { quantity }) => acc + quantity, 0);
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-[50vh]">
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-      </div>
-    );
-  }
-
   const getFormatLabel = (format: string) => {
     switch (format) {
       case 'Standard': return t('standard');
@@ -266,6 +229,238 @@ const DeckBuilder = () => {
     return '';
   };
 
+  // Apply advanced filters function
+  const applyAdvancedFilters = (cardsArr: CardType[]) => {
+    return cardsArr.filter(card => {
+      if (activeFilters.category) {
+        if (!card.category || String(card.category).toLowerCase() !== activeFilters.category.toLowerCase()) {
+          return false;
+        }
+      }
+      
+      if (activeFilters.cost !== null) {
+        const filterCost = Number(activeFilters.cost);
+        const cardCost = Number(card.cost);
+        if (isNaN(cardCost) || cardCost !== filterCost) return false;
+      }
+      
+      if (activeFilters.power !== null) {
+        const filterPower = Number(activeFilters.power);
+        const cardPower = Number(card.power);
+        if (isNaN(cardPower) || cardPower !== filterPower) return false;
+      }
+      
+      if (activeFilters.life !== null) {
+        const filterLife = Number(activeFilters.life);
+        const cardLife = Number(card.life);
+        if (isNaN(cardLife) || cardLife !== filterLife) return false;
+      }
+      
+      if (activeFilters.counter !== null) {
+        const filterCounter = Number(activeFilters.counter);
+        const cardCounter = Number(card.counter);
+        if (isNaN(cardCounter) || cardCounter !== filterCounter) return false;
+      }
+      
+      if (activeFilters.attribute) {
+        if (!Array.isArray(card.attribute) || !card.attribute.includes(activeFilters.attribute)) {
+          return false;
+        }
+      }
+      
+      return true;
+    });
+  };
+
+  // Update the filteredCards to include pagination and advanced filters
+  const filteredCards = (searchQuery 
+    ? searchCards(searchQuery)
+    : allCards
+  ).filter(card => {
+    if (activeColor && !card.colors.includes(activeColor)) return false;
+    return true;
+  });
+
+  const paginatedCards = applyAdvancedFilters(filteredCards).slice(
+    (currentPage - 1) * CARDS_PER_PAGE,
+    currentPage * CARDS_PER_PAGE
+  );
+
+  const totalPages = Math.ceil(filteredCards.length / CARDS_PER_PAGE);
+
+  // Add the Advanced Filters UI
+  const advancedFiltersSection = (
+    <div className={cn("space-y-4", !showAdvancedFilters && "hidden")}>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <div className="space-y-1">
+          <Label className="text-xs">{t('category')}</Label>
+          <Select
+            value={activeFilters.category || ""}
+            onValueChange={(value) => setActiveFilters(prev => ({ ...prev, category: value || null }))}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder={t('all')} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">{t('all')}</SelectItem>
+              {["Leader", "Character", "Event", "Stage", "DON!!"].map(cat => (
+                <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-1">
+          <Label className="text-xs">{t('cost')}</Label>
+          <Input
+            type="number"
+            value={activeFilters.cost || ""}
+            onChange={(e) => setActiveFilters(prev => ({ ...prev, cost: e.target.value ? Number(e.target.value) : null }))}
+            className="h-9"
+            min={0}
+          />
+        </div>
+
+        <div className="space-y-1">
+          <Label className="text-xs">{t('power')}</Label>
+          <Input
+            type="number"
+            value={activeFilters.power || ""}
+            onChange={(e) => setActiveFilters(prev => ({ ...prev, power: e.target.value ? Number(e.target.value) : null }))}
+            className="h-9"
+            min={0}
+          />
+        </div>
+
+        <div className="space-y-1">
+          <Label className="text-xs">{t('life')}</Label>
+          <Input
+            type="number"
+            value={activeFilters.life || ""}
+            onChange={(e) => setActiveFilters(prev => ({ ...prev, life: e.target.value ? Number(e.target.value) : null }))}
+            className="h-9"
+            min={0}
+          />
+        </div>
+
+        <div className="space-y-1">
+          <Label className="text-xs">{t('counter')}</Label>
+          <Input
+            type="number"
+            value={activeFilters.counter || ""}
+            onChange={(e) => setActiveFilters(prev => ({ ...prev, counter: e.target.value ? Number(e.target.value) : null }))}
+            className="h-9"
+            min={0}
+          />
+        </div>
+
+        <div className="space-y-1">
+          <Label className="text-xs">{t('attribute')}</Label>
+          <Select
+            value={activeFilters.attribute || ""}
+            onValueChange={(value) => setActiveFilters(prev => ({ ...prev, attribute: value || null }))}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder={t('all')} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">{t('all')}</SelectItem>
+              {["Slash", "Strike", "Special", "Wisdom", "Ranged"].map(attr => (
+                <SelectItem key={attr} value={attr}>{attr}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Update the search and filter section
+  const searchAndFilterSection = (
+    <Card className="animate-scale-up">
+      <CardContent className="p-4 space-y-4">
+        <div className="flex flex-col gap-4 sm:flex-row">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder={t('searchCards')}
+              className="pl-9"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <Button
+            variant={showAdvancedFilters ? "default" : "outline"}
+            onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+            className="shrink-0"
+          >
+            <Filter className="h-4 w-4 mr-2" />
+            {t('advancedFilters')}
+          </Button>
+          {isAnyFilterActive && (
+            <Button variant="ghost" onClick={clearFilters} className="shrink-0">
+              <X className="h-4 w-4 mr-2" />
+              {t('clearAll')}
+            </Button>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label className="text-sm">{t('colors')}</Label>
+          </div>
+          <div className="flex flex-wrap gap-1">
+            {Array.from(new Set(cards.flatMap(card => card.colors))).map(color => (
+              <Badge
+                key={color}
+                variant={activeColor === color ? "default" : "outline"}
+                className={cn(
+                  "cursor-pointer hover:bg-muted transition-colors",
+                  activeColor === color && colorMap[color]
+                )}
+                onClick={() => setActiveColor(activeColor === color ? null : color)}
+              >
+                {color.charAt(0).toUpperCase() + color.slice(1)}
+              </Badge>
+            ))}
+          </div>
+        </div>
+
+        {advancedFiltersSection}
+      </CardContent>
+    </Card>
+  );
+
+  // Update the isAnyFilterActive check
+  const isAnyFilterActive = activeColor !== null || 
+    searchQuery.length > 0 ||
+    Object.values(activeFilters).some(value => value !== null);
+
+  // Add clearFilters function
+  const clearFilters = () => {
+    setSearchQuery('');
+    setActiveColor(null);
+    setActiveFilters({
+      category: null,
+      cost: null,
+      power: null,
+      life: null,
+      counter: null,
+      attribute: null,
+    });
+  };
+
+  const totalCards = selectedCards.reduce((acc, { quantity }) => acc + quantity, 0);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-[50vh]">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  // Update the cards grid section to include pagination
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2">
@@ -418,81 +613,17 @@ const DeckBuilder = () => {
         </div>
 
         <div className="md:col-span-2 space-y-4">
-          <Card className="animate-scale-up">
-            <CardContent className="p-4 space-y-4">
-              <div className="flex flex-col gap-4 sm:flex-row">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    placeholder={t('searchCards')}
-                    className="pl-9"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                </div>
-                {isAnyFilterActive && (
-                  <Button variant="ghost" onClick={clearFilters} className="shrink-0">
-                    <X className="h-4 w-4 mr-2" />
-                    {t('clearAll')}
-                  </Button>
-                )}
-              </div>
+          {searchAndFilterSection}
 
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label className="text-sm">{t('colors')}</Label>
-                </div>
-                <div className="flex flex-wrap gap-1">
-                  {availableColors.map(color => (
-                    <Badge
-                      key={color}
-                      variant={activeColor === color ? "default" : "outline"}
-                      className={cn(
-                        "cursor-pointer hover:bg-muted transition-colors",
-                        activeColor === color && colorMap[color]
-                      )}
-                      onClick={() => toggleColor(color)}
-                    >
-                      {color.charAt(0).toUpperCase() + color.slice(1)}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
+          <div className="flex justify-between items-center my-4">
+            <p className="text-sm text-muted-foreground">
+              {t('showing')} {(currentPage - 1) * CARDS_PER_PAGE + 1}-
+              {Math.min(currentPage * CARDS_PER_PAGE, filteredCards.length)} {t('of')} {filteredCards.length} {filteredCards.length === 1 ? t('card') : t('cards')}
+            </p>
+          </div>
 
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label className="text-sm">{t('types')}</Label>
-                </div>
-                <div className="flex flex-wrap gap-1">
-                  {cardTypes.map(type => (
-                    <Badge
-                      key={type}
-                      variant={activeType === type ? "default" : "outline"}
-                      className="cursor-pointer hover:bg-muted transition-colors"
-                      onClick={() => toggleType(type)}
-                    >
-                      {displayCardType(type)}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredCards.length === 0 ? (
-              <div className="col-span-full py-12 text-center">
-                <Filter className="h-12 w-12 mx-auto text-muted-foreground" />
-                <h3 className="mt-4 text-lg font-medium">{t('noCardsFound')}</h3>
-                <p className="mt-2 text-sm text-muted-foreground max-w-sm mx-auto">
-                  {t('tryAdjustingFilters')}
-                </p>
-                <Button onClick={clearFilters} variant="outline" className="mt-4">
-                  {t('clearFilters')}
-                </Button>
-              </div>
-            ) : (
-              filteredCards.map(card => {
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+            {paginatedCards.map((card) => {
                 const isSelected = selectedCards.some(item => item.card.id === card.id);
                 const quantity = selectedCards.find(item => item.card.id === card.id)?.quantity || 0;
                 
@@ -565,9 +696,14 @@ const DeckBuilder = () => {
                     </CardContent>
                   </Card>
                 );
-              })
-            )}
+              })}
           </div>
+
+          <CardPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
         </div>
       </div>
     </div>
