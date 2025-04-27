@@ -71,14 +71,14 @@ const CardLibraryHeader = ({
       </DropdownMenu>
       
       <Select
-        value={selectedSet || "all"}
-        onValueChange={(value) => onSetChange(value === "all" ? null : value)}
+        value={selectedSet || "all-sets"}
+        onValueChange={(value) => onSetChange(value === "all-sets" ? null : value)}
       >
         <SelectTrigger className="w-[200px]">
           <SelectValue placeholder={t('selectSet')} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">{t('allSets')}</SelectItem>
+          <SelectItem value="all-sets">{t('allSets')}</SelectItem>
           {availableSets.map(({ id, name }) => (
             <SelectItem key={id} value={id}>{`${id} - ${name}`}</SelectItem>
           ))}
