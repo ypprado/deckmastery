@@ -3,7 +3,7 @@ import { GameCategory } from '@/hooks/use-decks';
 import { AttributeType } from '@/hooks/card-database/useSupabaseCardData';
 
 export interface CardSet {
-  id: number; // Changed from string to number to match int8
+  id: string; // Changed from string to number to match int8
   name: string;
   releaseYear: number; // Changed from releaseDate string to releaseYear number
   gameCategory: GameCategory;

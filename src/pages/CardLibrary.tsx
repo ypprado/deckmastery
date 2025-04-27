@@ -77,20 +77,25 @@ const CardLibrary = () => {
   }, [searchQuery, activeFilters]);
 
   const availableSets = Array.from(
-    new Set(cards.map(card => card.set))
+    new Set(
+      cards
+        .map(card => typeof card.set === 'string' ? card.set.trim().toUpperCase() : '')
+        .filter(Boolean)
+    )
   )
-  .filter((setId): setId is string => setId !== null && setId !== undefined)
   .map(setId => {
-    const setIdNumber = parseInt(setId);
-    const setInfo = !isNaN(setIdNumber) ? sets.find(set => set.id === setIdNumber) : null;
-
-    return {
+    // Find matching set by normalizing both the set.id and the card's setId
+    const setInfo = sets.find(set => 
+      typeof set.id === 'string' && set.id.trim().toUpperCase() === setId
+    );
+    const availableSet = {
       id: setId,
       name: setInfo ? setInfo.name : setId
     };
+    return availableSet;
   })
-  .sort((a, b) => a.name.localeCompare(b.name));
-
+  .sort((a, b) => a.id.localeCompare(b.id));
+  
   const handleSetChange = (value: string | null) => {
     setActiveFilters(prev => ({
       ...prev,

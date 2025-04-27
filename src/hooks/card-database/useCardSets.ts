@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { CardSet } from '@/types/cardDatabase';
 import { GameCategory } from '@/hooks/use-decks';
@@ -8,6 +8,11 @@ import { CardSetInsert, convertSetFromSupabase } from './useSupabaseCardData';
 
 export const useCardSets = (initialSets: CardSet[] = []) => {
   const [sets, setSets] = useState<CardSet[]>(initialSets);
+
+  // Sync local state when initialSets changes (e.g., after async load)
+  useEffect(() => {
+    setSets(initialSets);
+  }, [initialSets]);
 
   const addSet = async (newSet: CardSet) => {
     // Check if a set with the same name already exists for the game category
@@ -41,7 +46,7 @@ export const useCardSets = (initialSets: CardSet[] = []) => {
       // Set ID from Supabase response
       const setWithId: CardSet = {
         ...newSet,
-        id: Number(data.id) // Convert back to number for our app
+        id: data.id // Convert back to number for our app
       };
       
       // Update local state
@@ -69,7 +74,7 @@ export const useCardSets = (initialSets: CardSet[] = []) => {
     }
   };
 
-  const updateSet = async (id: number, setData: Partial<CardSet>) => {
+  const updateSet = async (id: string, setData: Partial<CardSet>) => {
     try {
       // Prepare data for Supabase update
       const updateData: Partial<CardSetInsert> = {
@@ -129,7 +134,7 @@ export const useCardSets = (initialSets: CardSet[] = []) => {
     }
   };
 
-  const deleteSet = async (id: number) => {
+  const deleteSet = async (id: string) => {
     try {
       // Try to delete from Supabase first
       const { error } = await supabase
@@ -163,7 +168,7 @@ export const useCardSets = (initialSets: CardSet[] = []) => {
     return sets.filter(set => set.gameCategory === gameCategory);
   };
   
-  const getSetById = (id: number) => {
+  const getSetById = (id: string) => {
     return sets.find(set => set.id === id);
   };
 

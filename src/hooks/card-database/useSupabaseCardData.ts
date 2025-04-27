@@ -16,7 +16,7 @@ export type AttributeType = Database['public']['Enums']['attribute_type'];
 // Shared utilities
 export const convertSetFromSupabase = (set: any): CardSet => {
   return {
-    id: Number(set.id),
+    id: set.id,
     name: set.name,
     releaseYear: set.release_year || new Date().getFullYear(),
     gameCategory: set.game_category,
@@ -29,7 +29,7 @@ export const convertCardFromSupabase = (
   sets: CardSet[]
 ): CardDetails => {
   // Find the set name for this card
-  const cardSet = sets.find(set => set.id === Number(card.groupid_market_us));
+  const cardSet = sets.find(set => set.id === card.groupid_market_br);
   
   return {
     id: String(card.id),
@@ -72,7 +72,7 @@ export const loadCardsAndSets = async (): Promise<{
     if (setsData && setsData.length > 0) {
       // Transform Supabase data to match our app's format
       const formattedSets = setsData.map(convertSetFromSupabase);
-      
+
       // Load all cards using pagination to overcome the 1000 row limit
       let allCards: any[] = [];
       let page = 0;
