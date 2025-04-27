@@ -27,7 +27,7 @@ export const useCardSets = (initialSets: CardSet[] = []) => {
         name: newSet.name,
         release_year: newSet.releaseYear, // Use release_year instead of release_date
         game_category: newSet.gameCategory,
-        groupid_tcg: newSet.groupid_tcg || null,
+        groupid_market_us: newSet.groupid_market_us || null,
       };
       
       const { data, error } = await supabase
@@ -76,7 +76,7 @@ export const useCardSets = (initialSets: CardSet[] = []) => {
         name: setData.name,
         release_year: setData.releaseYear, // Use release_year instead of release_date
         game_category: setData.gameCategory,
-        groupid_tcg: setData.groupid_tcg || null,
+        groupid_market_us: setData.groupid_market_us || null,
       };
       
       // Try to update in Supabase first

@@ -72,7 +72,7 @@ const AdminCardForm: React.FC<AdminCardFormProps> = ({ gameCategory }) => {
         artist: values.artist,
         legality: values.legality ? [values.legality] : undefined,
         price: values.price,
-        groupid_tcg: setId,
+        groupid_market_us: setId,
       };
       
       await addCard(newCard);
