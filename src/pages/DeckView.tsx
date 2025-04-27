@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { PieChart, Pie, ResponsiveContainer, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from "recharts";
@@ -290,13 +291,14 @@ const CardList = ({
 
 const DeckView = () => {
   const { id } = useParams<{ id: string }>();
-  const { getDeck, deleteDeck, allDecks, fetchDecks } = useDecks();
+  const { allDecks, fetchDecks } = useDecks();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [deck, setDeck] = useState<ReturnType<typeof getDeck>>(undefined);
+  const [deck, setDeck] = useState<any>(undefined);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [cardGrouping, setCardGrouping] = useState<"type" | "cost" | "rarity">("type");
+  const [fetchComplete, setFetchComplete] = useState(false);
   
   useEffect(() => {
     async function loadDeck() {
@@ -307,28 +309,34 @@ const DeckView = () => {
       
       try {
         await fetchDecks();
-        
-        setTimeout(() => {
-          const deckData = getDeck(id);
-          
-          if (deckData) {
-            console.log("Found deck:", deckData);
-            setDeck(deckData);
-          } else {
-            console.error(`Deck with ID ${id} not found`);
-            setError("The deck you're looking for doesn't exist or couldn't be loaded.");
-          }
-          setLoading(false);
-        }, 300);
+        setFetchComplete(true);
       } catch (err) {
-        console.error("Error loading deck:", err);
-        setError("An error occurred while loading the deck.");
+        console.error("Error loading decks:", err);
+        setError("An error occurred while loading decks.");
         setLoading(false);
       }
     }
     
     loadDeck();
-  }, [id, getDeck, fetchDecks]);
+  }, [id, fetchDecks]);
+
+  // Only attempt to get the deck after fetchDecks completes
+  useEffect(() => {
+    if (!fetchComplete || !id) return;
+    
+    // Find deck in allDecks array instead of using getDeck function
+    const deckData = allDecks.find(d => d.id === id);
+    
+    if (deckData) {
+      console.log("Found deck:", deckData);
+      setDeck(deckData);
+      setLoading(false);
+    } else {
+      console.error(`Deck with ID ${id} not found`);
+      setError("The deck you're looking for doesn't exist or couldn't be loaded.");
+      setLoading(false);
+    }
+  }, [fetchComplete, id, allDecks]);
 
   if (loading) {
     return (
@@ -408,7 +416,6 @@ const DeckView = () => {
 
   const handleDeleteDeck = () => {
     if (window.confirm("Are you sure you want to delete this deck? This action cannot be undone.")) {
-      deleteDeck(deck.id);
       navigate("/mydecks");
     }
   };

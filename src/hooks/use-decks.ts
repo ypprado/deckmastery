@@ -71,6 +71,7 @@ export const useDecks = () => {
 
       if (!data) {
         setDecks([]);
+        setLoading(false);
         return;
       }
 
@@ -93,10 +94,10 @@ export const useDecks = () => {
 
       console.log("Fetched decks:", formattedDecks);
       setDecks(formattedDecks);
+      setLoading(false);
     } catch (error) {
       console.error('Error loading decks:', error);
       toast.error('Failed to load decks');
-    } finally {
       setLoading(false);
     }
   }, [user]);
@@ -116,6 +117,18 @@ export const useDecks = () => {
     setActiveGameCategory(category);
     localStorage.setItem('activeGameCategory', category);
   };
+
+  const getDeck = useCallback((id: string) => {
+    if (!id || !decks.length) return undefined;
+    
+    const foundDeck = decks.find(deck => deck.id === id);
+    if (foundDeck) {
+      console.log("Retrieved deck data:", foundDeck);
+    } else {
+      console.error(`Deck with ID ${id} not found in ${decks.length} available decks`);
+    }
+    return foundDeck;
+  }, [decks]);
 
   const saveDeck = async (deck: Omit<Deck, 'id' | 'createdAt' | 'updatedAt'>) => {
     if (!user) {
@@ -234,13 +247,6 @@ export const useDecks = () => {
       toast.error('Failed to delete deck');
     }
   };
-
-  const getDeck = useCallback((id: string) => {
-    console.log("All available decks:", decks);
-    const foundDeck = decks.find(deck => deck.id === id);
-    console.log("Retrieved deck data:", foundDeck);
-    return foundDeck;
-  }, [decks]);
 
   return {
     decks: filteredDecks,
