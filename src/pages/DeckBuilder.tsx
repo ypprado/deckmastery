@@ -29,6 +29,7 @@ import { cn } from "@/lib/utils";
 import GameCategorySelector from "@/components/shared/GameCategorySelector";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
+import CardPagination from "@/components/card-library/CardPagination";
 
 const DeckBuilder = () => {
   const navigate = useNavigate();
@@ -43,9 +44,10 @@ const DeckBuilder = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCards, setSelectedCards] = useState<{ card: CardType; quantity: number }[]>([]);
   const [activeColor, setActiveColor] = useState<string | null>(null);
-  const [activeType, setActiveType] = useState<string | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const cardsPerPage = 20;
 
   useEffect(() => {
     if (id) {
@@ -87,21 +89,14 @@ const DeckBuilder = () => {
     ? searchCards(searchQuery)
     : allCards.filter(card => {
         if (activeColor && !card.colors.includes(activeColor)) return false;
-        if (activeType) {
-          if (typeof card.type === 'string') {
-            if (card.type !== activeType) return false;
-          } else if (Array.isArray(card.type)) {
-            if (!card.type.includes(activeType)) return false;
-          }
-        }
         return card.gameCategory === activeGameCategory;
       });
 
-  const cardTypes = Array.from(new Set(
-    allCards
-      .filter(card => card.gameCategory === activeGameCategory)
-      .flatMap(card => Array.isArray(card.type) ? card.type : [card.type])
-  ));
+  // Calculate pagination
+  const indexOfLastCard = currentPage * cardsPerPage;
+  const indexOfFirstCard = indexOfLastCard - cardsPerPage;
+  const currentCards = filteredCards.slice(indexOfFirstCard, indexOfLastCard);
+  const totalPages = Math.ceil(filteredCards.length / cardsPerPage);
   
   const availableColors = Array.from(new Set(
     allCards
@@ -121,10 +116,6 @@ const DeckBuilder = () => {
 
   const toggleColor = (color: string) => {
     setActiveColor(activeColor === color ? null : color);
-  };
-
-  const toggleType = (type: string) => {
-    setActiveType(activeType === type ? null : type);
   };
 
   const addCard = (card: CardType) => {
@@ -220,11 +211,10 @@ const DeckBuilder = () => {
 
   const clearFilters = () => {
     setActiveColor(null);
-    setActiveType(null);
     setSearchQuery("");
   };
 
-  const isAnyFilterActive = activeColor !== null || activeType !== null || searchQuery.length > 0;
+  const isAnyFilterActive = activeColor !== null || searchQuery.length > 0;
 
   const totalCards = selectedCards.reduce((acc, { quantity }) => acc + quantity, 0);
 
@@ -458,29 +448,11 @@ const DeckBuilder = () => {
                   ))}
                 </div>
               </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label className="text-sm">{t('types')}</Label>
-                </div>
-                <div className="flex flex-wrap gap-1">
-                  {cardTypes.map(type => (
-                    <Badge
-                      key={type}
-                      variant={activeType === type ? "default" : "outline"}
-                      className="cursor-pointer hover:bg-muted transition-colors"
-                      onClick={() => toggleType(type)}
-                    >
-                      {displayCardType(type)}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
             </CardContent>
           </Card>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredCards.length === 0 ? (
+            {currentCards.length === 0 ? (
               <div className="col-span-full py-12 text-center">
                 <Filter className="h-12 w-12 mx-auto text-muted-foreground" />
                 <h3 className="mt-4 text-lg font-medium">{t('noCardsFound')}</h3>
@@ -492,7 +464,7 @@ const DeckBuilder = () => {
                 </Button>
               </div>
             ) : (
-              filteredCards.map(card => {
+              currentCards.map(card => {
                 const isSelected = selectedCards.some(item => item.card.id === card.id);
                 const quantity = selectedCards.find(item => item.card.id === card.id)?.quantity || 0;
                 
@@ -568,6 +540,14 @@ const DeckBuilder = () => {
               })
             )}
           </div>
+
+          {totalPages > 1 && (
+            <CardPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          )}
         </div>
       </div>
     </div>
