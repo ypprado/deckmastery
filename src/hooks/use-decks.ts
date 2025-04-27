@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { toast } from "sonner";
 import { useStaticData } from './use-static-data';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 export type GameCategory = 'magic' | 'pokemon' | 'yugioh' | 'onepiece';
 
@@ -48,29 +49,55 @@ export const useDecks = () => {
   const [loading, setLoading] = useState(true);
   const [activeGameCategory, setActiveGameCategory] = useState<GameCategory>('magic');
   const { cards: staticCards } = useStaticData({ initialGameCategory: activeGameCategory });
+  const { user } = useAuth();
 
   useEffect(() => {
-    const loadDecks = () => {
-      const storedDecks = localStorage.getItem('decks');
-      console.log("Loading decks from localStorage:", storedDecks ? JSON.parse(storedDecks) : null);
-      
-      if (storedDecks) {
-        setDecks(JSON.parse(storedDecks));
-      } else {
+    const loadDecks = async () => {
+      if (!user) {
         setDecks([]);
-        localStorage.setItem('decks', JSON.stringify([]));
+        setLoading(false);
+        return;
       }
-      
-      const storedCategory = localStorage.getItem('activeGameCategory') as GameCategory;
-      if (storedCategory) {
-        setActiveGameCategory(storedCategory);
+
+      try {
+        const { data, error } = await supabase
+          .from('decks')
+          .select('*')
+          .eq('user_id', user.id);
+
+        if (error) {
+          throw error;
+        }
+
+        const formattedDecks = data.map(deck => ({
+          id: deck.id,
+          name: deck.name,
+          format: deck.format,
+          colors: deck.colors || [],
+          cards: deck.cards,
+          createdAt: deck.created_at,
+          updatedAt: deck.updated_at,
+          description: deck.description,
+          coverCard: deck.cover_card,
+          gameCategory: deck.game_category as GameCategory
+        }));
+
+        setDecks(formattedDecks);
+      } catch (error) {
+        console.error('Error loading decks:', error);
+        toast.error('Failed to load decks');
+      } finally {
+        setLoading(false);
       }
-      
-      setLoading(false);
     };
 
     loadDecks();
-  }, []);
+
+    const storedCategory = localStorage.getItem('activeGameCategory') as GameCategory;
+    if (storedCategory) {
+      setActiveGameCategory(storedCategory);
+    }
+  }, [user]);
 
   const filteredDecks = decks.filter(deck => deck.gameCategory === activeGameCategory);
 
@@ -79,62 +106,123 @@ export const useDecks = () => {
     localStorage.setItem('activeGameCategory', category);
   };
 
-  const saveDeck = (deck: Omit<Deck, 'id' | 'createdAt' | 'updatedAt'>) => {
-    const newDeck: Deck = {
-      ...deck,
-      id: `d${Date.now()}`,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      gameCategory: deck.gameCategory || activeGameCategory
-    };
+  const saveDeck = async (deck: Omit<Deck, 'id' | 'createdAt' | 'updatedAt'>) => {
+    if (!user) {
+      toast.error('You must be logged in to save a deck');
+      return null;
+    }
 
-    console.log("Saving new deck:", newDeck);
+    try {
+      const { data, error } = await supabase
+        .from('decks')
+        .insert([{
+          user_id: user.id,
+          name: deck.name,
+          format: deck.format,
+          description: deck.description,
+          cards: deck.cards,
+          colors: deck.colors,
+          cover_card: deck.coverCard,
+          game_category: deck.gameCategory
+        }])
+        .select()
+        .single();
 
-    setDecks(prevDecks => {
-      const updatedDecks = [...prevDecks, newDeck];
-      localStorage.setItem('decks', JSON.stringify(updatedDecks));
-      return updatedDecks;
-    });
+      if (error) throw error;
 
-    toast.success("Deck saved successfully");
-    return newDeck;
-  };
-
-  const updateDeck = (id: string, deckData: Partial<Deck>) => {
-    setDecks(prevDecks => {
-      const deckIndex = prevDecks.findIndex(d => d.id === id);
-      if (deckIndex === -1) {
-        toast.error("Deck not found");
-        return prevDecks;
-      }
-
-      const updatedDecks = [...prevDecks];
-      updatedDecks[deckIndex] = {
-        ...updatedDecks[deckIndex],
-        ...deckData,
-        updatedAt: new Date().toISOString()
+      const newDeck: Deck = {
+        id: data.id,
+        name: data.name,
+        format: data.format,
+        colors: data.colors || [],
+        cards: data.cards,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at,
+        description: data.description,
+        coverCard: data.cover_card,
+        gameCategory: data.game_category
       };
 
-      localStorage.setItem('decks', JSON.stringify(updatedDecks));
+      setDecks(prevDecks => [...prevDecks, newDeck]);
+      toast.success("Deck saved successfully");
+      return newDeck;
+    } catch (error) {
+      console.error('Error saving deck:', error);
+      toast.error('Failed to save deck');
+      return null;
+    }
+  };
+
+  const updateDeck = async (id: string, deckData: Partial<Deck>) => {
+    if (!user) {
+      toast.error('You must be logged in to update a deck');
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('decks')
+        .update({
+          name: deckData.name,
+          format: deckData.format,
+          description: deckData.description,
+          cards: deckData.cards,
+          colors: deckData.colors,
+          cover_card: deckData.coverCard,
+          game_category: deckData.gameCategory
+        })
+        .eq('id', id)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      setDecks(prevDecks => {
+        const deckIndex = prevDecks.findIndex(d => d.id === id);
+        if (deckIndex === -1) return prevDecks;
+
+        const updatedDecks = [...prevDecks];
+        updatedDecks[deckIndex] = {
+          ...updatedDecks[deckIndex],
+          ...deckData,
+          updatedAt: new Date().toISOString()
+        };
+
+        return updatedDecks;
+      });
+
       toast.success("Deck updated successfully");
-      return updatedDecks;
-    });
+    } catch (error) {
+      console.error('Error updating deck:', error);
+      toast.error('Failed to update deck');
+    }
   };
 
-  const deleteDeck = (id: string) => {
-    setDecks(prevDecks => {
-      const updatedDecks = prevDecks.filter(deck => deck.id !== id);
-      localStorage.setItem('decks', JSON.stringify(updatedDecks));
+  const deleteDeck = async (id: string) => {
+    if (!user) {
+      toast.error('You must be logged in to delete a deck');
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('decks')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      setDecks(prevDecks => prevDecks.filter(deck => deck.id !== id));
       toast.success("Deck deleted successfully");
-      return updatedDecks;
-    });
+    } catch (error) {
+      console.error('Error deleting deck:', error);
+      toast.error('Failed to delete deck');
+    }
   };
 
-  const getDeck = (id: string) => {
-    console.log("Looking for deck with id:", id);
-    console.log("Available decks:", decks);
+  const getDeck = useCallback((id: string) => {
     return decks.find(deck => deck.id === id);
-  };
+  }, [decks]);
 
   return {
     decks: filteredDecks,

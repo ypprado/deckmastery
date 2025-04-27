@@ -156,6 +156,48 @@ export type Database = {
         }
         Relationships: []
       }
+      decks: {
+        Row: {
+          cards: Json
+          colors: string[] | null
+          cover_card: Json | null
+          created_at: string
+          description: string | null
+          format: string
+          game_category: string
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cards?: Json
+          colors?: string[] | null
+          cover_card?: Json | null
+          created_at?: string
+          description?: string | null
+          format: string
+          game_category: string
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cards?: Json
+          colors?: string[] | null
+          cover_card?: Json | null
+          created_at?: string
+          description?: string | null
+          format?: string
+          game_category?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       follows: {
         Row: {
           created_at: string
