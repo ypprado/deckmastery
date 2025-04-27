@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { ArrowDownAZ } from "lucide-react"
-import { useEffect } from 'react';
 
 interface CardLibraryHeaderProps {
   searchQuery: string;
@@ -46,14 +45,6 @@ const CardLibraryHeader = ({
     { value: 'life', label: t('life') },
   ];
 
-  // Debug logging to check if sets are loaded
-  useEffect(() => {
-    console.log('Available sets in CardLibraryHeader:', availableSets);
-  }, [availableSets]);
-
-  const hasValidSets = availableSets && availableSets.length > 0 && 
-    availableSets.some(set => set.id && set.id.trim() !== '');
-
   return (
     <div className="flex flex-col gap-4 sm:flex-row">
       <div className="flex-1">
@@ -80,28 +71,17 @@ const CardLibraryHeader = ({
       </DropdownMenu>
       
       <Select
-        value={selectedSet || "all-sets"}
-        onValueChange={(value) => onSetChange(value === "all-sets" ? null : value)}
+        value={selectedSet || "all"}
+        onValueChange={(value) => onSetChange(value === "all" ? null : value)}
       >
         <SelectTrigger className="w-[200px]">
           <SelectValue placeholder={t('selectSet')} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all-sets">{t('allSets')}</SelectItem>
-          {hasValidSets ? (
-            availableSets
-              .filter(set => set.id && set.id.trim() !== '')
-              .map(({ id, name }) => (
-                <SelectItem 
-                  key={id} 
-                  value={id}
-                >
-                  {name || id}
-                </SelectItem>
-              ))
-          ) : (
-            <SelectItem value="no-sets-found">{t('noSetsFound')}</SelectItem>
-          )}
+          <SelectItem value="all">{t('allSets')}</SelectItem>
+          {availableSets.map(({ id, name }) => (
+            <SelectItem key={id} value={id}>{`${id} - ${name}`}</SelectItem>
+          ))}
         </SelectContent>
       </Select>
       

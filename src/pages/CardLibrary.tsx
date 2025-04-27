@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCards } from '@/hooks/use-decks';
@@ -77,22 +76,13 @@ const CardLibrary = () => {
     setCurrentPage(1);
   }, [searchQuery, activeFilters]);
 
-  useEffect(() => {
-    console.log('Active game category:', activeGameCategory);
-    console.log('Total cards:', cards.length);
-    console.log('Available sets from useCardDatabase:', sets);
-  }, [activeGameCategory, cards, sets]);
-
-  // Get unique set IDs from cards and map them to available set info
   const availableSets = Array.from(
-    new Set(cards.map(card => card.set).filter(setId => setId && setId.trim() !== ''))
+    new Set(cards.map(card => card.set))
   )
-  .filter((setId): setId is string => setId !== null && setId !== undefined && setId.trim() !== '')
+  .filter((setId): setId is string => setId !== null && setId !== undefined)
   .map(setId => {
     const setIdNumber = parseInt(setId);
     const setInfo = !isNaN(setIdNumber) ? sets.find(set => set.id === setIdNumber) : null;
-    
-    console.log(`Processing set ID: ${setId}, Found info:`, setInfo);
 
     return {
       id: setId,
@@ -100,8 +90,6 @@ const CardLibrary = () => {
     };
   })
   .sort((a, b) => a.name.localeCompare(b.name));
-
-  console.log('Processed availableSets:', availableSets);
 
   const handleSetChange = (value: string | null) => {
     setActiveFilters(prev => ({
