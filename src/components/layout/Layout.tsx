@@ -1,4 +1,3 @@
-
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { LayoutDashboard, Book, Settings, Menu, X, Moon, Sun, LogIn, ChevronDown, Library, LibraryBig, MessageCircle, Package, Box } from "lucide-react";
@@ -29,7 +28,6 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
 } from "@/components/ui/sidebar";
-import { Translations } from "@/translations/types";
 
 const Layout = () => {
   const location = useLocation();
@@ -61,24 +59,19 @@ const Layout = () => {
     localStorage.setItem('theme', newTheme ? 'dark' : 'light');
   };
   
-  // Define type-safe navigation items with keys that exist in Translations
-  const navItems: {path: string; icon: React.ReactNode; label: keyof Translations}[] = [
-    {
-      path: "/mydecks",
-      icon: <Library className="h-5 w-5" />,
-      label: "myDecks"
-    }, 
-    {
-      path: "/collection",
-      icon: <LibraryBig className="h-5 w-5" />,
-      label: "collection"
-    }, 
-    {
-      path: "/cards",
-      icon: <Book className="h-5 w-5" />,
-      label: "cardLibrary"
-    }
-  ];
+  const navItems = [{
+    path: "/mydecks",
+    icon: <Library className="h-5 w-5" />,
+    label: t('myDecks')
+  }, {
+    path: "/collection",
+    icon: <LibraryBig className="h-5 w-5" />,
+    label: t('collection')
+  }, {
+    path: "/cards",
+    icon: <Book className="h-5 w-5" />,
+    label: t('cardLibrary')
+  }];
 
   return <SidebarProvider>
     <div className="min-h-screen flex flex-col w-full">
@@ -151,7 +144,7 @@ const Layout = () => {
                   <SidebarMenuButton
                     asChild
                     isActive={location.pathname === item.path}
-                    tooltip={item.label}
+                    tooltip={t(item.label)}
                   >
                     <Link to={item.path}>
                       {item.icon}
