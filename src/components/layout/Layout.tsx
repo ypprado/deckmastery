@@ -1,6 +1,6 @@
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, Book, Settings, Menu, X, Moon, Sun, LogIn, ChevronDown, Library, LibraryBig, MessageCircle, Package, Box } from "lucide-react";
+import { LayoutDashboard, Book, Settings, Moon, Sun, LogIn, ChevronDown, Library, LibraryBig, MessageCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
@@ -28,7 +28,7 @@ const Layout = () => {
   const { user, loading } = useAuth();
   const { activeGameCategory, changeGameCategory } = useDecks();
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
   
   const currentGameName = gameCategories.find(cat => cat.id === activeGameCategory)?.name || 'One Piece';
   
@@ -37,10 +37,6 @@ const Layout = () => {
     setIsDarkMode(isDark);
     document.documentElement.classList.toggle('dark', isDark);
   }, []);
-  
-  useEffect(() => {
-    setIsSidebarOpen(false);
-  }, [location.pathname]);
   
   const toggleTheme = () => {
     const newTheme = !isDarkMode;
@@ -67,8 +63,8 @@ const Layout = () => {
       <header className="sticky top-0 z-30 w-full backdrop-blur-md bg-background/80 border-b subtle-border animate-slide-down">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            {isMobile && <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="md:hidden">
-                {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {isMobile && <Button variant="ghost" size="icon" onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} className="md:hidden">
+                {isSidebarCollapsed ? <ChevronRight className="h-5 w-5" /> : <LayoutDashboard className="h-5 w-5" />}
               </Button>}
             <Link to="/" className="flex items-center gap-2">
               <img 
@@ -121,20 +117,49 @@ const Layout = () => {
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        <aside className={cn("z-20 shrink-0 border-r subtle-border bg-card/80 backdrop-blur-md w-64 md:relative md:block", isMobile && "fixed inset-y-0 left-0 transform transition-transform duration-300 ease-in-out", isMobile && !isSidebarOpen && "-translate-x-full")}>
-          <div className="flex flex-col h-full pt-6 pb-4">
+        <aside className={cn(
+          "z-20 shrink-0 border-r subtle-border bg-card/80 backdrop-blur-md transition-all duration-300 ease-in-out",
+          isSidebarCollapsed ? "w-16" : "w-64",
+          isMobile && "fixed inset-y-0 left-0 transform",
+          isMobile && !isSidebarCollapsed && "-translate-x-full"
+        )}>
+          <div className="flex flex-col h-full pt-2 pb-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setSidebarCollapsed(!isSidebarCollapsed)}
+              className="self-end mr-2 mb-4"
+              aria-label={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            >
+              {isSidebarCollapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
+            </Button>
+            
             <div className="flex-1 px-3 space-y-6">
               <div className="space-y-1">
-                {navItems.map(item => <Link key={item.path} to={item.path} className={cn("flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors", location.pathname === item.path ? "bg-primary/10 text-primary" : "text-foreground/70 hover:text-foreground hover:bg-accent")}>
+                {navItems.map(item => (
+                  <Link 
+                    key={item.path} 
+                    to={item.path} 
+                    className={cn(
+                      "flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                      location.pathname === item.path 
+                        ? "bg-primary/10 text-primary" 
+                        : "text-foreground/70 hover:text-foreground hover:bg-accent"
+                    )}
+                  >
                     {item.icon}
-                    <span className="ml-3">{item.label}</span>
-                  </Link>)}
+                    {!isSidebarCollapsed && <span className="ml-3">{item.label}</span>}
+                  </Link>
+                ))}
               </div>
             </div>
             
             <div className="mt-auto px-3">
-              <div className="mt-4 px-3 py-2 text-xs text-muted-foreground">
-                <p>DeckMastery {t('version')} 1.0</p>
+              <div className={cn(
+                "mt-4 px-3 py-2 text-xs text-muted-foreground",
+                isSidebarCollapsed && "text-center"
+              )}>
+                <p>{isSidebarCollapsed ? "v1.0" : "DeckMastery " + t('version') + " 1.0"}</p>
               </div>
             </div>
           </div>
