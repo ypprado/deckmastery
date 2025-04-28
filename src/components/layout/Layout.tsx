@@ -63,7 +63,7 @@ const Layout = () => {
       <header className="sticky top-0 z-30 w-full backdrop-blur-md bg-background/80 border-b subtle-border animate-slide-down">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            {isMobile && <Button variant="ghost" size="icon" onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} className="md:hidden">
+            {isMobile && <Button variant="ghost" size="icon" onClick={() => setSidebarCollapsed(!isSidebarCollapsed)} className="md:hidden">
                 {isSidebarCollapsed ? <ChevronRight className="h-5 w-5" /> : <LayoutDashboard className="h-5 w-5" />}
               </Button>}
             <Link to="/" className="flex items-center gap-2">
