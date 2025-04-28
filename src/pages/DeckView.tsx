@@ -372,10 +372,13 @@ const DeckView = () => {
     return acc;
   }, {} as Record<string, number>);
 
-  const colorData = Object.entries(colorCounts).map(([color, count]) => ({
-    name: color.charAt(0).toUpperCase() + color.slice(1),
-    value: Math.round((count / totalCards) * 100)
-  }));
+  const colorData = Object.entries(colorCounts).map(([color, count]) => {
+    const numericCount = Number(count);
+    return {
+      name: color.charAt(0).toUpperCase() + color.slice(1),
+      value: totalCards > 0 ? Math.round((numericCount / totalCards) * 100) : 0
+    };
+  });
 
   const typeData = deck.cards.reduce((acc, { card, quantity }) => {
     const types = Array.isArray(card.type) ? card.type : [card.type];
@@ -394,7 +397,10 @@ const DeckView = () => {
   }));
 
   const manaCurve = deck.cards.reduce((acc, { card, quantity }) => {
-    acc[card.cost] = (acc[card.cost] || 0) + quantity;
+    const cost = Number(card.cost);
+    if (!isNaN(cost)) {
+      acc[cost] = (acc[cost] || 0) + quantity;
+    }
     return acc;
   }, {} as Record<number, number>);
 
