@@ -284,6 +284,21 @@ export type Database = {
           },
         ]
       }
+      price_update_log: {
+        Row: {
+          id: number
+          last_update: string
+        }
+        Insert: {
+          id: number
+          last_update: string
+        }
+        Update: {
+          id?: number
+          last_update?: string
+        }
+        Relationships: []
+      }
       profile_comments: {
         Row: {
           author_id: string | null
