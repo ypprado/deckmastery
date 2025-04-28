@@ -18,6 +18,16 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Footer } from "./Footer";
 import { ExchangeRate } from "@/components/exchange-rate/ExchangeRate";
+import {
+  SidebarProvider,
+  Sidebar,
+  SidebarTrigger,
+  SidebarContent,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+} from "@/components/ui/sidebar";
 
 const Layout = () => {
   const location = useLocation();
@@ -63,13 +73,18 @@ const Layout = () => {
     label: t('cardLibrary')
   }];
 
-  return <div className="min-h-screen flex flex-col">
+  return <SidebarProvider>
+    <div className="min-h-screen flex flex-col w-full">
       <header className="sticky top-0 z-30 w-full backdrop-blur-md bg-background/80 border-b subtle-border animate-slide-down">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            {isMobile && <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="md:hidden">
+            {isMobile ? (
+              <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="md:hidden">
                 {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-              </Button>}
+              </Button>
+            ) : (
+              <SidebarTrigger />
+            )}
             <Link to="/" className="flex items-center gap-2">
               <img 
                 src="/lovable-uploads/9a9a4f13-0ac7-4d75-bf24-d6423c640abe.png" 
@@ -121,24 +136,32 @@ const Layout = () => {
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        <aside className={cn("z-20 shrink-0 border-r subtle-border bg-card/80 backdrop-blur-md w-64 md:relative md:block", isMobile && "fixed inset-y-0 left-0 transform transition-transform duration-300 ease-in-out", isMobile && !isSidebarOpen && "-translate-x-full")}>
-          <div className="flex flex-col h-full pt-6 pb-4">
-            <div className="flex-1 px-3 space-y-6">
-              <div className="space-y-1">
-                {navItems.map(item => <Link key={item.path} to={item.path} className={cn("flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors", location.pathname === item.path ? "bg-primary/10 text-primary" : "text-foreground/70 hover:text-foreground hover:bg-accent")}>
-                    {item.icon}
-                    <span className="ml-3">{item.label}</span>
-                  </Link>)}
-              </div>
-            </div>
+        <Sidebar>
+          <SidebarContent>
+            <SidebarMenu>
+              {navItems.map(item => (
+                <SidebarMenuItem key={item.path}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={location.pathname === item.path}
+                    tooltip={t(item.label)}
+                  >
+                    <Link to={item.path}>
+                      {item.icon}
+                      <span>{t(item.label)}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
             
             <div className="mt-auto px-3">
               <div className="mt-4 px-3 py-2 text-xs text-muted-foreground">
                 <p>DeckMastery {t('version')} 1.0</p>
               </div>
             </div>
-          </div>
-        </aside>
+          </SidebarContent>
+        </Sidebar>
 
         <main className="flex-1 overflow-y-auto bg-background">
           <div className="container mx-auto p-4 md:p-6 animate-fade-in">
@@ -148,7 +171,8 @@ const Layout = () => {
       </div>
 
       <Footer />
-    </div>;
+    </div>
+  </SidebarProvider>;
 };
 
 export default Layout;
