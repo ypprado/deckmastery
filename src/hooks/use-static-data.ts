@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { Card, GameCategory, Deck } from '@/hooks/use-decks';
@@ -96,14 +95,12 @@ export const useStaticData = (options: StaticDataOptions = {}) => {
           gameCategory: card.game_category,
           card_number_market_br: card.card_number_market_br,
           attribute: card.attribute as AttributeType[] || [],
-          parallel: card.parallel || [],
+          parallel: card.parallel || [], // Add parallel to the mapped data
           card_number: card.card_number,
           category: card.category,
           power: card.power,
           life: card.life,
-          counter: card.counter,
-          price_min_market_br: card.price_min_market_br,
-          price_min_market_us: card.price_min_market_us
+          counter: card.counter
         };
       }) || [];
       
