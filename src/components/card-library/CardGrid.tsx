@@ -13,6 +13,11 @@ interface CardGridProps {
 const CardGrid = ({ cards, onCardClick }: CardGridProps) => {
   const { t } = useLanguage();
 
+  const formatPrice = (price: number | null | undefined, currency: string) => {
+    if (!price) return `${currency} --`;
+    return `${currency} ${price.toFixed(2)}`;
+  };
+
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
       {cards.map((card) => (
@@ -29,8 +34,12 @@ const CardGrid = ({ cards, onCardClick }: CardGridProps) => {
           <CardContent className="p-3">
             <h3 className="font-medium text-sm leading-tight truncate">{card.name}</h3>
             <div className="flex justify-between items-center mt-1">
-              <p className="text-xs text-muted-foreground">{Array.isArray(card.type) ? card.type[0] : card.type}</p>
-              <p className="text-xs text-muted-foreground">{t('cost')}: {card.cost}</p>
+              <p className="text-xs text-muted-foreground">
+                {formatPrice(card.price_min_market_br, 'R$')}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {formatPrice(card.price_min_market_us, '$')}
+              </p>
             </div>
           </CardContent>
           <Button
