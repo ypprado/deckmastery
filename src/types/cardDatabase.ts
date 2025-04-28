@@ -38,6 +38,8 @@ export interface CardDetails {
   power?: number;
   card_type?: string | string[];
   card_text?: string;
+  price_min_market_br?: number | null;
+  price_min_market_us?: number | null;
 }
 
 export interface CardDatabaseFormValues {
