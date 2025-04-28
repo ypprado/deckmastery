@@ -1,3 +1,4 @@
+
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { LayoutDashboard, Book, Settings, Menu, X, Moon, Sun, LogIn, ChevronDown, Library, LibraryBig, MessageCircle, Package, Box } from "lucide-react";
@@ -41,6 +42,19 @@ const Layout = () => {
   useEffect(() => {
     setIsSidebarOpen(false);
   }, [location.pathname]);
+  
+  // Add keyboard shortcut effect
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'b' && (event.metaKey || event.ctrlKey)) {
+        event.preventDefault();
+        setIsSidebarOpen(!isSidebarOpen);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isSidebarOpen]);
   
   const toggleTheme = () => {
     const newTheme = !isDarkMode;
@@ -121,11 +135,18 @@ const Layout = () => {
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        <aside className={cn("z-20 shrink-0 border-r subtle-border bg-card/80 backdrop-blur-md w-64 md:relative md:block", isMobile && "fixed inset-y-0 left-0 transform transition-transform duration-300 ease-in-out", isMobile && !isSidebarOpen && "-translate-x-full")}>
+        <aside className={cn(
+          "z-20 shrink-0 border-r subtle-border bg-card/80 backdrop-blur-md w-64 md:relative md:block", 
+          isMobile && "fixed inset-y-0 left-0 transform transition-transform duration-300 ease-in-out", 
+          isMobile && !isSidebarOpen && "-translate-x-full"
+        )}>
           <div className="flex flex-col h-full pt-6 pb-4">
             <div className="flex-1 px-3 space-y-6">
               <div className="space-y-1">
-                {navItems.map(item => <Link key={item.path} to={item.path} className={cn("flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors", location.pathname === item.path ? "bg-primary/10 text-primary" : "text-foreground/70 hover:text-foreground hover:bg-accent")}>
+                {navItems.map(item => <Link key={item.path} to={item.path} className={cn(
+                  "flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors", 
+                  location.pathname === item.path ? "bg-primary/10 text-primary" : "text-foreground/70 hover:text-foreground hover:bg-accent"
+                )}>
                     {item.icon}
                     <span className="ml-3">{item.label}</span>
                   </Link>)}
