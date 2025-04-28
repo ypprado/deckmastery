@@ -85,19 +85,37 @@ Deno.serve(async (req) => {
         continue; // Skip this URL if we can't fetch it and try the next one
       }
       
-      const priceData: PriceData[] = await response.json();
-      allPriceData.push(...priceData);
+      const jsonResponse = await response.json();
+
+      if (Array.isArray(jsonResponse?.results)) {
+        allPriceData.push(...jsonResponse.results);
+      } else {
+        console.warn(`No results array found for URL: ${url}`);
+      }
     }
 
     console.log(`Fetched prices for ${allPriceData.length} cards`);
 
-    if (allPriceData.length === 0) {
-      throw new Error('No price data fetched from any source');
+    // STEP 2.5: Filter out prices for cards that don't exist
+    const productIds = Array.from(new Set(allPriceData.map(p => p.productId)));
+    const { data: existingCards, error: fetchCardsError } = await supabase
+      .from('cards')
+      .select('id')
+      .in('id', productIds);
+    if (fetchCardsError) {
+      throw new Error(`Failed to fetch existing cards: ${fetchCardsError.message}`);
+    }
+    const existingIds = new Set(existingCards.map(c => c.id));
+    const filteredPriceData = allPriceData.filter(p => existingIds.has(p.productId));
+    console.log(`Filtered price data: ${filteredPriceData.length} valid cards`);
+
+    if (filteredPriceData.length === 0) {
+      throw new Error('No valid price data: no matching cards found');
     }
 
     // STEP 3: Insert new prices into the database
     const currentTimestamp = new Date().toISOString();
-    const priceHistoryInserts = allPriceData.map(price => ({
+    const priceHistoryInserts = filteredPriceData.map(price => ({
       card_id: price.productId,
       price_min_market_us: price.lowPrice,
       price_avg_market_us: price.midPrice,
