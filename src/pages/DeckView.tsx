@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { PieChart, Pie, ResponsiveContainer, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from "recharts";
@@ -319,9 +320,11 @@ const DeckView = () => {
     loadDeck();
   }, [id, fetchDecks]);
 
+  // Only attempt to get the deck after fetchDecks completes
   useEffect(() => {
     if (!fetchComplete || !id) return;
     
+    // Find deck in allDecks array instead of using getDeck function
     const deckData = allDecks.find(d => d.id === id);
     
     if (deckData) {
@@ -360,11 +363,11 @@ const DeckView = () => {
     );
   }
 
-  const totalCards = deck.cards.reduce((acc, { quantity }) => acc + Number(quantity), 0);
+  const totalCards = deck.cards.reduce((acc, { quantity }) => acc + quantity, 0);
   
   const colorCounts = deck.cards.reduce((acc, { card, quantity }) => {
     card.colors.forEach(color => {
-      acc[color] = (acc[color] || 0) + Number(quantity);
+      acc[color] = (acc[color] || 0) + quantity;
     });
     return acc;
   }, {} as Record<string, number>);
@@ -379,7 +382,7 @@ const DeckView = () => {
     
     types.forEach(type => {
       const typeStr = String(type);
-      acc[typeStr] = (acc[typeStr] || 0) + Number(quantity);
+      acc[typeStr] = (acc[typeStr] || 0) + quantity;
     });
     
     return acc;
@@ -391,13 +394,7 @@ const DeckView = () => {
   }));
 
   const manaCurve = deck.cards.reduce((acc, { card, quantity }) => {
-    const costValue = card.cost;
-    const costKey = typeof costValue === 'number' ? costValue : Number(costValue);
-    
-    if (!isNaN(costKey)) {
-      const numQuantity = Number(quantity);
-      acc[costKey] = (acc[costKey] || 0) + numQuantity;
-    }
+    acc[card.cost] = (acc[card.cost] || 0) + quantity;
     return acc;
   }, {} as Record<number, number>);
 
