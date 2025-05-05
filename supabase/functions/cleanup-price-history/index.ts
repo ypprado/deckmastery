@@ -1,4 +1,3 @@
-
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.0'
 
 // Define CORS headers
@@ -28,23 +27,30 @@ Deno.serve(async (req) => {
     
     console.log(`Deleting price history records older than: ${cutoffDate}`);
 
-    // Delete records older than the cutoff date
-    const { data, error, count } = await supabase
+    const { count: toDeleteCount, error: countError } = await supabase
       .from('price_history')
-      .delete()
-      .lt('recorded_at', cutoffDate)
-      .select('count');
+      .select('*', { count: 'exact', head: true })
+      .lt('recorded_at', cutoffDate);
 
-    if (error) {
-      throw new Error(`Failed to delete old price history: ${error.message}`);
+    if (countError) {
+      throw new Error(`Failed to count old price history: ${countError.message}`);
     }
 
-    console.log(`Successfully deleted ${count} old price history records`);
+    const { error: deleteError } = await supabase
+      .from('price_history')
+      .delete()
+      .lt('recorded_at', cutoffDate);
+
+    if (deleteError) {
+      throw new Error(`Failed to delete old price history: ${deleteError.message}`);
+    }
+
+    console.log(`Successfully deleted ${toDeleteCount} old price history records`);
 
     return new Response(
       JSON.stringify({ 
         message: "Price history cleanup completed successfully", 
-        deletedCount: count,
+        deletedCount: toDeleteCount,
         cutoffDate: cutoffDate
       }),
       {
