@@ -15,6 +15,11 @@ export interface Card {
   rarity: string;
   set: string;
   colors: string[];
+  attribute: string[];
+  category: string;
+  power?: number;
+  life?: number;
+  counter?: number;
   gameCategory: GameCategory;
   flavorText?: string;
   artist?: string;

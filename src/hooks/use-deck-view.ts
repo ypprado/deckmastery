@@ -110,7 +110,6 @@ export const useDeckView = (deckId: string): DeckViewData => {
           set: cardData.groupid_market_br || '',
           colors: cardData.colors as string[] || [],
           gameCategory: cardData.game_category,
-          card_number_market_br: cardData.card_number_market_br,
           attribute: cardData.attribute as AttributeType[] || [],
           parallel: cardData.parallel || [],
           card_number: cardData.card_number,
