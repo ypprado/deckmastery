@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
@@ -41,7 +42,7 @@ const DeckBuilder = () => {
           setDeckName(deckData.name);
           setDeckFormat(deckData.format);
           setDeckDescription(deckData.description || "");
-          setSelectedCards(deckData.cards);
+          setSelectedCards(deckData.cards || []);
           
           if (deckData.gameCategory !== activeGameCategory) {
             changeGameCategory(deckData.gameCategory);

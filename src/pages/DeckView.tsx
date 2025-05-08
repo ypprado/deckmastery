@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { PieChart, Pie, ResponsiveContainer, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from "recharts";
@@ -45,6 +44,18 @@ const CardList = ({
   groupBy?: "type" | "cost" | "rarity";
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
+  
+  // If there are no cards, show a message
+  if (!cards || cards.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12">
+        <p className="text-muted-foreground">No cards in this deck yet.</p>
+        <Button variant="outline" className="mt-4" onClick={() => window.history.back()}>
+          Go Back
+        </Button>
+      </div>
+    );
+  }
   
   const groupedCards = cards.reduce((acc, { card, quantity }) => {
     let key: string;
@@ -291,7 +302,7 @@ const CardList = ({
 
 const DeckView = () => {
   const { id } = useParams<{ id: string }>();
-  const { allDecks, fetchDecks } = useDecks();
+  const { allDecks, fetchDecks, deleteDeck } = useDecks(); 
   const { toast } = useToast();
   const navigate = useNavigate();
   const [deck, setDeck] = useState<any>(undefined);
@@ -363,6 +374,9 @@ const DeckView = () => {
     );
   }
 
+  // Make sure cards is at least an empty array if it's null or undefined
+  deck.cards = deck.cards || [];
+  
   const totalCards = deck.cards.reduce((acc, { quantity }) => acc + quantity, 0);
   
   const colorCounts = deck.cards.reduce((acc, { card, quantity }) => {
@@ -420,8 +434,9 @@ const DeckView = () => {
     white: COLORS[4]
   };
 
-  const handleDeleteDeck = () => {
+  const handleDeleteDeck = async () => {
     if (window.confirm("Are you sure you want to delete this deck? This action cannot be undone.")) {
+      await deleteDeck(deck.id);
       navigate("/mydecks");
     }
   };
@@ -563,67 +578,81 @@ const DeckView = () => {
                 </TabsList>
                 
                 <TabsContent value="colors" className="mt-0">
-                  <div className="h-[200px] w-full mt-4">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={colorData}
-                          cx="50%"
-                          cy="50%"
-                          innerRadius={60}
-                          outerRadius={80}
-                          fill="#8884d8"
-                          paddingAngle={5}
-                          dataKey="value"
-                          label={({ name, value }) => `${name}: ${value}%`}
-                        >
-                          {colorData.map((entry, index) => (
-                            <Cell 
-                              key={`cell-${index}`} 
-                              fill={colorMap[entry.name.toLowerCase()] || '#cccccc'} 
-                            />
-                          ))}
-                        </Pie>
-                        <Tooltip />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
-                  
-                  <div className="mt-4 grid grid-cols-2 gap-2">
-                    {colorData.map((entry) => (
-                      <div 
-                        key={entry.name}
-                        className="flex items-center gap-2 text-sm"
-                      >
-                        <div 
-                          className="w-3 h-3 rounded-full" 
-                          style={{ backgroundColor: colorMap[entry.name.toLowerCase()] || '#cccccc' }}
-                        />
-                        <span>{entry.name}: {entry.value}%</span>
+                  {colorData.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-8">
+                      <p className="text-muted-foreground">No color data available</p>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="h-[200px] w-full mt-4">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie
+                              data={colorData}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={60}
+                              outerRadius={80}
+                              fill="#8884d8"
+                              paddingAngle={5}
+                              dataKey="value"
+                              label={({ name, value }) => `${name}: ${value}%`}
+                            >
+                              {colorData.map((entry, index) => (
+                                <Cell 
+                                  key={`cell-${index}`} 
+                                  fill={colorMap[entry.name.toLowerCase()] || '#cccccc'} 
+                                />
+                              ))}
+                            </Pie>
+                            <Tooltip />
+                          </PieChart>
+                        </ResponsiveContainer>
                       </div>
-                    ))}
-                  </div>
+                      
+                      <div className="mt-4 grid grid-cols-2 gap-2">
+                        {colorData.map((entry) => (
+                          <div 
+                            key={entry.name}
+                            className="flex items-center gap-2 text-sm"
+                          >
+                            <div 
+                              className="w-3 h-3 rounded-full" 
+                              style={{ backgroundColor: colorMap[entry.name.toLowerCase()] || '#cccccc' }}
+                            />
+                            <span>{entry.name}: {entry.value}%</span>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </TabsContent>
                 
                 <TabsContent value="types" className="mt-0">
-                  <div className="h-[200px] w-full mt-4">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart
-                        data={typeChartData}
-                        margin={{
-                          top: 5,
-                          right: 5,
-                          left: 5,
-                          bottom: 5,
-                        }}
-                      >
-                        <XAxis dataKey="name" scale="band" tick={{fontSize: 10}} />
-                        <YAxis allowDecimals={false} tick={{fontSize: 10}} />
-                        <Tooltip />
-                        <Bar dataKey="count" fill="hsl(var(--primary))" barSize={30} />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
+                  {typeChartData.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-8">
+                      <p className="text-muted-foreground">No type data available</p>
+                    </div>
+                  ) : (
+                    <div className="h-[200px] w-full mt-4">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart
+                          data={typeChartData}
+                          margin={{
+                            top: 5,
+                            right: 5,
+                            left: 5,
+                            bottom: 5,
+                          }}
+                        >
+                          <XAxis dataKey="name" scale="band" tick={{fontSize: 10}} />
+                          <YAxis allowDecimals={false} tick={{fontSize: 10}} />
+                          <Tooltip />
+                          <Bar dataKey="count" fill="hsl(var(--primary))" barSize={30} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  )}
                 </TabsContent>
               </Tabs>
             </CardContent>
@@ -635,29 +664,35 @@ const DeckView = () => {
             </CardHeader>
             <Separator />
             <CardContent className="pt-4">
-              <div className="h-[200px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={manaChartData}
-                    margin={{
-                      top: 5,
-                      right: 5,
-                      left: 5,
-                      bottom: 5,
-                    }}
-                  >
-                    <XAxis 
-                      dataKey="cost" 
-                      scale="band" 
-                      tick={{fontSize: 10}}
-                      tickFormatter={(value) => `${value}`}
-                    />
-                    <YAxis allowDecimals={false} tick={{fontSize: 10}} />
-                    <Tooltip />
-                    <Bar dataKey="count" fill="hsl(var(--primary))" barSize={30} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+              {manaChartData.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-8">
+                  <p className="text-muted-foreground">No mana curve data available</p>
+                </div>
+              ) : (
+                <div className="h-[200px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={manaChartData}
+                      margin={{
+                        top: 5,
+                        right: 5,
+                        left: 5,
+                        bottom: 5,
+                      }}
+                    >
+                      <XAxis 
+                        dataKey="cost" 
+                        scale="band" 
+                        tick={{fontSize: 10}}
+                        tickFormatter={(value) => `${value}`}
+                      />
+                      <YAxis allowDecimals={false} tick={{fontSize: 10}} />
+                      <Tooltip />
+                      <Bar dataKey="count" fill="hsl(var(--primary))" barSize={30} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

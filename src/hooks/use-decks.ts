@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from "sonner";
 import { useStaticData } from './use-static-data';
@@ -78,11 +77,11 @@ export const useDecks = () => {
         return;
       }
       
-      // Fetch cards for all decks in a single query
+      // Fetch cards for all decks using the join table
       const deckIds = deckData.map(deck => deck.id);
       const { data: deckCardsData, error: deckCardsError } = await supabase
         .from('deck_cards')
-        .select('*')
+        .select('deck_id, card_id, quantity')
         .in('deck_id', deckIds);
         
       if (deckCardsError) {
@@ -117,11 +116,13 @@ export const useDecks = () => {
           return { card: cardData, quantity };
         }).filter(Boolean) as { card: Card; quantity: number }[];
         
-        // Use first card as cover card if available (maintain compatibility with previous structure)
-        const coverCard = cardsWithQuantities.length > 0 ? cardsWithQuantities[0].card : undefined;
+        // Use first card as cover card if available
+        const coverCard = deck.cover_card ? 
+          (typeof deck.cover_card === 'string' ? JSON.parse(deck.cover_card) : deck.cover_card) : 
+          (cardsWithQuantities.length > 0 ? cardsWithQuantities[0].card : undefined);
         
         // Calculate unique colors from all cards
-        const colors = Array.from(new Set(
+        const colors = deck.colors || Array.from(new Set(
           cardsWithQuantities.flatMap(({ card }) => card.colors)
         ));
         
@@ -129,14 +130,12 @@ export const useDecks = () => {
           id: deck.id,
           name: deck.name,
           format: deck.format,
-          colors: deck.colors || colors,
+          colors: colors,
           cards: cardsWithQuantities,
           createdAt: deck.created_at,
           updatedAt: deck.updated_at,
           description: deck.description,
-          coverCard: deck.cover_card ? (typeof deck.cover_card === 'string' 
-            ? JSON.parse(deck.cover_card)
-            : deck.cover_card) : coverCard,
+          coverCard: coverCard,
           gameCategory: deck.game_category as GameCategory
         };
       });
