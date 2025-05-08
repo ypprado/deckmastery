@@ -156,6 +156,48 @@ export type Database = {
         }
         Relationships: []
       }
+      deck_cards: {
+        Row: {
+          card_id: number
+          created_at: string
+          deck_id: string
+          id: string
+          quantity: number
+          updated_at: string
+        }
+        Insert: {
+          card_id: number
+          created_at?: string
+          deck_id: string
+          id?: string
+          quantity?: number
+          updated_at?: string
+        }
+        Update: {
+          card_id?: number
+          created_at?: string
+          deck_id?: string
+          id?: string
+          quantity?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deck_cards_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "cards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deck_cards_deck_id_fkey"
+            columns: ["deck_id"]
+            isOneToOne: false
+            referencedRelation: "decks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       decks: {
         Row: {
           cards: Json

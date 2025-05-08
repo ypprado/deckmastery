@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from "sonner";
 import { useStaticData } from './use-static-data';
@@ -60,37 +61,85 @@ export const useDecks = () => {
 
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      
+      // Fetch decks
+      const { data: deckData, error: deckError } = await supabase
         .from('decks')
         .select('*')
         .eq('user_id', user.id);
 
-      if (error) {
-        throw error;
+      if (deckError) {
+        throw deckError;
       }
 
-      if (!data) {
+      if (!deckData) {
         setDecks([]);
         setLoading(false);
         return;
       }
-
-      const formattedDecks: Deck[] = data.map(deck => ({
-        id: deck.id,
-        name: deck.name,
-        format: deck.format,
-        colors: deck.colors || [],
-        // Parse JSON data from database
-        cards: Array.isArray(deck.cards) ? deck.cards : JSON.parse(deck.cards as unknown as string),
-        createdAt: deck.created_at,
-        updatedAt: deck.updated_at,
-        description: deck.description,
-        // Parse coverCard if it exists
-        coverCard: deck.cover_card ? (typeof deck.cover_card === 'string' 
-          ? JSON.parse(deck.cover_card)
-          : deck.cover_card) : undefined,
-        gameCategory: deck.game_category as GameCategory
-      }));
+      
+      // Fetch cards for all decks in a single query
+      const deckIds = deckData.map(deck => deck.id);
+      const { data: deckCardsData, error: deckCardsError } = await supabase
+        .from('deck_cards')
+        .select('*')
+        .in('deck_id', deckIds);
+        
+      if (deckCardsError) {
+        throw deckCardsError;
+      }
+      
+      // Group deck cards by deck_id
+      const deckCardsMap: Record<string, { card_id: number; quantity: number }[]> = {};
+      deckCardsData?.forEach(deckCard => {
+        if (!deckCardsMap[deckCard.deck_id]) {
+          deckCardsMap[deckCard.deck_id] = [];
+        }
+        deckCardsMap[deckCard.deck_id].push({
+          card_id: deckCard.card_id,
+          quantity: deckCard.quantity
+        });
+      });
+      
+      // Build decks with cards
+      const formattedDecks: Deck[] = deckData.map(deck => {
+        // Get card IDs for this deck
+        const deckCards = deckCardsMap[deck.id] || [];
+        
+        // Convert card IDs to full card objects
+        const cardsWithQuantities = deckCards.map(({ card_id, quantity }) => {
+          // Find the card in staticCards
+          const cardData = staticCards.find(card => card.id === String(card_id));
+          if (!cardData) {
+            console.warn(`Card with ID ${card_id} not found in static cards`);
+            return null;
+          }
+          return { card: cardData, quantity };
+        }).filter(Boolean) as { card: Card; quantity: number }[];
+        
+        // Use first card as cover card if available (maintain compatibility with previous structure)
+        const coverCard = cardsWithQuantities.length > 0 ? cardsWithQuantities[0].card : undefined;
+        
+        // Calculate unique colors from all cards
+        const colors = Array.from(new Set(
+          cardsWithQuantities.flatMap(({ card }) => card.colors)
+        ));
+        
+        return {
+          id: deck.id,
+          name: deck.name,
+          format: deck.format,
+          colors: deck.colors || colors,
+          cards: cardsWithQuantities,
+          createdAt: deck.created_at,
+          updatedAt: deck.updated_at,
+          description: deck.description,
+          coverCard: deck.cover_card ? (typeof deck.cover_card === 'string' 
+            ? JSON.parse(deck.cover_card)
+            : deck.cover_card) : coverCard,
+          gameCategory: deck.game_category as GameCategory
+        };
+      });
 
       console.log("Fetched decks:", formattedDecks);
       setDecks(formattedDecks);
@@ -100,7 +149,7 @@ export const useDecks = () => {
       toast.error('Failed to load decks');
       setLoading(false);
     }
-  }, [user]);
+  }, [user, staticCards]);
 
   useEffect(() => {
     fetchDecks();
@@ -137,48 +186,56 @@ export const useDecks = () => {
     }
 
     try {
-      const { data, error } = await supabase
+      // 1. First insert the deck record
+      const { data: deckData, error: deckError } = await supabase
         .from('decks')
         .insert([{
           user_id: user.id,
           name: deck.name,
           format: deck.format,
           description: deck.description,
-          // Convert cards array to JSON compatible format
-          cards: JSON.stringify(deck.cards),
           colors: deck.colors,
-          // Convert coverCard to JSON compatible format
+          // Store coverCard for backward compatibility
           cover_card: deck.coverCard ? JSON.stringify(deck.coverCard) : null,
           game_category: deck.gameCategory
         }])
         .select();
 
-      if (error) throw error;
+      if (deckError) throw deckError;
 
-      if (!data || data.length === 0) {
+      if (!deckData || deckData.length === 0) {
         throw new Error("No data returned from insert");
       }
 
-      const insertedDeck = data[0];
+      const insertedDeck = deckData[0];
+      const deckId = insertedDeck.id;
       
+      // 2. Now insert entries into the deck_cards join table
+      if (deck.cards && deck.cards.length > 0) {
+        const deckCardsToInsert = deck.cards.map(({ card, quantity }) => ({
+          deck_id: deckId,
+          card_id: Number(card.id),
+          quantity: quantity
+        }));
+        
+        const { error: deckCardsError } = await supabase
+          .from('deck_cards')
+          .insert(deckCardsToInsert);
+          
+        if (deckCardsError) throw deckCardsError;
+      }
+      
+      // 3. Build and return the created deck object
       const newDeck: Deck = {
-        id: insertedDeck.id,
+        id: deckId,
         name: insertedDeck.name,
         format: insertedDeck.format,
         colors: insertedDeck.colors || [],
-        // Parse the JSON data
-        cards: Array.isArray(insertedDeck.cards) 
-          ? insertedDeck.cards 
-          : JSON.parse(insertedDeck.cards as unknown as string),
+        cards: deck.cards,
         createdAt: insertedDeck.created_at,
         updatedAt: insertedDeck.updated_at,
         description: insertedDeck.description,
-        // Parse cover_card if it exists
-        coverCard: insertedDeck.cover_card 
-          ? (typeof insertedDeck.cover_card === 'string'
-            ? JSON.parse(insertedDeck.cover_card)
-            : insertedDeck.cover_card)
-          : undefined,
+        coverCard: deck.coverCard,
         gameCategory: insertedDeck.game_category as GameCategory
       };
 
@@ -199,23 +256,49 @@ export const useDecks = () => {
     }
 
     try {
+      // 1. Update deck details
       const updateData: Record<string, any> = {};
       
       if (deckData.name) updateData.name = deckData.name;
       if (deckData.format) updateData.format = deckData.format;
       if (deckData.description !== undefined) updateData.description = deckData.description;
-      if (deckData.cards) updateData.cards = JSON.stringify(deckData.cards);
       if (deckData.colors) updateData.colors = deckData.colors;
       if (deckData.coverCard) updateData.cover_card = JSON.stringify(deckData.coverCard);
       if (deckData.gameCategory) updateData.game_category = deckData.gameCategory;
 
-      const { error } = await supabase
+      const { error: deckUpdateError } = await supabase
         .from('decks')
         .update(updateData)
         .eq('id', id)
         .eq('user_id', user.id);
 
-      if (error) throw error;
+      if (deckUpdateError) throw deckUpdateError;
+      
+      // 2. If cards were updated, handle the deck_cards table updates
+      if (deckData.cards) {
+        // First delete existing card associations
+        const { error: deleteError } = await supabase
+          .from('deck_cards')
+          .delete()
+          .eq('deck_id', id);
+          
+        if (deleteError) throw deleteError;
+        
+        // Then insert new card associations
+        if (deckData.cards.length > 0) {
+          const deckCardsToInsert = deckData.cards.map(({ card, quantity }) => ({
+            deck_id: id,
+            card_id: Number(card.id),
+            quantity: quantity
+          }));
+          
+          const { error: insertError } = await supabase
+            .from('deck_cards')
+            .insert(deckCardsToInsert);
+            
+          if (insertError) throw insertError;
+        }
+      }
 
       await fetchDecks(); // Refresh decks after updating
       toast.success("Deck updated successfully");
@@ -232,6 +315,8 @@ export const useDecks = () => {
     }
 
     try {
+      // Due to CASCADE constraints, deleting the deck will also delete
+      // related entries in deck_cards table automatically
       const { error } = await supabase
         .from('decks')
         .delete()

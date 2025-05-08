@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
@@ -143,11 +142,6 @@ const DeckBuilder = () => {
       return;
     }
 
-    const deckCards = selectedCards.map(item => ({
-      card: item.card,
-      quantity: item.quantity
-    }));
-
     const colors = calculateDeckColors();
     const coverCard = selectedCards.length > 0 ? selectedCards[0].card : undefined;
 
@@ -156,7 +150,7 @@ const DeckBuilder = () => {
         name: deckName,
         format: deckFormat || "Standard",
         description: deckDescription,
-        cards: deckCards,
+        cards: selectedCards,
         colors,
         coverCard,
         gameCategory: activeGameCategory
@@ -170,7 +164,7 @@ const DeckBuilder = () => {
           name: deckName,
           format: deckFormat || "Standard",
           description: deckDescription,
-          cards: deckCards,
+          cards: selectedCards,
           colors,
           coverCard,
           gameCategory: activeGameCategory
