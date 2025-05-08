@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { PieChart, Pie, ResponsiveContainer, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from "recharts";
 import { 
@@ -33,6 +33,7 @@ import {
   PaginationNext, 
   PaginationPrevious 
 } from "@/components/ui/pagination";
+import { useDeckView } from "@/hooks/use-deck-view";
 
 const CARDS_PER_PAGE = 20;
 
@@ -302,53 +303,14 @@ const CardList = ({
 
 const DeckView = () => {
   const { id } = useParams<{ id: string }>();
-  const { allDecks, fetchDecks, deleteDeck } = useDecks(); 
+  const { deleteDeck } = useDecks();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [deck, setDeck] = useState<any>(undefined);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [cardGrouping, setCardGrouping] = useState<"type" | "cost" | "rarity">("type");
-  const [fetchComplete, setFetchComplete] = useState(false);
   
-  useEffect(() => {
-    async function loadDeck() {
-      if (!id) return;
-      
-      setLoading(true);
-      setError(null);
-      
-      try {
-        await fetchDecks();
-        setFetchComplete(true);
-      } catch (err) {
-        console.error("Error loading decks:", err);
-        setError("An error occurred while loading decks.");
-        setLoading(false);
-      }
-    }
-    
-    loadDeck();
-  }, [id, fetchDecks]);
-
-  // Only attempt to get the deck after fetchDecks completes
-  useEffect(() => {
-    if (!fetchComplete || !id) return;
-    
-    // Find deck in allDecks array instead of using getDeck function
-    const deckData = allDecks.find(d => d.id === id);
-    
-    if (deckData) {
-      console.log("Found deck:", deckData);
-      setDeck(deckData);
-      setLoading(false);
-    } else {
-      console.error(`Deck with ID ${id} not found`);
-      setError("The deck you're looking for doesn't exist or couldn't be loaded.");
-      setLoading(false);
-    }
-  }, [fetchComplete, id, allDecks]);
-
+  // Use our specialized hook instead of fetchDecks/allDecks
+  const { deck, cards, loading, error } = useDeckView(id || '');
+  
   if (loading) {
     return (
       <div className="flex items-center justify-center h-[50vh]">
@@ -364,7 +326,7 @@ const DeckView = () => {
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>
-            {error || "The deck you're looking for doesn't exist."}
+            {error?.message || "The deck you're looking for doesn't exist."}
           </AlertDescription>
         </Alert>
         <Button onClick={() => navigate("/mydecks")}>
@@ -374,12 +336,9 @@ const DeckView = () => {
     );
   }
 
-  // Make sure cards is at least an empty array if it's null or undefined
-  deck.cards = deck.cards || [];
+  const totalCards = cards.reduce((acc, { quantity }) => acc + quantity, 0);
   
-  const totalCards = deck.cards.reduce((acc, { quantity }) => acc + quantity, 0);
-  
-  const colorCounts = deck.cards.reduce((acc, { card, quantity }) => {
+  const colorCounts = cards.reduce((acc, { card, quantity }) => {
     card.colors.forEach(color => {
       acc[color] = (acc[color] || 0) + quantity;
     });
@@ -394,7 +353,7 @@ const DeckView = () => {
     };
   });
 
-  const typeData = deck.cards.reduce((acc, { card, quantity }) => {
+  const typeData = cards.reduce((acc, { card, quantity }) => {
     const types = Array.isArray(card.type) ? card.type : [card.type];
     
     types.forEach(type => {
@@ -410,7 +369,7 @@ const DeckView = () => {
     count
   }));
 
-  const manaCurve = deck.cards.reduce((acc, { card, quantity }) => {
+  const manaCurve = cards.reduce((acc, { card, quantity }) => {
     const cost = Number(card.cost);
     if (!isNaN(cost)) {
       acc[cost] = (acc[cost] || 0) + quantity;
@@ -550,7 +509,7 @@ const DeckView = () => {
           </CardHeader>
           <Separator />
           <CardContent className="pt-4 overflow-auto max-h-[600px]">
-            <CardList cards={deck.cards} groupBy={cardGrouping} />
+            <CardList cards={cards} groupBy={cardGrouping} />
           </CardContent>
         </Card>
 
