@@ -12,6 +12,7 @@ import CardGridSkeleton from '@/components/card-library/CardGridSkeleton';
 import { CARDS_PER_PAGE } from '../lib/constants';
 
 const PARALLEL_TYPES = [
+  "Normal", // Added "Normal" as the first option
   "Alternate Art", "Manga Art", "Parallel Art", "Box Topper", "Wanted Poster",
   "SP", "TR", "Jolly Roger Foil", "Reprint", "Full Art"
 ];
@@ -209,7 +210,22 @@ const CardLibrary = () => {
         }
       }
       if (activeFilters.parallels.length > 0) {
-        if (!card.parallel || !card.parallel.some(p => activeFilters.parallels.includes(p))) {
+        // Special handling for "Normal" filter option
+        if (activeFilters.parallels.includes('Normal')) {
+          // If "Normal" is selected along with other options, check if the card has no parallels OR matches other selected parallel types
+          const otherParallels = activeFilters.parallels.filter(p => p !== 'Normal');
+          
+          if (otherParallels.length > 0) {
+            // If other parallels are selected, card passes if it has no parallels OR if it matches any other selected parallel
+            return (!card.parallel || card.parallel.length === 0) || 
+                  (card.parallel && card.parallel.some(p => otherParallels.includes(p)));
+          } else {
+            // If only "Normal" is selected, card passes if it has no parallels
+            return !card.parallel || card.parallel.length === 0;
+          }
+        } 
+        // Standard parallel filtering (if "Normal" is not selected)
+        else if (!card.parallel || !card.parallel.some(p => activeFilters.parallels.includes(p))) {
           return false;
         }
       }

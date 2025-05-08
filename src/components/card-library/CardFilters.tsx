@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -7,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const PARALLEL_TYPE_LABELS: Record<string, string> = {
+  "Normal": "Normal", // Added "Normal" option for non-parallel cards
   "Alternate Art": "Alternate Art",
   "Manga Art": "Manga Art",
   "Parallel Art": "Parallel Art",
@@ -67,9 +67,10 @@ const CardFilters = ({
   const { t } = useLanguage();
   const [showAdvanced, setShowAdvanced] = useState(false);
 
+  // Modified to ensure "Normal" is always included in the displayed parallels
   const displayParallels = uniqueParallels.length > 0 
-    ? uniqueParallels.filter(p => p && typeof p === 'string' && Object.keys(PARALLEL_TYPE_LABELS).includes(p))
-    : Object.keys(PARALLEL_TYPE_LABELS);
+    ? ["Normal", ...uniqueParallels.filter(p => p && typeof p === 'string' && Object.keys(PARALLEL_TYPE_LABELS).includes(p) && p !== "Normal")]
+    : ["Normal", ...Object.keys(PARALLEL_TYPE_LABELS).filter(p => p !== "Normal")];
 
   // UI for Advanced filter field
   const advancedInput = (
