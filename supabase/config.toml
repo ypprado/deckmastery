@@ -1,7 +1,9 @@
 
+
 [functions.get-exchange-rate]
 [functions.update-prices]
 verify_jwt = false
 [functions.cleanup-price-history]
 verify_jwt = false
+
 

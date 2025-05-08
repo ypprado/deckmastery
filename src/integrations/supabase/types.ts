@@ -198,6 +198,24 @@ export type Database = {
         }
         Relationships: []
       }
+      exchange_rate: {
+        Row: {
+          key: string
+          updated_at: string
+          value: number | null
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value?: number | null
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: number | null
+        }
+        Relationships: []
+      }
       follows: {
         Row: {
           created_at: string

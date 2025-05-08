@@ -111,9 +111,9 @@ serve(async (req) => {
         
         console.log(`Successfully fetched rate: 1 USD = ${rate} BRL`);
 
-        // Store in config table
-        console.log('Updating config table with new rate');
-        const { data: insertResult, error: insertError } = await client.from('config').upsert({
+        // Store in exchange_rate table (previously config table)
+        console.log('Updating exchange_rate table with new rate');
+        const { data: insertResult, error: insertError } = await client.from('exchange_rate').upsert({
           key: CACHE_KEY,
           value: rate,
           updated_at: new Date().toISOString()
@@ -147,7 +147,7 @@ serve(async (req) => {
     }
 
     // Regular request - return cached rate
-    const { data: config, error: dbError } = await client.from('config')
+    const { data: exchangeRate, error: dbError } = await client.from('exchange_rate')
       .select('value, updated_at')
       .eq('key', CACHE_KEY)
       .single();
@@ -164,8 +164,8 @@ serve(async (req) => {
     }
 
     return new Response(JSON.stringify({
-      rate: config?.value ?? null,
-      lastUpdated: config?.updated_at ?? null
+      rate: exchangeRate?.value ?? null,
+      lastUpdated: exchangeRate?.updated_at ?? null
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
