@@ -11,7 +11,7 @@ interface StaticDataOptions {
 
 export const useStaticData = (options: StaticDataOptions = {}) => {
   const { 
-    initialGameCategory = 'magic'
+    initialGameCategory = 'onepiece'
   } = options;
   
   const [cards, setCards] = useState<Card[]>([]);
@@ -59,7 +59,7 @@ export const useStaticData = (options: StaticDataOptions = {}) => {
         
         if (cardsData && cardsData.length > 0) {
           allCards = [...allCards, ...cardsData];
-          // Check if we need to fetch more pages
+          console.log(`Fetched page ${page + 1}: ${cardsData.length} cards`);
           hasMore = cardsData.length === pageSize;
           page++;
         } else {

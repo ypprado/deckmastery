@@ -47,7 +47,7 @@ export const gameCategories = [
 export const useDecks = () => {
   const [decks, setDecks] = useState<Deck[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeGameCategory, setActiveGameCategory] = useState<GameCategory>('magic');
+  const [activeGameCategory, setActiveGameCategory] = useState<GameCategory>('onepiece');
   const { cards: staticCards } = useStaticData({ initialGameCategory: activeGameCategory });
   const { user } = useAuth();
 
@@ -87,7 +87,7 @@ export const useDecks = () => {
       if (deckCardsError) {
         throw deckCardsError;
       }
-      
+    
       // Group deck cards by deck_id
       const deckCardsMap: Record<string, { card_id: number; quantity: number }[]> = {};
       deckCardsData?.forEach(deckCard => {
@@ -99,23 +99,26 @@ export const useDecks = () => {
           quantity: deckCard.quantity
         });
       });
-      
+
       // Build decks with cards
       const formattedDecks: Deck[] = deckData.map(deck => {
         // Get card IDs for this deck
         const deckCards = deckCardsMap[deck.id] || [];
         
-        // Convert card IDs to full card objects
+        // Convert card IDs to full card objects (robust string comparison and consolidated logging)
+        const missingCardIds: number[] = [];
         const cardsWithQuantities = deckCards.map(({ card_id, quantity }) => {
-          // Find the card in staticCards
-          const cardData = staticCards.find(card => card.id === String(card_id));
+          const cardData = staticCards.find(card => String(card.id) === String(card_id));
           if (!cardData) {
-            console.warn(`Card with ID ${card_id} not found in static cards`);
+            missingCardIds.push(card_id);
             return null;
           }
           return { card: cardData, quantity };
         }).filter(Boolean) as { card: Card; quantity: number }[];
-        
+        if (missingCardIds.length > 0) {
+          console.warn(`Missing card IDs in staticCards for deck ${deck.id}:`, missingCardIds);
+        }
+
         // Use first card as cover card if available
         const coverCard = deck.cover_card ? 
           (typeof deck.cover_card === 'string' ? JSON.parse(deck.cover_card) : deck.cover_card) : 
@@ -348,7 +351,7 @@ export const useDecks = () => {
 
 export const useCards = () => {
   const [loading, setLoading] = useState(true);
-  const [activeGameCategory, setActiveGameCategory] = useState<GameCategory>('magic');
+  const [activeGameCategory, setActiveGameCategory] = useState<GameCategory>('onepiece');
   const { cards: staticCards, activeGameCategory: staticGameCategory, changeGameCategory: staticChangeGameCategory } = useStaticData({ initialGameCategory: activeGameCategory });
   
   const [filterStates, setFilterStates] = useState<Record<GameCategory, {
