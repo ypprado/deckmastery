@@ -18,7 +18,7 @@ const PARALLEL_TYPES = [
 
 const colorMap: Record<string, string> = {
   white: 'bg-amber-100 text-amber-800 dark:bg-amber-800 dark:text-amber-100',
-  blue: 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-800',
+  blue: 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100',
   black: 'bg-gray-700 text-white dark:bg-gray-900 dark:text-gray-100',
   red: 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100',
   green: 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100',
@@ -327,31 +327,43 @@ const CardLibrary = () => {
           onAdvancedChange={handleAdvancedChange}
         />
 
-        <div className="flex justify-between items-center my-4">
-          <p className="text-sm text-muted-foreground">
-            {t('showing')} {startIndex + 1}-{Math.min(endIndex, filteredCards.length)} {t('of')} {filteredCards.length} {filteredCards.length === 1 ? t('card') : t('cards')}
-          </p>
-          
-          <div className="md:hidden text-sm">
-            {t('page')} {currentPage} {t('of')} {totalPages}
+        <div className="flex flex-col gap-4">
+          <div className="flex justify-between items-center">
+            <p className="text-sm text-muted-foreground">
+              {t('showing')} {startIndex + 1}-{Math.min(endIndex, filteredCards.length)} {t('of')} {filteredCards.length} {filteredCards.length === 1 ? t('card') : t('cards')}
+            </p>
+            
+            <div className="md:hidden text-sm">
+              {t('page')} {currentPage} {t('of')} {totalPages}
+            </div>
           </div>
-        </div>
-        
-        {viewMode === 'grid' ? (
-          <CardGrid cards={paginatedCards} onCardClick={handleCardClick} />
-        ) : (
-          <CardList 
-            cards={paginatedCards} 
-            onCardClick={handleCardClick} 
-            colorMap={colorMap} 
+          
+          {/* Add pagination at the top */}
+          {totalPages > 1 && (
+            <CardPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          )}
+          
+          {viewMode === 'grid' ? (
+            <CardGrid cards={paginatedCards} onCardClick={handleCardClick} />
+          ) : (
+            <CardList 
+              cards={paginatedCards} 
+              onCardClick={handleCardClick} 
+              colorMap={colorMap} 
+            />
+          )}
+          
+          {/* Keep pagination at the bottom */}
+          <CardPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
           />
-        )}
-        
-        <CardPagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-        />
+        </div>
       </div>
 
       <CardDetailView 
