@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { Card } from '@/hooks/use-decks';
+import { Card, Deck } from '@/types/card';
 import { AttributeType } from '@/hooks/card-database/useSupabaseCardData';
 
 interface DeckCard {
@@ -11,17 +11,7 @@ interface DeckCard {
 }
 
 interface DeckViewData {
-  deck: {
-    id: string;
-    name: string;
-    format: string;
-    colors: string[];
-    description?: string;
-    gameCategory: string;
-    createdAt: string;
-    updatedAt: string;
-    coverCard?: Card;
-  } | null;
+  deck: Partial<Deck> | null;
   cards: DeckCard[];
   loading: boolean;
   error: Error | null;
@@ -29,7 +19,7 @@ interface DeckViewData {
 }
 
 export const useDeckView = (deckId: string): DeckViewData => {
-  const [deck, setDeck] = useState<DeckViewData['deck']>(null);
+  const [deck, setDeck] = useState<Partial<Deck> | null>(null);
   const [cards, setCards] = useState<DeckCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -110,7 +100,6 @@ export const useDeckView = (deckId: string): DeckViewData => {
           set: cardData.groupid_market_br || '',
           colors: cardData.colors as string[] || [],
           gameCategory: cardData.game_category,
-          attribute: cardData.attribute as AttributeType[] || [],
           parallel: cardData.parallel || [],
           card_number: cardData.card_number,
           category: cardData.category,
@@ -143,7 +132,7 @@ export const useDeckView = (deckId: string): DeckViewData => {
   };
   
   // Helper function to format deck data consistently
-  const formatDeckData = (deckData: any): DeckViewData['deck'] => {
+  const formatDeckData = (deckData: any): Partial<Deck> => {
     if (!deckData) return null;
     
     // Parse cover card if it's stored as a string
