@@ -1,7 +1,6 @@
-
 import { toast } from 'sonner';
 import { CardDetails, CardSet } from '@/types/cardDatabase';
-import { GameCategory } from '@/hooks/use-decks';
+import { GameCategory, AttributeType } from '@/types/card';
 import { supabase } from '@/integrations/supabase/client';
 import { Database } from '@/integrations/supabase/types';
 
@@ -11,7 +10,6 @@ export type CardInsert = Database['public']['Tables']['cards']['Insert'];
 export type RarityType = Database['public']['Enums']['rarity_type'];
 export type ColorType = Database['public']['Enums']['color_type'];
 export type SubTypeNameEnum = Database['public']['Enums']['sub_type'];
-export type AttributeType = Database['public']['Enums']['attribute_type'];
 
 // Shared utilities
 export const convertSetFromSupabase = (set: any): CardSet => {

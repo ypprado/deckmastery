@@ -1,6 +1,9 @@
 
 export type GameCategory = 'magic' | 'pokemon' | 'yugioh' | 'onepiece';
 
+// Define the AttributeType to match what's expected in CardDetails
+export type AttributeType = 'Slash' | 'Strike' | 'Special' | 'Wisdom' | 'Ranged';
+
 export interface Card {
   id: string;
   name: string;
@@ -21,7 +24,7 @@ export interface Card {
   power?: number;
   life?: number;
   counter?: number;
-  attribute?: string[];
+  attribute?: AttributeType[]; // Changed from string[] to AttributeType[]
 }
 
 export interface Deck {

@@ -1,6 +1,5 @@
 
-import { GameCategory } from '@/hooks/use-decks';
-import { AttributeType } from '@/hooks/card-database/useSupabaseCardData';
+import { GameCategory, AttributeType } from '@/types/card';
 
 export interface CardSet {
   id: string; // Changed to string to match the Supabase database

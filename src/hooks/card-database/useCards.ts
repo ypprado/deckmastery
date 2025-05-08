@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { CardDetails } from '@/types/cardDatabase';
-import { GameCategory } from '@/hooks/use-decks';
+import { GameCategory, AttributeType } from '@/types/card';
 import { supabase } from '@/integrations/supabase/client';
-import { CardInsert, RarityType, ColorType, SubTypeNameEnum, AttributeType } from './useSupabaseCardData';
+import { CardInsert, RarityType, ColorType, SubTypeNameEnum } from './useSupabaseCardData';
 
 export const useCards = (initialCards: CardDetails[] = []) => {
   const [cards, setCards] = useState<CardDetails[]>(initialCards);

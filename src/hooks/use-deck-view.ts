@@ -2,8 +2,7 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { Card, Deck } from '@/types/card';
-import { AttributeType } from '@/hooks/card-database/useSupabaseCardData';
+import { Card, Deck, AttributeType } from '@/types/card';
 
 interface DeckCard {
   card: Card;
@@ -105,7 +104,9 @@ export const useDeckView = (deckId: string): DeckViewData => {
           category: cardData.category,
           power: cardData.power,
           life: cardData.life,
-          counter: cardData.counter
+          counter: cardData.counter,
+          // Handle attributes correctly - convert to AttributeType[] if present
+          attribute: cardData.attribute ? cardData.attribute as AttributeType[] : undefined
         };
         
         return { card, quantity: dc.quantity };
