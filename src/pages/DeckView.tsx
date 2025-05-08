@@ -21,10 +21,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { useDecks, type Card as CardType } from "@/hooks/use-decks";
+import { type Card as CardType } from "@/hooks/use-decks";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { 
   Pagination, 
@@ -303,7 +304,6 @@ const CardList = ({
 
 const DeckView = () => {
   const { id } = useParams<{ id: string }>();
-  const { deleteDeck } = useDecks();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [cardGrouping, setCardGrouping] = useState<"type" | "cost" | "rarity">("type");
@@ -394,8 +394,27 @@ const DeckView = () => {
   };
 
   const handleDeleteDeck = async () => {
-    if (window.confirm("Are you sure you want to delete this deck? This action cannot be undone.")) {
-      await deleteDeck(deck.id);
+    if (!deck?.id) return;
+
+    const confirmed = window.confirm(`Are you sure you want to delete the deck "${deck.name}"? This action cannot be undone.`);
+    if (!confirmed) return;
+
+    const { error } = await supabase
+      .from("decks")
+      .delete()
+      .eq("id", deck.id);
+
+    if (error) {
+      toast({
+        title: "Error deleting deck",
+        description: error.message,
+        variant: "destructive"
+      });
+    } else {
+      toast({
+        title: "Deck deleted",
+        description: `${deck.name} has been successfully deleted.`
+      });
       navigate("/mydecks");
     }
   };
