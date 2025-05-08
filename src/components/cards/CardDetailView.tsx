@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Card as CardType } from '@/hooks/use-decks';
+import { Card as CardType, AttributeType } from '@/types/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
@@ -24,7 +24,7 @@ interface ExtendedCardType extends CardType {
   life?: number;
   power?: number;
   card_type?: string | string[];
-  attribute?: string[];
+  attribute?: AttributeType[];
   card_text?: string;
 }
 

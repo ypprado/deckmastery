@@ -1,9 +1,9 @@
+
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
-import { Card, GameCategory, Deck } from '@/hooks/use-decks';
+import { Card, GameCategory, Deck, AttributeType } from '@/types/card';
 import { supabase } from '@/integrations/supabase/client';
 import { Database } from '@/integrations/supabase/types';
-import { AttributeType } from './card-database/useSupabaseCardData';
 
 interface StaticDataOptions {
   initialGameCategory?: GameCategory;
