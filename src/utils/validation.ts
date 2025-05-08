@@ -61,3 +61,16 @@ export const sanitizeUserInput = (input: string): string => {
     ALLOWED_ATTR: ['href']
   });
 };
+
+// Create a utility function to parse HTML safely for rendering
+export const parseHtml = (html: string): string => {
+  if (!html) return '';
+  
+  // First sanitize the HTML to prevent XSS attacks
+  const sanitized = DOMPurify.sanitize(html, {
+    ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'br', 'p', 'span', 'div'],
+    ALLOWED_ATTR: ['href', 'class']
+  });
+  
+  return sanitized;
+};

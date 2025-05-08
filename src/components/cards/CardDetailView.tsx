@@ -15,6 +15,7 @@ import { usePriceHistory } from '@/hooks/use-price-history';
 import { format } from 'date-fns';
 import { Skeleton } from "@/components/ui/skeleton";
 import { useExchangeRate } from "@/hooks/use-exchange-rate";
+import { parseHtml } from '@/utils/validation';
 
 // Update the CardType interface to include the missing properties from the error messages
 interface ExtendedCardType extends CardType {
@@ -304,12 +305,13 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
 
   // Get card text safely
   const getCardText = (card: DisplayCardType): string => {
+    let text = '';
     if ('card_text' in card) {
-      return card.card_text || '';
+      text = card.card_text || '';
     } else if ('flavorText' in card) {
-      return card.flavorText || '';
+      text = card.flavorText || '';
     }
-    return '';
+    return text;
   };
 
   const renderCardDetails = () => {
@@ -495,9 +497,10 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
               <>
                 <Separator className="my-4" />
                 <div className="space-y-2">
-                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                    {getCardText(displayCard)}
-                  </p>
+                  <div 
+                    className="text-sm text-muted-foreground"
+                    dangerouslySetInnerHTML={{ __html: parseHtml(getCardText(displayCard)) }}
+                  />
                 </div>
               </>
             )}
