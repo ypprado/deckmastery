@@ -29,7 +29,9 @@ const Collection = () => {
           
           return (
             <Card key={set.id} className="p-6">
-              <h3 className="font-semibold">{set.name}</h3>
+              <h3 className="font-semibold">
+                {set.id} - {set.name}
+              </h3>
               <p className="mt-2 text-sm text-muted-foreground">
                 {collectedCards}/{totalCards} {t('cards')}
               </p>
