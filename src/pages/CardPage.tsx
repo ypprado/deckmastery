@@ -19,16 +19,7 @@ const CardPage = () => {
   
   useEffect(() => {
     if (!loading && cards.length > 0 && id) {
-      // Check for several ID formats: direct match, string match, and number match
-      const foundCard = cards.find(c => 
-        c.id === id || 
-        c.id === String(id) || 
-        String(c.id) === String(id)
-      );
-      
-      console.log(`Looking for card with ID: ${id}`);
-      console.log(`Found card: ${foundCard ? foundCard.name : 'Not found'}`);
-      
+      const foundCard = cards.find(c => c.id === id);
       setCard(foundCard || null);
     }
   }, [id, cards, loading]);
