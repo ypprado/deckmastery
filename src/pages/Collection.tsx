@@ -12,6 +12,9 @@ const Collection = () => {
   // Get sets for current game category
   const gameSets = getSetsByGameCategory(activeGameCategory);
   
+  // Sort the sets alphabetically by their ID
+  const sortedSets = [...gameSets].sort((a, b) => a.id.localeCompare(b.id));
+  
   return (
     <div className="space-y-6">
       <div>
@@ -20,7 +23,7 @@ const Collection = () => {
       </div>
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {gameSets.map(set => {
+        {sortedSets.map(set => {
           // Count total cards in set
           const totalCards = cards.filter(card => card.set === String(set.id)).length;
           
