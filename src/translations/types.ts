@@ -1,3 +1,4 @@
+
 export type Language = 'en' | 'es' | 'pt' | 'fr';
 
 export interface Translations {
@@ -152,4 +153,8 @@ export interface Translations {
   allRightsReserved: string;
   onePieceDisclaimer: string;
   errorSavingDeck: string;
+  // Add the missing keys
+  back: string;
+  cardNotFound: string;
+  cardNotFoundDescription: string;
 }

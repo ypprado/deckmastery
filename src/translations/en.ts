@@ -152,4 +152,7 @@ export const enTranslations: Translations = {
   allRightsReserved: 'All rights reserved.',
   onePieceDisclaimer: 'One Piece Card Game and its respective properties are copyright Akiyoshi Hongo, Toei Animation.',
   errorSavingDeck: 'Error saving deck. Please try again.',
+  back: 'Back',
+  cardNotFound: 'Card Not Found',
+  cardNotFoundDescription: 'The card you are looking for could not be found. It may have been removed or the URL might be incorrect.',
 };
