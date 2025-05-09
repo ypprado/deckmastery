@@ -1,3 +1,4 @@
+
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./components/layout/Layout";
 import Index from "./pages/Index";
@@ -17,6 +18,7 @@ import Collection from "./pages/Collection";
 import AboutContact from "./pages/AboutContact";
 import Products from "./pages/Products";
 import Legal from "./pages/Legal";
+import CardPage from "./pages/CardPage";
 
 function App() {
   return (
@@ -60,6 +62,7 @@ function App() {
           } />
           
           <Route path="cards" element={<CardLibrary />} />
+          <Route path="cards/:id" element={<CardPage />} />
           <Route path="static-data" element={<StaticDataManager />} />
           <Route path="profile" element={
             <PrivateRoute>

@@ -4,6 +4,7 @@ import { Plus } from 'lucide-react';
 import { Card as CardType } from '@/hooks/use-decks';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
 
 interface CardListProps {
   cards: CardType[];
@@ -13,6 +14,18 @@ interface CardListProps {
 
 const CardList = ({ cards, onCardClick, colorMap }: CardListProps) => {
   const { t } = useLanguage();
+  const navigate = useNavigate();
+
+  // Handle card click - either navigate or open modal
+  const handleCardClick = (e: React.MouseEvent, card: CardType) => {
+    // Allow middle click or ctrl+click to open in a new tab
+    if (e.ctrlKey || e.metaKey || e.button === 1) {
+      return; // Let the browser handle it
+    }
+
+    e.preventDefault();
+    navigate(`/cards/${card.id}`, { state: { from: 'cardLibrary' } });
+  };
 
   return (
     <div className="border rounded-md divide-y">
@@ -20,7 +33,7 @@ const CardList = ({ cards, onCardClick, colorMap }: CardListProps) => {
         <div 
           key={card.id} 
           className="p-4 flex items-center gap-4 hover:bg-muted/40 transition-colors cursor-pointer"
-          onClick={() => onCardClick(card)}
+          onClick={(e) => handleCardClick(e, card)}
         >
           <div className="h-16 w-12 shrink-0 overflow-hidden rounded-sm">
             <img
@@ -51,7 +64,14 @@ const CardList = ({ cards, onCardClick, colorMap }: CardListProps) => {
               />
             ))}
           </div>
-          <Button size="icon" className="h-8 w-8 shrink-0">
+          <Button 
+            size="icon" 
+            className="h-8 w-8 shrink-0"
+            onClick={(e) => {
+              e.stopPropagation();
+              onCardClick(card);
+            }}
+          >
             <Plus className="h-4 w-4" />
           </Button>
         </div>
