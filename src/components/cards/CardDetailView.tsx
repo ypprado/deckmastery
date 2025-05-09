@@ -16,7 +16,6 @@ import { format } from 'date-fns';
 import { Skeleton } from "@/components/ui/skeleton";
 import { useExchangeRate } from "@/hooks/use-exchange-rate";
 import { parseHtml } from '@/utils/validation';
-import { useLocation } from 'react-router-dom';
 
 // Update the CardType interface to include the missing properties from the error messages
 interface ExtendedCardType extends CardType {
@@ -149,8 +148,7 @@ const CardDetailView: React.FC<CardDetailViewProps> = ({
   const { t } = useLanguage();
   const [supabaseCard, setSupabaseCard] = useState<Database['public']['Tables']['cards']['Row'] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const location = useLocation();
-
+  
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (!isOpen) return;
